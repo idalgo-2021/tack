@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/utils/file_utils.dart';
 import '../../../core/utils/date_formatter.dart';
+import '../../../core/constants/defaults.dart';
 import '../../../data/models/note.dart';
 import '../../../data/models/tag.dart';
 import '../../../data/repositories/note_repository.dart';
@@ -126,7 +127,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
       source: source,
       maxWidth: 1920,
       maxHeight: 1920,
-      imageQuality: ref.read(compressImagesProvider) ? 85 : null,
+      imageQuality: ref.read(compressImagesProvider) ? AppDefaults.imageQuality : null,
     );
     if (xFile == null) return;
 

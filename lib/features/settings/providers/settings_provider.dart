@@ -1,5 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../../../core/constants/defaults.dart';
 
 part 'settings_provider.g.dart';
 
@@ -18,271 +19,94 @@ class Settings extends _$Settings {
     return SharedPreferences.getInstance();
   }
 
-  Future<void> setLocale(String locale) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('locale', locale);
-    ref.invalidateSelf();
-  }
+  Future<void> setLocale(String locale) async { await _set('locale', locale); }
+  Future<void> setAutoSave(bool enabled) async { await _set('auto_save', enabled); }
+  Future<void> setCompressImages(bool compress) async { await _set('compress_images', compress); }
+  Future<void> setUpdateTimestampOnEdit(bool enabled) async { await _set('update_timestamp_on_edit', enabled); }
+  Future<void> setAutoGeotag(bool enabled) async { await _set('auto_geotag', enabled); }
+  Future<void> setViewMode(ViewMode mode) async { await _set('view_mode', mode.name); }
+  Future<void> setShowFileNames(bool show) async { await _set('show_file_names', show); }
+  Future<void> setShowTimestamp(bool show) async { await _set('show_timestamp', show); }
+  Future<void> setFontSize(FontSize size) async { await _set('font_size', size.name); }
+  Future<void> setGroupMode(GroupMode mode) async { await _set('group_mode', mode.name); }
+  Future<void> setSortMode(SortMode mode) async { await _set('sort_mode', mode.name); }
+  Future<void> setAppColorScheme(AppColorScheme scheme) async { await _set('app_color_scheme', scheme.name); }
+  Future<void> setThemeMode(ThemeModeOption mode) async { await _set('theme_mode', mode.name); }
+  Future<void> setExportFormat(ExportFormat format) async { await _set('export_format', format.name); }
+  Future<void> setZipExport(bool enabled) async { await _set('zip_export', enabled); }
 
-  Future<void> setAutoSave(bool enabled) async {
+  Future<void> _set(String key, Object value) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('auto_save', enabled);
-    ref.invalidateSelf();
-  }
-
-  Future<void> setCompressImages(bool compress) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('compress_images', compress);
-    ref.invalidateSelf();
-  }
-
-  Future<void> setUpdateTimestampOnEdit(bool enabled) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('update_timestamp_on_edit', enabled);
-    ref.invalidateSelf();
-  }
-
-  Future<void> setAutoGeotag(bool enabled) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('auto_geotag', enabled);
-    ref.invalidateSelf();
-  }
-
-  Future<void> setViewMode(ViewMode mode) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('view_mode', mode.name);
-    ref.invalidateSelf();
-  }
-
-  Future<void> setShowFileNames(bool show) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('show_file_names', show);
-    ref.invalidateSelf();
-  }
-
-  Future<void> setShowTimestamp(bool show) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('show_timestamp', show);
-    ref.invalidateSelf();
-  }
-
-  Future<void> setFontSize(FontSize size) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('font_size', size.name);
-    ref.invalidateSelf();
-  }
-
-  Future<void> setGroupMode(GroupMode mode) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('group_mode', mode.name);
-    ref.invalidateSelf();
-  }
-
-  Future<void> setSortMode(SortMode mode) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('sort_mode', mode.name);
-    ref.invalidateSelf();
-  }
-
-  Future<void> setAppColorScheme(AppColorScheme scheme) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('app_color_scheme', scheme.name);
-    ref.invalidateSelf();
-  }
-
-  Future<void> setThemeMode(ThemeModeOption mode) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('theme_mode', mode.name);
-    ref.invalidateSelf();
-  }
-
-  Future<void> setExportFormat(ExportFormat format) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('export_format', format.name);
-    ref.invalidateSelf();
-  }
-
-  Future<void> setZipExport(bool enabled) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('zip_export', enabled);
+    if (value is String) {
+      await prefs.setString(key, value);
+    } else if (value is bool) {
+      await prefs.setBool(key, value);
+    }
     ref.invalidateSelf();
   }
 }
 
+bool _prefBool(Ref ref, String key, bool defaultValue) {
+  final prefsAsync = ref.watch(settingsProvider);
+  return prefsAsync.whenOrNull(data: (prefs) => prefs.getBool(key) ?? defaultValue) ?? defaultValue;
+}
 
-@riverpod
-String appLocale(Ref ref) {
+String _prefString(Ref ref, String key, String defaultValue) {
+  final prefsAsync = ref.watch(settingsProvider);
+  return prefsAsync.whenOrNull(data: (prefs) => prefs.getString(key) ?? defaultValue) ?? defaultValue;
+}
+
+T _prefEnum<T extends Enum>(Ref ref, String key, List<T> values, T defaultValue) {
   final prefsAsync = ref.watch(settingsProvider);
   return prefsAsync.whenOrNull(
-        data: (prefs) => prefs.getString('locale') ?? 'ru',
-      ) ??
-      'ru';
+    data: (prefs) {
+      final value = prefs.getString(key);
+      return values.firstWhere((e) => e.name == value, orElse: () => defaultValue);
+    },
+  ) ?? defaultValue;
 }
 
 @riverpod
-bool autoSave(Ref ref) {
-  final prefsAsync = ref.watch(settingsProvider);
-  return prefsAsync.whenOrNull(
-        data: (prefs) => prefs.getBool('auto_save') ?? true,
-      ) ??
-      true;
-}
+String appLocale(Ref ref) => _prefString(ref, 'locale', AppDefaults.locale);
 
 @riverpod
-bool compressImages(Ref ref) {
-  final prefsAsync = ref.watch(settingsProvider);
-  return prefsAsync.whenOrNull(
-        data: (prefs) => prefs.getBool('compress_images') ?? true,
-      ) ??
-      true;
-}
+bool autoSave(Ref ref) => _prefBool(ref, 'auto_save', AppDefaults.autoSave);
 
 @riverpod
-bool updateTimestampOnEdit(Ref ref) {
-  final prefsAsync = ref.watch(settingsProvider);
-  return prefsAsync.whenOrNull(
-        data: (prefs) => prefs.getBool('update_timestamp_on_edit') ?? false,
-      ) ??
-      false;
-}
+bool compressImages(Ref ref) => _prefBool(ref, 'compress_images', AppDefaults.compressImages);
 
 @riverpod
-bool autoGeotag(Ref ref) {
-  final prefsAsync = ref.watch(settingsProvider);
-  return prefsAsync.whenOrNull(
-        data: (prefs) => prefs.getBool('auto_geotag') ?? false,
-      ) ??
-      false;
-}
+bool updateTimestampOnEdit(Ref ref) => _prefBool(ref, 'update_timestamp_on_edit', AppDefaults.updateTimestampOnEdit);
 
 @riverpod
-ViewMode viewMode(Ref ref) {
-  final prefsAsync = ref.watch(settingsProvider);
-  return prefsAsync.whenOrNull(
-        data: (prefs) {
-          final value = prefs.getString('view_mode');
-          return ViewMode.values.firstWhere(
-            (e) => e.name == value,
-            orElse: () => ViewMode.list,
-          );
-        },
-      ) ??
-      ViewMode.list;
-}
+bool autoGeotag(Ref ref) => _prefBool(ref, 'auto_geotag', AppDefaults.autoGeotag);
 
 @riverpod
-bool showFileNames(Ref ref) {
-  final prefsAsync = ref.watch(settingsProvider);
-  return prefsAsync.whenOrNull(
-        data: (prefs) => prefs.getBool('show_file_names') ?? false,
-      ) ??
-      false;
-}
+ViewMode viewMode(Ref ref) => _prefEnum(ref, 'view_mode', ViewMode.values, AppDefaults.viewMode);
 
 @riverpod
-bool showTimestamp(Ref ref) {
-  final prefsAsync = ref.watch(settingsProvider);
-  return prefsAsync.whenOrNull(
-        data: (prefs) => prefs.getBool('show_timestamp') ?? false,
-      ) ??
-      false;
-}
+bool showFileNames(Ref ref) => _prefBool(ref, 'show_file_names', AppDefaults.showFileNames);
 
 @riverpod
-FontSize fontSize(Ref ref) {
-  final prefsAsync = ref.watch(settingsProvider);
-  return prefsAsync.whenOrNull(
-        data: (prefs) {
-          final value = prefs.getString('font_size');
-          return FontSize.values.firstWhere(
-            (e) => e.name == value,
-            orElse: () => FontSize.medium,
-          );
-        },
-      ) ??
-      FontSize.medium;
-}
+bool showTimestamp(Ref ref) => _prefBool(ref, 'show_timestamp', AppDefaults.showTimestamp);
 
 @riverpod
-GroupMode groupMode(Ref ref) {
-  final prefsAsync = ref.watch(settingsProvider);
-  return prefsAsync.whenOrNull(
-        data: (prefs) {
-          final value = prefs.getString('group_mode');
-          return GroupMode.values.firstWhere(
-            (e) => e.name == value,
-            orElse: () => GroupMode.none,
-          );
-        },
-      ) ??
-      GroupMode.none;
-}
+FontSize fontSize(Ref ref) => _prefEnum(ref, 'font_size', FontSize.values, AppDefaults.fontSize);
 
 @riverpod
-SortMode sortMode(Ref ref) {
-  final prefsAsync = ref.watch(settingsProvider);
-  return prefsAsync.whenOrNull(
-        data: (prefs) {
-          final value = prefs.getString('sort_mode');
-          return SortMode.values.firstWhere(
-            (e) => e.name == value,
-            orElse: () => SortMode.dateDesc,
-          );
-        },
-      ) ??
-      SortMode.dateDesc;
-}
+GroupMode groupMode(Ref ref) => _prefEnum(ref, 'group_mode', GroupMode.values, AppDefaults.groupMode);
 
 @riverpod
-AppColorScheme appColorScheme(Ref ref) {
-  final prefsAsync = ref.watch(settingsProvider);
-  return prefsAsync.whenOrNull(
-        data: (prefs) {
-          final value = prefs.getString('app_color_scheme');
-          return AppColorScheme.values.firstWhere(
-            (e) => e.name == value,
-            orElse: () => AppColorScheme.sage,
-          );
-        },
-      ) ??
-      AppColorScheme.sage;
-}
+SortMode sortMode(Ref ref) => _prefEnum(ref, 'sort_mode', SortMode.values, AppDefaults.sortMode);
 
 @riverpod
-ThemeModeOption themeMode(Ref ref) {
-  final prefsAsync = ref.watch(settingsProvider);
-  return prefsAsync.whenOrNull(
-        data: (prefs) {
-          final value = prefs.getString('theme_mode');
-          return ThemeModeOption.values.firstWhere(
-            (e) => e.name == value,
-            orElse: () => ThemeModeOption.light,
-          );
-        },
-      ) ??
-      ThemeModeOption.light;
-}
+AppColorScheme appColorScheme(Ref ref) => _prefEnum(ref, 'app_color_scheme', AppColorScheme.values, AppDefaults.colorScheme);
 
 @riverpod
-ExportFormat exportFormat(Ref ref) {
-  final prefsAsync = ref.watch(settingsProvider);
-  return prefsAsync.whenOrNull(
-        data: (prefs) {
-          final value = prefs.getString('export_format');
-          return ExportFormat.values.firstWhere(
-            (e) => e.name == value,
-            orElse: () => ExportFormat.markdown,
-          );
-        },
-      ) ??
-      ExportFormat.markdown;
-}
+ThemeModeOption themeMode(Ref ref) => _prefEnum(ref, 'theme_mode', ThemeModeOption.values, AppDefaults.themeMode);
 
 @riverpod
-bool zipExport(Ref ref) {
-  final prefsAsync = ref.watch(settingsProvider);
-  return prefsAsync.whenOrNull(
-        data: (prefs) => prefs.getBool('zip_export') ?? false,
-      ) ??
-      false;
-}
+ExportFormat exportFormat(Ref ref) => _prefEnum(ref, 'export_format', ExportFormat.values, AppDefaults.exportFormat);
+
+@riverpod
+bool zipExport(Ref ref) => _prefBool(ref, 'zip_export', AppDefaults.zipExport);

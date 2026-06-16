@@ -28,6 +28,8 @@ class HighContrastTheme {
         surfaceContainerHighest: surfaceContainerHighest,
         surfaceContainer: surfaceContainer,
         surfaceTint: surface,
+        primaryContainer: surfaceContainer,
+        onPrimaryContainer: onSurface,
         outline: onSurface.withAlpha(80),
       ),
       appBarTheme: const AppBarTheme(

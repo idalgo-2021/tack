@@ -33,6 +33,7 @@ class NoteEditorScreen extends ConsumerStatefulWidget {
 class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
   final _textController = TextEditingController();
   final _imagePicker = ImagePicker();
+  final _focusNode = FocusNode();
 
   List<String> _tags = [];
   List<String> _imagePaths = [];
@@ -51,6 +52,9 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
     super.initState();
     _textController.addListener(_onTextChanged);
     _loadNote();
+    if (widget.existingNoteId == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _focusNode.requestFocus());
+    }
   }
 
   void _onTextChanged() {
@@ -257,6 +261,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
   @override
   void dispose() {
     _textController.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -458,6 +463,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                 ),
               NoteTextField(
                 controller: _textController,
+                focusNode: _focusNode,
                 hintText: l10n.startWriting,
                 textStyle: editorStyle(),
               ),

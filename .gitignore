@@ -1,0 +1,100 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+
+# ==========================================
+# Персональная секция (ИИ инструменты и опыты)
+# ==========================================
+# Исключаем файлы нейротестов, промпты, инструкции и кастомные скрипты
+/neurotests/
+*prompt*
+*.prompts/
+*skills*/
+*.md.tmp
+.agents/
+skills-lock.json
+plans/
+
+# ==========================================
+# Стандартный .gitignore для Flutter и Dart
+# ==========================================
+
+# Логи и временные файлы компиляции Dart
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/
+
+# Файлы конфигурации веб-сборки (если используете)
+.web_plugins/
+
+# Символические ссылки на плагины Flutter
+.flutter-plugins
+.flutter-plugins-dependencies
+.generated_development_ids
+
+# Файлы плагина Hive (базы данных) и его генераторов
+*.g.dart
+*.hive
+
+# Настройки сред разработки (IDE)
+# IntelliJ / Android Studio
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Visual Studio Code
+.vscode/
+
+# Специфичные файлы операционных систем
+.DS_Store
+Thumbs.db
+
+# Конфигурационные файлы локального окружения (токены, ключи)
+.env
+.env.*

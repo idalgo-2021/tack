@@ -1,0 +1,23 @@
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+def newBuildDir = rootProject.layout.buildDirectory.dir("../../build").get()
+rootProject.layout.buildDirectory.value(newBuildDir)
+
+subprojects {
+    buildDir = new File(newBuildDir.toString(), name)
+
+    afterEvaluate {
+        if (project.hasProperty("android")) {
+            project.android.compileSdk = 36
+        }
+    }
+}
+
+tasks.register("clean", Delete) {
+    delete(rootProject.layout.buildDirectory)
+}

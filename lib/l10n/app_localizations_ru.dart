@@ -512,5 +512,12 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get showFileThumbnails => 'Миниатюры файлов';
+
+  @override
+  String get showFileThumbnailsDesc =>
+      'Отображать файлы в виде сетки с иконками';
+
+  @override
   String get recordingError => 'Ошибка записи. Повторите попытку.';
 }

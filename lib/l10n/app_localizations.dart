@@ -1068,6 +1068,18 @@ abstract class AppLocalizations {
   /// **'To: {date}'**
   String toDate(Object date);
 
+  /// No description provided for @showFileThumbnails.
+  ///
+  /// In en, this message translates to:
+  /// **'File thumbnails'**
+  String get showFileThumbnails;
+
+  /// No description provided for @showFileThumbnailsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Show files as grid with icons'**
+  String get showFileThumbnailsDesc;
+
   /// No description provided for @recordingError.
   ///
   /// In en, this message translates to:

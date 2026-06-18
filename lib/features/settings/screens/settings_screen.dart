@@ -34,6 +34,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final viewModeValue = ref.watch(viewModeProvider);
     final showFileNamesValue = ref.watch(showFileNamesProvider);
     final showTimestampValue = ref.watch(showTimestampProvider);
+    final showFileThumbnailsValue = ref.watch(showFileThumbnailsProvider);
     final fontSizeValue = ref.watch(fontSizeProvider);
     final groupModeValue = ref.watch(groupModeProvider);
     final sortModeValue = ref.watch(sortModeProvider);
@@ -129,6 +130,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             subtitle: Text(l10n.showFileNamesDesc),
             value: showFileNamesValue,
             onChanged: (v) => ref.read(settingsProvider.notifier).setShowFileNames(v),
+          ),
+          SwitchListTile(
+            secondary: const Icon(Icons.grid_on),
+            title: Text(l10n.showFileThumbnails),
+            subtitle: Text(l10n.showFileThumbnailsDesc),
+            value: showFileThumbnailsValue,
+            onChanged: (v) => ref.read(settingsProvider.notifier).setShowFileThumbnails(v),
           ),
           SwitchListTile(
             secondary: const Icon(Icons.access_time),

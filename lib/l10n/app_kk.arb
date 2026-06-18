@@ -158,5 +158,7 @@
   "exportFormatJson": "JSON",
   "fromDate": "From: {date}",
   "toDate": "To: {date}",
+  "showFileThumbnails": "File thumbnails",
+  "showFileThumbnailsDesc": "Show files as grid with icons",
   "recordingError": "Recording failed. Please try again."
 }

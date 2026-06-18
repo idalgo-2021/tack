@@ -14,6 +14,7 @@ import '../../../data/repositories/tag_repository.dart';
 import '../providers/note_detail_provider.dart';
 import '../providers/note_list_provider.dart';
 import '../../media/widgets/audio_player_widget.dart';
+import '../../media/widgets/file_thumbnail_grid.dart';
 import '../../media/widgets/image_grid_widget.dart';
 import '../../media/widgets/recording_banner.dart';
 import '../../media/providers/media_provider.dart';
@@ -207,6 +208,7 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
     final autoSave = ref.watch(autoSaveProvider);
     final theme = Theme.of(context);
     final isRecording = ref.watch(mediaRecorderProvider);
+    final showThumbnails = ref.watch(showFileThumbnailsProvider);
 
     return noteAsync.when(
       data: (note) {
@@ -433,24 +435,36 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
                           const SizedBox(height: 16),
                           Text(l10n.files, style: theme.textTheme.titleSmall),
                           const SizedBox(height: 8),
-                          ..._filePaths.map((path) => Card(
-                            margin: const EdgeInsets.symmetric(vertical: 2),
-                            child: ListTile(
-                              dense: true,
-                              leading: const Icon(Icons.attach_file),
-                              title: Text(path.split('/').last, style: const TextStyle(fontSize: 13)),
-                              trailing: IconButton(
-                                icon: const Icon(Icons.close, size: 18),
-                                onPressed: () {
-                                  setState(() {
-                                    _filePaths.remove(path);
-                                    _hasChanges = true;
-                                  });
-                                  if (autoSave) _scheduleAutoSave();
-                                },
+                          if (showThumbnails)
+                            FileThumbnailGrid(
+                              filePaths: _filePaths,
+                              onDelete: (path) {
+                                setState(() {
+                                  _filePaths.remove(path);
+                                  _hasChanges = true;
+                                });
+                                if (autoSave) _scheduleAutoSave();
+                              },
+                            )
+                          else
+                            ..._filePaths.map((path) => Card(
+                              margin: const EdgeInsets.symmetric(vertical: 2),
+                              child: ListTile(
+                                dense: true,
+                                leading: const Icon(Icons.attach_file),
+                                title: Text(path.split('/').last, style: const TextStyle(fontSize: 13)),
+                                trailing: IconButton(
+                                  icon: const Icon(Icons.close, size: 18),
+                                  onPressed: () {
+                                    setState(() {
+                                      _filePaths.remove(path);
+                                      _hasChanges = true;
+                                    });
+                                    if (autoSave) _scheduleAutoSave();
+                                  },
+                                ),
                               ),
-                            ),
-                          )),
+                            )),
                         ],
                         const SizedBox(height: 100),
                       ],

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import '../../../l10n/app_localizations.dart';
+import 'thumbnail_preview.dart';
 
 class ImageGridWidget extends StatelessWidget {
   final List<String> imagePaths;
@@ -28,40 +29,43 @@ class ImageGridWidget extends StatelessWidget {
           spacing: 8,
           runSpacing: 8,
           children: imagePaths.map((path) {
-            return Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.file(
-                    File(path),
-                    width: 100,
-                    height: 100,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => Container(
+            return GestureDetector(
+              onTap: () => ThumbnailPreview.show(context, path, isImage: true),
+              child: Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.file(
+                      File(path),
                       width: 100,
                       height: 100,
-                      color: theme.colorScheme.surfaceContainerHighest,
-                      child: const Icon(Icons.broken_image),
-                    ),
-                  ),
-                ),
-                if (onDelete != null)
-                  Positioned(
-                    top: 4,
-                    right: 4,
-                    child: GestureDetector(
-                      onTap: () => onDelete!(path),
-                      child: Container(
-                        padding: const EdgeInsets.all(2),
-                        decoration: const BoxDecoration(
-                          color: Colors.black54,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.close, size: 16, color: Colors.white),
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, _, _) => Container(
+                        width: 100,
+                        height: 100,
+                        color: theme.colorScheme.surfaceContainerHighest,
+                        child: const Icon(Icons.broken_image),
                       ),
                     ),
                   ),
-              ],
+                  if (onDelete != null)
+                    Positioned(
+                      top: 4,
+                      right: 4,
+                      child: GestureDetector(
+                        onTap: () => onDelete!(path),
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: const BoxDecoration(
+                            color: Colors.black54,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.close, size: 16, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             );
           }).toList(),
         ),

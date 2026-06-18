@@ -516,5 +516,11 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get showFileThumbnails => 'File thumbnails';
+
+  @override
+  String get showFileThumbnailsDesc => 'Show files as grid with icons';
+
+  @override
   String get recordingError => 'Recording failed. Please try again.';
 }

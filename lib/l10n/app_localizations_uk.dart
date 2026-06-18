@@ -512,5 +512,12 @@ class AppLocalizationsUk extends AppLocalizations {
   }
 
   @override
+  String get showFileThumbnails => 'Мініатюри файлів';
+
+  @override
+  String get showFileThumbnailsDesc =>
+      'Відображати файли у вигляді сітки з іконками';
+
+  @override
   String get recordingError => 'Помилка запису. Спробуйте ще раз.';
 }

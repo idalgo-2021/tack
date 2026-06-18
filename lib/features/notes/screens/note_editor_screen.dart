@@ -10,6 +10,7 @@ import '../../../data/repositories/note_repository.dart';
 import '../../../data/repositories/tag_repository.dart';
 import '../widgets/note_text_field.dart';
 import '../../media/widgets/audio_player_widget.dart';
+import '../../media/widgets/file_thumbnail_grid.dart';
 import '../../media/widgets/image_grid_widget.dart';
 import '../../media/widgets/recording_banner.dart';
 import '../../media/providers/media_provider.dart';
@@ -206,6 +207,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
     final autoSave = ref.watch(autoSaveProvider);
     final isRecording = ref.watch(mediaRecorderProvider);
     final showTs = ref.watch(showTimestampProvider);
+    final showThumbnails = ref.watch(showFileThumbnailsProvider);
 
     return PopScope(
       canPop: !_hasUnsavedChanges,
@@ -360,22 +362,35 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                     if (_filePaths.isNotEmpty) ...[
                       const SizedBox(height: 16),
                       Text(l10n.files, style: theme.textTheme.titleSmall),
-                      ..._filePaths.map((path) => Card(
-                        child: ListTile(
-                          leading: const Icon(Icons.insert_drive_file),
-                          title: Text(path.split('/').last),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.close),
-                            onPressed: () {
-                              setState(() {
-                                _filePaths.remove(path);
-                                _hasChanges = true;
-                              });
-                              if (autoSave) _scheduleAutoSave();
-                            },
+                      const SizedBox(height: 8),
+                      if (showThumbnails)
+                        FileThumbnailGrid(
+                          filePaths: _filePaths,
+                          onDelete: (path) {
+                            setState(() {
+                              _filePaths.remove(path);
+                              _hasChanges = true;
+                            });
+                            if (autoSave) _scheduleAutoSave();
+                          },
+                        )
+                      else
+                        ..._filePaths.map((path) => Card(
+                          child: ListTile(
+                            leading: const Icon(Icons.insert_drive_file),
+                            title: Text(path.split('/').last),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.close),
+                              onPressed: () {
+                                setState(() {
+                                  _filePaths.remove(path);
+                                  _hasChanges = true;
+                                });
+                                if (autoSave) _scheduleAutoSave();
+                              },
+                            ),
                           ),
-                        ),
-                      )),
+                        )),
                     ],
                   ],
                 ),

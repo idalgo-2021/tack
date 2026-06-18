@@ -11,6 +11,7 @@ import '../../../data/repositories/tag_repository.dart';
 import '../widgets/note_text_field.dart';
 import '../../media/widgets/audio_player_widget.dart';
 import '../../media/widgets/image_grid_widget.dart';
+import '../../media/widgets/recording_banner.dart';
 import '../../media/providers/media_provider.dart';
 import '../../settings/providers/settings_provider.dart';
 import '../../tags/providers/tag_provider.dart';
@@ -198,31 +199,6 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
     );
   }
 
-  Widget _buildRecordingBanner(AppLocalizations l10n) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-      child: Card(
-        color: Colors.red.shade50,
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            children: [
-              const Icon(Icons.mic, color: Colors.red),
-              const SizedBox(width: 8),
-              Text(l10n.recording, style: const TextStyle(color: Colors.red)),
-              const SizedBox(width: 8),
-              const SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -284,7 +260,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
         ),
         body: Column(
           children: [
-            if (isRecording) _buildRecordingBanner(l10n),
+            if (isRecording) const RecordingBanner(),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
@@ -366,25 +342,19 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                       ),
                     ],
                     if (_audioPaths.isNotEmpty) ...[
-                      ..._audioPaths.map((audioPath) => Padding(
-                        padding: const EdgeInsets.only(top: 16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(l10n.audio, style: theme.textTheme.titleSmall),
-                            const SizedBox(height: 8),
-                            AudioPlayerWidget(
-                              audioPath: audioPath,
-                              onDelete: () {
-                                setState(() {
-                                  _audioPaths.remove(audioPath);
-                                  _hasChanges = true;
-                                });
-                                if (autoSave) _scheduleAutoSave();
-                              },
-                            ),
-                          ],
-                        ),
+                      const SizedBox(height: 16),
+                      Text(l10n.audio, style: theme.textTheme.titleSmall),
+                      const SizedBox(height: 8),
+                      ..._audioPaths.map((audioPath) => AudioPlayerWidget(
+                        key: ValueKey(audioPath),
+                        audioPath: audioPath,
+                        onDelete: () {
+                          setState(() {
+                            _audioPaths.remove(audioPath);
+                            _hasChanges = true;
+                          });
+                          if (autoSave) _scheduleAutoSave();
+                        },
                       )),
                     ],
                     if (_filePaths.isNotEmpty) ...[
@@ -423,7 +393,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
           },
           onAudioAdded: (path) {
             setState(() {
-              _audioPaths.add(path);
+              _audioPaths.insert(0, path);
               _hasChanges = true;
             });
           },

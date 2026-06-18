@@ -54,6 +54,14 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
     super.dispose();
   }
 
+  @override
+  void didUpdateWidget(AudioPlayerWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.audioPath != widget.audioPath) {
+      _player.setSource(DeviceFileSource(widget.audioPath));
+    }
+  }
+
   void _togglePlay() async {
     if (_isPlaying) {
       await _player.pause();
@@ -81,7 +89,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
     final theme = Theme.of(context);
 
     return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4),
+      margin: const EdgeInsets.symmetric(vertical: 2),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Row(

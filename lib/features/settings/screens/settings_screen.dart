@@ -149,7 +149,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ListTile(
             leading: const Icon(Icons.file_present),
             title: Text(l10n.exportFormat),
-            subtitle: Text(_exportFormatLabel(exportFormatValue)),
+            subtitle: Text(_exportFormatLabel(exportFormatValue, l10n)),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => _showExportFormatPicker(context, ref, l10n, exportFormatValue),
           ),
@@ -165,7 +165,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             title: Text(l10n.exportZip),
             subtitle: Text(l10n.exportZipDesc),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () => ref.read(exportProvider.notifier).exportAll(),
+            onTap: () => ref.read(exportProvider.notifier).exportAll(l10n),
           ),
           const Divider(),
           const SizedBox(height: 16),
@@ -302,10 +302,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
-  String _exportFormatLabel(ExportFormat format) {
+  String _exportFormatLabel(ExportFormat format, AppLocalizations l10n) {
     switch (format) {
-      case ExportFormat.markdown: return 'Markdown';
-      case ExportFormat.json: return 'JSON';
+      case ExportFormat.markdown: return l10n.exportFormatMarkdown;
+      case ExportFormat.json: return l10n.exportFormatJson;
     }
   }
 
@@ -316,7 +316,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         title: Text(l10n.exportFormatDialog),
         children: ExportFormat.values.map((format) {
           return ListTile(
-            title: Text(_exportFormatLabel(format)),
+            title: Text(_exportFormatLabel(format, l10n)),
             trailing: format == current ? const Icon(Icons.check) : null,
             onTap: () {
               ref.read(settingsProvider.notifier).setExportFormat(format);

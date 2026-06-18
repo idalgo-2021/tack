@@ -4,6 +4,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../data/repositories/note_repository.dart';
 import '../../../core/utils/export_helper.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../settings/providers/settings_provider.dart';
 
 part 'export_provider.g.dart';
@@ -25,7 +26,7 @@ class Export extends _$Export {
   @override
   ExportState build() => const ExportState();
 
-  Future<void> exportAll() async {
+  Future<void> exportAll(AppLocalizations l10n) async {
     state = const ExportState(isExporting: true);
 
     try {
@@ -33,7 +34,7 @@ class Export extends _$Export {
       final notes = await repo.getAll();
 
       if (notes.isEmpty) {
-        state = ExportState(error: 'Нет заметок для экспорта');
+        state = ExportState(error: l10n.exportNoNotes);
         return;
       }
 
@@ -41,7 +42,7 @@ class Export extends _$Export {
       final timestamp = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
       final ext = format == ExportFormat.markdown ? 'md' : 'json';
       final content = format == ExportFormat.markdown
-          ? ExportHelper.notesToMarkdown(notes)
+          ? ExportHelper.notesToMarkdown(notes, l10n)
           : ExportHelper.notesToJson(notes);
       final contentFile = File('${Directory.systemTemp.path}/tack_$timestamp.$ext');
       await contentFile.writeAsString(content);
@@ -68,7 +69,7 @@ class Export extends _$Export {
         ShareParams(files: [XFile(zipPath)]),
       );
     } catch (e) {
-      state = ExportState(error: 'Ошибка экспорта: $e');
+      state = ExportState(error: l10n.exportError(e.toString()));
     }
   }
 

@@ -75,7 +75,13 @@ class _NoteActionButtonsState extends ConsumerState<NoteActionButtons> {
         widget.onAudioAdded(path);
       }
     } else {
-      await notifier.startRecording();
+      final l10n = AppLocalizations.of(context);
+      final result = await notifier.startRecording();
+      if (result == null && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.recordingError)),
+        );
+      }
     }
   }
 
@@ -93,7 +99,22 @@ class _NoteActionButtonsState extends ConsumerState<NoteActionButtons> {
 
   Future<void> _requestLocation() async {
     try {
-      final position = await Geolocator.getCurrentPosition();
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) return;
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) return;
+      }
+      if (permission == LocationPermission.deniedForever) return;
+
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.low,
+          timeLimit: Duration(seconds: 10),
+        ),
+      );
       widget.onLatitudeChanged(position.latitude);
       widget.onLongitudeChanged(position.longitude);
     } catch (_) {}

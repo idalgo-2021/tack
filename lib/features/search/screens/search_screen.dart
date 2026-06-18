@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import '../../../l10n/app_localizations.dart';
 import '../providers/search_provider.dart';
 import '../../notes/widgets/note_card.dart';
@@ -177,11 +178,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   String _dateRangeLabel(DateTime? from, DateTime? to) {
     final l10n = AppLocalizations.of(context);
+    final fmt = DateFormat.yMd();
     if (from != null && to != null) {
-      return '${from.day}.${from.month}.${from.year} - ${to.day}.${to.month}.${to.year}';
+      return '${fmt.format(from)} - ${fmt.format(to)}';
     }
-    if (from != null) return '${l10n.clearFilters} ${from.day}.${from.month}.${from.year}';
-    if (to != null) return '${l10n.typeToSearch} ${to.day}.${to.month}.${to.year}';
+    if (from != null) return l10n.fromDate(fmt.format(from));
+    if (to != null) return l10n.toDate(fmt.format(to));
     return '';
   }
 

@@ -26,7 +26,6 @@ class NoteCard extends ConsumerWidget {
     final showFilenames = ref.watch(showFileNamesProvider);
     final showTs = ref.watch(showTimestampProvider);
     final viewMode = ref.watch(viewModeProvider);
-    final fontSize = ref.watch(fontSizeProvider);
     final hasCoords = note.latitude != null && note.longitude != null;
 
     final card = Card(
@@ -68,7 +67,7 @@ class NoteCard extends ConsumerWidget {
                         ),
                 ),
               if (note.text != null && note.text!.isNotEmpty)
-                _buildTextSection(note.text!, _textStyle(theme, fontSize), colorScheme, viewMode),
+                _buildTextSection(note.text!, theme.textTheme.bodyLarge!, colorScheme, viewMode),
               if (note.imagePaths.isNotEmpty || note.audioPaths.isNotEmpty || note.filePaths.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
@@ -134,18 +133,6 @@ class NoteCard extends ConsumerWidget {
     );
 
     return card;
-  }
-
-  TextStyle _textStyle(ThemeData theme, FontSize size) {
-    final base = theme.textTheme.bodyLarge!;
-    switch (size) {
-      case FontSize.small:
-        return base.copyWith(fontSize: 14);
-      case FontSize.medium:
-        return base;
-      case FontSize.large:
-        return base.copyWith(fontSize: 20);
-    }
   }
 
   Widget _buildTextSection(String text, TextStyle style, ColorScheme colors, ViewMode mode) {

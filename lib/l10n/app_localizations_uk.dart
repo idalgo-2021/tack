@@ -486,4 +486,31 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get themeDialog => 'Тема';
+
+  @override
+  String get exportNoNotes => 'Немає нотаток для експорту';
+
+  @override
+  String exportError(Object error) {
+    return 'Помилка експорту: $error';
+  }
+
+  @override
+  String get exportFormatMarkdown => 'Markdown';
+
+  @override
+  String get exportFormatJson => 'JSON';
+
+  @override
+  String fromDate(Object date) {
+    return 'Від: $date';
+  }
+
+  @override
+  String toDate(Object date) {
+    return 'До: $date';
+  }
+
+  @override
+  String get recordingError => 'Помилка запису. Спробуйте ще раз.';
 }

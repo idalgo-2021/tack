@@ -151,5 +151,12 @@
   "themeLight": "Jasny",
   "themeDark": "Ciemny",
   "themeHighContrast": "Wysoki kontrast",
-  "themeDialog": "Motyw"
+  "themeDialog": "Motyw",
+  "exportNoNotes": "No notes to export",
+  "exportError": "Export error: {error}",
+  "exportFormatMarkdown": "Markdown",
+  "exportFormatJson": "JSON",
+  "fromDate": "From: {date}",
+  "toDate": "To: {date}",
+  "recordingError": "Recording failed. Please try again."
 }

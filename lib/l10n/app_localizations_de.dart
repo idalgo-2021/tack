@@ -490,4 +490,31 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get themeDialog => 'Design';
+
+  @override
+  String get exportNoNotes => 'No notes to export';
+
+  @override
+  String exportError(Object error) {
+    return 'Export error: $error';
+  }
+
+  @override
+  String get exportFormatMarkdown => 'Markdown';
+
+  @override
+  String get exportFormatJson => 'JSON';
+
+  @override
+  String fromDate(Object date) {
+    return 'From: $date';
+  }
+
+  @override
+  String toDate(Object date) {
+    return 'To: $date';
+  }
+
+  @override
+  String get recordingError => 'Recording failed. Please try again.';
 }

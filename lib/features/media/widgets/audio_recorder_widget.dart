@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../l10n/app_localizations.dart';
 import '../providers/media_provider.dart';
 
 class AudioRecorderWidget extends ConsumerWidget {
@@ -11,6 +12,7 @@ class AudioRecorderWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isRecording = ref.watch(mediaRecorderProvider);
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -21,9 +23,9 @@ class AudioRecorderWidget extends ConsumerWidget {
         ),
         const SizedBox(width: 8),
         if (isRecording)
-          Text('Запись...', style: TextStyle(color: Colors.red))
+          Text(l10n.recording, style: TextStyle(color: Colors.red))
         else
-          const Text('Записать аудио'),
+          Text(l10n.recordAudio),
         if (isRecording) ...[
           const SizedBox(width: 8),
           const SizedBox(
@@ -45,6 +47,7 @@ class AudioRecordButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isRecording = ref.watch(mediaRecorderProvider);
+    final l10n = AppLocalizations.of(context);
 
     return OutlinedButton.icon(
       onPressed: () async {
@@ -60,7 +63,7 @@ class AudioRecordButton extends ConsumerWidget {
         isRecording ? Icons.stop : Icons.mic,
         color: isRecording ? Colors.red : null,
       ),
-      label: Text(isRecording ? 'Остановить' : 'Аудио'),
+      label: Text(isRecording ? l10n.stopLabel : l10n.audio),
     );
   }
 }

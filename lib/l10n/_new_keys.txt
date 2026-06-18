@@ -1,0 +1,6 @@
+  "exportNoNotes": "No notes to export",
+  "exportError": "Export error: {error}",
+  "exportFormatMarkdown": "Markdown",
+  "exportFormatJson": "JSON",
+  "fromDate": "From: {date}",
+  "toDate": "To: {date}"

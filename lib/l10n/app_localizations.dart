@@ -1031,6 +1031,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Theme'**
   String get themeDialog;
+
+  /// No description provided for @exportNoNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'No notes to export'**
+  String get exportNoNotes;
+
+  /// No description provided for @exportError.
+  ///
+  /// In en, this message translates to:
+  /// **'Export error: {error}'**
+  String exportError(Object error);
+
+  /// No description provided for @exportFormatMarkdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Markdown'**
+  String get exportFormatMarkdown;
+
+  /// No description provided for @exportFormatJson.
+  ///
+  /// In en, this message translates to:
+  /// **'JSON'**
+  String get exportFormatJson;
+
+  /// No description provided for @fromDate.
+  ///
+  /// In en, this message translates to:
+  /// **'From: {date}'**
+  String fromDate(Object date);
+
+  /// No description provided for @toDate.
+  ///
+  /// In en, this message translates to:
+  /// **'To: {date}'**
+  String toDate(Object date);
+
+  /// No description provided for @recordingError.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording failed. Please try again.'**
+  String get recordingError;
 }
 
 class _AppLocalizationsDelegate

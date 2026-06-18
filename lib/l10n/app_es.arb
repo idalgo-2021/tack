@@ -151,5 +151,12 @@
   "themeLight": "Claro",
   "themeDark": "Oscuro",
   "themeHighContrast": "Alto contraste",
-  "themeDialog": "Tema"
+  "themeDialog": "Tema",
+  "exportNoNotes": "No notes to export",
+  "exportError": "Export error: {error}",
+  "exportFormatMarkdown": "Markdown",
+  "exportFormatJson": "JSON",
+  "fromDate": "From: {date}",
+  "toDate": "To: {date}",
+  "recordingError": "Recording failed. Please try again."
 }

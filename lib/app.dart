@@ -26,6 +26,7 @@ class TackApp extends ConsumerWidget {
     final locale = ref.watch(appLocaleProvider);
     final colorScheme = ref.watch(appColorSchemeProvider);
     final themeMode = ref.watch(themeModeProvider);
+    final fontSize = ref.watch(fontSizeProvider);
     final seed = _seedColors[colorScheme] ?? _seedColors[AppColorScheme.sage]!;
 
     Intl.defaultLocale = locale;
@@ -49,16 +50,27 @@ class TackApp extends ConsumerWidget {
         useDark = false;
     }
 
-    return MaterialApp(
-      title: 'Tack',
-      debugShowCheckedModeBanner: false,
-      theme: theme,
-      darkTheme: darkTheme,
-      themeMode: useDark ? ThemeMode.dark : null,
-      locale: Locale(locale),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: const MainShell(),
+    final scale = switch (fontSize) {
+      FontSize.small => 0.875,
+      FontSize.medium => 1.0,
+      FontSize.large => 1.25,
+    };
+
+    return MediaQuery(
+      data: MediaQuery.of(context).copyWith(
+        textScaler: TextScaler.linear(scale),
+      ),
+      child: MaterialApp(
+        title: 'Tack',
+        debugShowCheckedModeBanner: false,
+        theme: theme,
+        darkTheme: darkTheme,
+        themeMode: useDark ? ThemeMode.dark : null,
+        locale: Locale(locale),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: const MainShell(),
+      ),
     );
   }
 }

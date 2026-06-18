@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 
@@ -24,6 +25,10 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
   @override
   void initState() {
     super.initState();
+    if (!File(widget.audioPath).existsSync()) {
+      debugPrint('AUDIO FILE NOT FOUND: ${widget.audioPath}');
+    }
+    _player.setSource(DeviceFileSource(widget.audioPath));
     _player.onPlayerStateChanged.listen((state) {
       if (mounted) setState(() => _isPlaying = state == PlayerState.playing);
     });
@@ -53,10 +58,14 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
     if (_isPlaying) {
       await _player.pause();
     } else {
-      if (_position == Duration.zero || _position == _duration) {
-        await _player.play(DeviceFileSource(widget.audioPath));
-      } else {
-        await _player.resume();
+      try {
+        if (_position == Duration.zero || _position == _duration) {
+          await _player.play(DeviceFileSource(widget.audioPath));
+        } else {
+          await _player.resume();
+        }
+      } catch (e) {
+        debugPrint('AudioPlayerWidget play error: $e');
       }
     }
   }

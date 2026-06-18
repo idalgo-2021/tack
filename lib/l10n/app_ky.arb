@@ -151,5 +151,12 @@
   "themeLight": "Ачык",
   "themeDark": "Караңгы",
   "themeHighContrast": "Жогорку контраст",
-  "themeDialog": "Тема"
+  "themeDialog": "Тема",
+  "exportNoNotes": "No notes to export",
+  "exportError": "Export error: {error}",
+  "exportFormatMarkdown": "Markdown",
+  "exportFormatJson": "JSON",
+  "fromDate": "From: {date}",
+  "toDate": "To: {date}",
+  "recordingError": "Recording failed. Please try again."
 }

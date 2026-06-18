@@ -75,6 +75,7 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
 
   Future<void> _shareSelected() async {
     if (_selectedIds.isEmpty) return;
+    final l10n = AppLocalizations.of(context);
     final repo = NoteRepository();
     final allNotes = await repo.getAll();
     final selected = allNotes
@@ -88,7 +89,7 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
     final allFiles = <XFile>[];
 
     if (format == ExportFormat.markdown) {
-      final content = ExportHelper.notesToMarkdown(selected);
+      final content = ExportHelper.notesToMarkdown(selected, l10n);
       final file = File('${Directory.systemTemp.path}/tack_$timestamp.md');
       await file.writeAsString(content);
       allFiles.add(XFile(file.path));

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/utils/date_formatter.dart';
 import '../../../data/models/note.dart';
@@ -72,7 +73,39 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
 
     if (_existingNote == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _focusNode.requestFocus());
+      if (ref.read(autoGeotagProvider)) {
+        _requestAutoLocation();
+      }
     }
+  }
+
+  Future<void> _requestAutoLocation() async {
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) return;
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) return;
+      }
+      if (permission == LocationPermission.deniedForever) return;
+
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.low,
+          timeLimit: Duration(seconds: 10),
+        ),
+      );
+      if (mounted) {
+        setState(() {
+          _latitude = position.latitude;
+          _longitude = position.longitude;
+          _hasChanges = true;
+        });
+        if (ref.read(autoSaveProvider)) _scheduleAutoSave();
+      }
+    } catch (_) {}
   }
 
   @override
@@ -100,10 +133,9 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
   }
 
   Future<void> _saveNote() async {
-    final autoSave = ref.read(autoSaveProvider);
     final now = DateTime.now();
 
-    if (autoSave && _isEmptyNote) {
+    if (_isEmptyNote) {
       if (mounted) setState(() => _hasChanges = false);
       return;
     }
@@ -138,7 +170,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
     ref.invalidate(noteListProvider);
     ref.invalidate(tagListProvider);
 
-    if (mounted && autoSave) {
+    if (mounted) {
       setState(() => _hasChanges = false);
     }
   }
@@ -162,6 +194,31 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
           final autoSave = ref.read(autoSaveProvider);
           if (autoSave) _scheduleAutoSave();
         },
+      ),
+    );
+  }
+
+  Widget _buildRecordingBanner(AppLocalizations l10n) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      child: Card(
+        color: Colors.red.shade50,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            children: [
+              const Icon(Icons.mic, color: Colors.red),
+              const SizedBox(width: 8),
+              Text(l10n.recording, style: const TextStyle(color: Colors.red)),
+              const SizedBox(width: 8),
+              const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -206,7 +263,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
         } else if (autoSave && _hasChanges) {
           await _saveNote();
         }
-        if (mounted) Navigator.pop(context);
+        if (context.mounted) Navigator.pop(context);
       },
       child: Scaffold(
         appBar: AppBar(
@@ -216,157 +273,145 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
               Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: FilledButton(
-                  onPressed: _hasChanges ? _saveNote : null,
+                  onPressed: _hasChanges ? () async {
+                    await _saveNote();
+                    if (context.mounted) Navigator.pop(context);
+                  } : null,
                   child: Text(l10n.save),
                 ),
               ),
           ],
         ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (showTs || hasLocation) ...[
-                Row(
+        body: Column(
+          children: [
+            if (isRecording) _buildRecordingBanner(l10n),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    if (showTs) ...[
-                      Icon(Icons.access_time, size: 14, color: theme.colorScheme.onSurfaceVariant),
-                      const SizedBox(width: 6),
-                      Text(
-                        DateFormatter.formatAbsoluteWithWeekday(
-                          _existingNote?.createdAt ?? DateTime.now(),
-                        ),
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
+                    if (showTs || hasLocation) ...[
+                      Row(
+                        children: [
+                          if (showTs) ...[
+                            Icon(Icons.access_time, size: 14, color: theme.colorScheme.onSurfaceVariant),
+                            const SizedBox(width: 6),
+                            Text(
+                              DateFormatter.formatAbsoluteWithWeekday(
+                                _existingNote?.createdAt ?? DateTime.now(),
+                              ),
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                          if (showTs && hasLocation) const SizedBox(width: 16),
+                          if (hasLocation) ...[
+                            Icon(Icons.location_on, size: 14, color: theme.colorScheme.onSurfaceVariant),
+                            const SizedBox(width: 4),
+                            Text(
+                              DateFormatter.formatDMS(_latitude!, _longitude!),
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
+                      const SizedBox(height: 16),
                     ],
-                    if (showTs && hasLocation) const SizedBox(width: 16),
-                    if (hasLocation) ...[
-                      Icon(Icons.location_on, size: 14, color: theme.colorScheme.onSurfaceVariant),
-                      const SizedBox(width: 4),
-                      Text(
-                        DateFormatter.formatDMS(_latitude!, _longitude!),
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      children: [
+                        ..._tagNames.map((name) => Chip(
+                          label: Text('#$name', style: const TextStyle(fontSize: 12)),
+                          onDeleted: () {
+                            setState(() {
+                              _tagNames.remove(name);
+                              _hasChanges = true;
+                            });
+                            if (autoSave) _scheduleAutoSave();
+                          },
+                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          visualDensity: VisualDensity.compact,
+                        )),
+                        ActionChip(
+                          label: Text(l10n.selectTags, style: const TextStyle(fontSize: 12)),
+                          avatar: const Icon(Icons.add, size: 16),
+                          onPressed: _showTagSelector,
+                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          visualDensity: VisualDensity.compact,
                         ),
-                      ),
-                    ],
-                  ],
-                ),
-                const SizedBox(height: 16),
-              ],
-              Wrap(
-                spacing: 6,
-                runSpacing: 4,
-                children: [
-                  ..._tagNames.map((name) => Chip(
-                    label: Text('#$name', style: const TextStyle(fontSize: 12)),
-                    onDeleted: () {
-                      setState(() {
-                        _tagNames.remove(name);
-                        _hasChanges = true;
-                      });
-                      if (autoSave) _scheduleAutoSave();
-                    },
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    visualDensity: VisualDensity.compact,
-                  )),
-                  ActionChip(
-                    label: Text(l10n.selectTags, style: const TextStyle(fontSize: 12)),
-                    avatar: const Icon(Icons.add, size: 16),
-                    onPressed: _showTagSelector,
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    visualDensity: VisualDensity.compact,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              NoteTextField(
-                controller: _textController,
-                focusNode: _focusNode,
-                hintText: l10n.startWriting,
-              ),
-              if (_imagePaths.isNotEmpty) ...[
-                const SizedBox(height: 16),
-                ImageGridWidget(
-                  imagePaths: _imagePaths,
-                  onDelete: (path) {
-                    setState(() {
-                      _imagePaths.remove(path);
-                      _hasChanges = true;
-                    });
-                    if (autoSave) _scheduleAutoSave();
-                  },
-                ),
-              ],
-              if (_audioPaths.isNotEmpty) ...[
-                ..._audioPaths.map((audioPath) => Padding(
-                  padding: const EdgeInsets.only(top: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(l10n.audio, style: theme.textTheme.titleSmall),
-                      const SizedBox(height: 8),
-                      AudioPlayerWidget(
-                        audioPath: audioPath,
-                        onDelete: () {
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    NoteTextField(
+                      controller: _textController,
+                      focusNode: _focusNode,
+                      hintText: l10n.startWriting,
+                    ),
+                    if (_imagePaths.isNotEmpty) ...[
+                      const SizedBox(height: 16),
+                      ImageGridWidget(
+                        imagePaths: _imagePaths,
+                        onDelete: (path) {
                           setState(() {
-                            _audioPaths.remove(audioPath);
+                            _imagePaths.remove(path);
                             _hasChanges = true;
                           });
                           if (autoSave) _scheduleAutoSave();
                         },
                       ),
                     ],
-                  ),
-                )),
-              ],
-              if (_filePaths.isNotEmpty) ...[
-                const SizedBox(height: 16),
-                Text(l10n.files, style: theme.textTheme.titleSmall),
-                ..._filePaths.map((path) => Card(
-                  child: ListTile(
-                    leading: const Icon(Icons.insert_drive_file),
-                    title: Text(path.split('/').last),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () {
-                        setState(() {
-                          _filePaths.remove(path);
-                          _hasChanges = true;
-                        });
-                        if (autoSave) _scheduleAutoSave();
-                      },
-                    ),
-                  ),
-                )),
-              ],
-              if (isRecording) ...[
-                const SizedBox(height: 12),
-                Card(
-                  color: Colors.red.shade50,
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.mic, color: Colors.red),
-                        const SizedBox(width: 8),
-                        Text(l10n.recording, style: const TextStyle(color: Colors.red)),
-                        const SizedBox(width: 8),
-                        const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
+                    if (_audioPaths.isNotEmpty) ...[
+                      ..._audioPaths.map((audioPath) => Padding(
+                        padding: const EdgeInsets.only(top: 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(l10n.audio, style: theme.textTheme.titleSmall),
+                            const SizedBox(height: 8),
+                            AudioPlayerWidget(
+                              audioPath: audioPath,
+                              onDelete: () {
+                                setState(() {
+                                  _audioPaths.remove(audioPath);
+                                  _hasChanges = true;
+                                });
+                                if (autoSave) _scheduleAutoSave();
+                              },
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
+                      )),
+                    ],
+                    if (_filePaths.isNotEmpty) ...[
+                      const SizedBox(height: 16),
+                      Text(l10n.files, style: theme.textTheme.titleSmall),
+                      ..._filePaths.map((path) => Card(
+                        child: ListTile(
+                          leading: const Icon(Icons.insert_drive_file),
+                          title: Text(path.split('/').last),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () {
+                              setState(() {
+                                _filePaths.remove(path);
+                                _hasChanges = true;
+                              });
+                              if (autoSave) _scheduleAutoSave();
+                            },
+                          ),
+                        ),
+                      )),
+                    ],
+                  ],
                 ),
-              ],
-            ],
-          ),
+              ),
+            ),
+          ],
         ),
         bottomSheet: NoteActionButtons(
           hasLocation: hasLocation,

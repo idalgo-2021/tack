@@ -1,12 +1,11 @@
 import 'package:image_picker/image_picker.dart';
 import 'package:record/record.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/utils/file_utils.dart';
 
 part 'media_provider.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class MediaRecorder extends _$MediaRecorder {
   final _recorder = AudioRecorder();
   String? _currentPath;
@@ -22,7 +21,10 @@ class MediaRecorder extends _$MediaRecorder {
     final path = '$dir/${DateTime.now().millisecondsSinceEpoch}.m4a';
 
     await _recorder.start(
-      const RecordConfig(encoder: AudioEncoder.aacLc),
+      const RecordConfig(
+        encoder: AudioEncoder.aacLc,
+        numChannels: 1,
+      ),
       path: path,
     );
 
@@ -82,35 +84,3 @@ class ImagePicking extends _$ImagePicking {
   }
 }
 
-@riverpod
-class GeoLocation extends _$GeoLocation {
-  @override
-  Future<Position?> build() async {
-    return null;
-  }
-
-  Future<Position?> requestLocation() async {
-    try {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) return null;
-
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) return null;
-      }
-      if (permission == LocationPermission.deniedForever) return null;
-
-      final position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.low,
-          timeLimit: Duration(seconds: 10),
-        ),
-      );
-      state = AsyncData(position);
-      return position;
-    } catch (_) {
-      return null;
-    }
-  }
-}

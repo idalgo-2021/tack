@@ -15,6 +15,7 @@ import '../providers/note_detail_provider.dart';
 import '../providers/note_list_provider.dart';
 import '../../media/widgets/audio_player_widget.dart';
 import '../../media/widgets/image_grid_widget.dart';
+import '../../media/providers/media_provider.dart';
 import '../../settings/providers/settings_provider.dart';
 import '../../tags/providers/tag_provider.dart';
 import '../widgets/note_action_buttons.dart';
@@ -159,13 +160,14 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
   }
 
   Future<void> _shareNote(dynamic note) async {
+    final l10n = AppLocalizations.of(context);
     final format = ref.read(exportFormatProvider);
     final zip = ref.read(zipExportProvider);
     final timestamp = DateFormatter.formatFileDate(note.createdAt);
     final allFiles = <XFile>[];
 
     if (format == ExportFormat.markdown) {
-      final content = ExportHelper.notesToMarkdown([note]);
+      final content = ExportHelper.notesToMarkdown([note], l10n);
       final file = File('${Directory.systemTemp.path}/smart_note_$timestamp.md');
       await file.writeAsString(content);
       allFiles.add(XFile(file.path));
@@ -196,6 +198,31 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
     }
   }
 
+  Widget _buildRecordingBanner(AppLocalizations l10n) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      child: Card(
+        color: Colors.red.shade50,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            children: [
+              const Icon(Icons.mic, color: Colors.red),
+              const SizedBox(width: 8),
+              Text(l10n.recording, style: const TextStyle(color: Colors.red)),
+              const SizedBox(width: 8),
+              const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -203,6 +230,7 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
     final showTs = ref.watch(showTimestampProvider);
     final autoSave = ref.watch(autoSaveProvider);
     final theme = Theme.of(context);
+    final isRecording = ref.watch(mediaRecorderProvider);
 
     return noteAsync.when(
       data: (note) {
@@ -300,6 +328,7 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
                     height: 2,
                     color: theme.colorScheme.primary,
                   ),
+                if (isRecording) _buildRecordingBanner(l10n),
                 Expanded(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.all(16),

@@ -4,19 +4,20 @@ import 'package:archive/archive.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 import '../../data/models/note.dart';
+import '../../l10n/app_localizations.dart';
 import 'date_formatter.dart';
 
 class ExportHelper {
-  static String notesToMarkdown(List<Note> notes) {
+  static String notesToMarkdown(List<Note> notes, AppLocalizations l10n) {
     final md = StringBuffer();
-    md.writeln('# Tack — Экспорт');
-    md.writeln('Дата экспорта: ${DateFormat('dd.MM.yyyy HH:mm').format(DateTime.now())}');
+    md.writeln('# ${l10n.exportTitle}');
+    md.writeln(l10n.exportDate(DateFormat('dd.MM.yyyy HH:mm').format(DateTime.now())));
     md.writeln();
 
     for (final note in notes) {
       md.writeln('---');
       md.writeln();
-      md.writeln('## Заметка от ${DateFormatter.formatAbsoluteWithWeekday(note.createdAt)}');
+      md.writeln('## ${l10n.noteFrom(DateFormatter.formatAbsoluteWithWeekday(note.createdAt))}');
       if (note.latitude != null && note.longitude != null) {
         md.writeln('📍 ${DateFormatter.formatDMS(note.latitude!, note.longitude!)}');
       }
@@ -34,7 +35,7 @@ class ExportHelper {
         ...note.filePaths,
       ];
       if (noteFiles.isNotEmpty) {
-        md.writeln('**Прикреплённые файлы:**');
+        md.writeln('**${l10n.attachedFiles}:**');
         for (final p in noteFiles) {
           md.writeln('- ${p.split('/').last}');
         }

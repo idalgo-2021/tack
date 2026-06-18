@@ -151,5 +151,12 @@
   "themeLight": "浅色",
   "themeDark": "深色",
   "themeHighContrast": "高对比度",
-  "themeDialog": "主题"
+  "themeDialog": "主题",
+  "exportNoNotes": "No notes to export",
+  "exportError": "Export error: {error}",
+  "exportFormatMarkdown": "Markdown",
+  "exportFormatJson": "JSON",
+  "fromDate": "From: {date}",
+  "toDate": "To: {date}",
+  "recordingError": "Recording failed. Please try again."
 }

@@ -22,7 +22,7 @@ class ImageGridWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('${l10n.photo} (${imagePaths.length})', style: theme.textTheme.titleSmall),
+        Text(l10n.photo, style: theme.textTheme.titleSmall),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,

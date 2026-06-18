@@ -1,514 +1,295 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:geolocator/geolocator.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../core/utils/file_utils.dart';
 import '../../../core/utils/date_formatter.dart';
-import '../../../core/constants/defaults.dart';
 import '../../../data/models/note.dart';
 import '../../../data/models/tag.dart';
 import '../../../data/repositories/note_repository.dart';
 import '../../../data/repositories/tag_repository.dart';
-import '../providers/note_detail_provider.dart';
-import '../providers/note_list_provider.dart';
 import '../widgets/note_text_field.dart';
-import '../widgets/tag_chips_field.dart';
 import '../../media/widgets/audio_player_widget.dart';
 import '../../media/widgets/image_grid_widget.dart';
 import '../../media/providers/media_provider.dart';
 import '../../settings/providers/settings_provider.dart';
 import '../../tags/providers/tag_provider.dart';
-import '../../tags/screens/tag_manager_screen.dart';
+import '../providers/note_list_provider.dart';
+import '../widgets/note_action_buttons.dart';
 
 class NoteEditorScreen extends ConsumerStatefulWidget {
-  final int? existingNoteId;
+  final Note? existingNote;
 
-  const NoteEditorScreen({super.key, this.existingNoteId});
+  const NoteEditorScreen({super.key, this.existingNote});
 
   @override
   ConsumerState<NoteEditorScreen> createState() => _NoteEditorScreenState();
 }
 
 class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
-  final _textController = TextEditingController();
-  final _imagePicker = ImagePicker();
-  final _focusNode = FocusNode();
-
-  List<String> _tags = [];
+  late final TextEditingController _textController;
+  late final FocusNode _focusNode;
+  late final TextEditingController _searchController;
+  late final TextEditingController _createController;
+  bool _hasChanges = false;
   List<String> _imagePaths = [];
   List<String> _audioPaths = [];
   List<String> _filePaths = [];
+  List<String> _tagNames = [];
   double? _latitude;
   double? _longitude;
-  bool _isLoading = true;
-  bool _hasChanges = false;
-  Note? _existingNote;
-  bool _geoRequested = false;
-  bool _canPop = false;
+  int? _savedNoteId;
+  Timer? _saveTimer;
+
+  Note? get _existingNote => widget.existingNote;
+
+  bool get _hasUnsavedChanges => _hasChanges;
+
+  bool get hasLocation => _latitude != null && _longitude != null;
+
+  bool get _isEmptyNote =>
+      _textController.text.trim().isEmpty &&
+      _tagNames.isEmpty &&
+      _imagePaths.isEmpty &&
+      _audioPaths.isEmpty &&
+      _filePaths.isEmpty &&
+      !hasLocation;
 
   @override
   void initState() {
     super.initState();
-    _textController.addListener(_onTextChanged);
-    _loadNote();
-    if (widget.existingNoteId == null) {
+    _textController = TextEditingController(text: _existingNote?.text ?? '');
+    _focusNode = FocusNode();
+    _searchController = TextEditingController();
+    _createController = TextEditingController();
+    _filePaths = List.from(_existingNote?.filePaths ?? []);
+    _imagePaths = List.from(_existingNote?.imagePaths ?? []);
+    _audioPaths = List.from(_existingNote?.audioPaths ?? []);
+    _tagNames = List.from(_existingNote?.tags ?? []);
+    _latitude = _existingNote?.latitude;
+    _longitude = _existingNote?.longitude;
+
+    _textController.addListener(_onFieldChanged);
+
+    if (_existingNote == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _focusNode.requestFocus());
     }
   }
 
-  void _onTextChanged() {
-    if (!_hasChanges && !_isLoading) {
-      setState(() => _hasChanges = true);
-    }
+  @override
+  void dispose() {
+    _textController.removeListener(_onFieldChanged);
+    _saveTimer?.cancel();
+    _textController.dispose();
+    _focusNode.dispose();
+    _searchController.dispose();
+    _createController.dispose();
+    super.dispose();
   }
 
-  Future<void> _loadNote() async {
-    if (widget.existingNoteId == null) {
-      final autoGeo = ref.read(autoGeotagProvider);
-      if (autoGeo && mounted) {
-        _requestAutoLocation();
-      }
-      setState(() => _isLoading = false);
+  void _onFieldChanged() {
+    if (!_hasChanges) {
+      setState(() => _hasChanges = true);
+    }
+    final autoSave = ref.read(autoSaveProvider);
+    if (autoSave) _scheduleAutoSave();
+  }
+
+  void _scheduleAutoSave() {
+    _saveTimer?.cancel();
+    _saveTimer = Timer(const Duration(seconds: 2), _saveNote);
+  }
+
+  Future<void> _saveNote() async {
+    final autoSave = ref.read(autoSaveProvider);
+    final now = DateTime.now();
+
+    if (autoSave && _isEmptyNote) {
+      if (mounted) setState(() => _hasChanges = false);
       return;
     }
 
-    final note = await ref.read(noteDetailProvider(widget.existingNoteId!).future);
-    if (note != null && mounted) {
-      setState(() {
-        _existingNote = note;
-        _textController.text = note.text ?? '';
-        _tags = List.from(note.tags);
-        _imagePaths = List.from(note.imagePaths);
-        _audioPaths = List.from(note.audioPaths);
-        _filePaths = List.from(note.filePaths);
-        _latitude = note.latitude;
-        _longitude = note.longitude;
-        _isLoading = false;
-      });
-    } else if (mounted) {
-      setState(() => _isLoading = false);
-    }
-  }
-
-  bool get _isEmptyNote =>
-      _textController.text.trim().isEmpty &&
-      _tags.isEmpty &&
-      _imagePaths.isEmpty &&
-      _audioPaths.isEmpty &&
-      _filePaths.isEmpty;
-
-  Future<void> _requestAutoLocation() async {
-    if (_geoRequested) return;
-    _geoRequested = true;
-    try {
-      final permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        await Geolocator.requestPermission();
-      }
-      final pos = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.low,
-          timeLimit: Duration(seconds: 10),
-        ),
-      );
-      if (mounted) {
-        setState(() {
-          _latitude = pos.latitude;
-          _longitude = pos.longitude;
-        });
-      }
-    } catch (_) {}
-  }
-
-  Future<void> _pickImage(ImageSource source) async {
-    final xFile = await _imagePicker.pickImage(
-      source: source,
-      maxWidth: 1920,
-      maxHeight: 1920,
-      imageQuality: ref.read(compressImagesProvider) ? AppDefaults.imageQuality : null,
-    );
-    if (xFile == null) return;
-
-    final savedPath = await FileUtils.copyToImages(xFile.path);
-    setState(() {
-      _imagePaths.add(savedPath);
-      _hasChanges = true;
-    });
-  }
-
-  Future<void> _recordAudio() async {
-    final notifier = ref.read(mediaRecorderProvider.notifier);
-    final isRecording = ref.read(mediaRecorderProvider);
-
-    if (isRecording) {
-      final path = await notifier.stopRecording();
-      if (path != null && mounted) {
-        setState(() {
-          _audioPaths.add(path);
-          _hasChanges = true;
-        });
-      }
-    } else {
-      await notifier.startRecording();
-    }
-  }
-
-  Future<void> _pickFile() async {
-    final result = await FilePicker.pickFiles();
-    if (result == null || result.files.isEmpty) return;
-
-    for (final file in result.files) {
-      final path = file.path;
-      if (path == null) continue;
-      final savedPath = await FileUtils.copyToFiles(path);
-      _filePaths.add(savedPath);
-    }
-    setState(() {
-      _hasChanges = true;
-    });
-  }
-
-  Future<void> _requestLocation() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) return;
-
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) return;
-    }
-    if (permission == LocationPermission.deniedForever) return;
-
-    final position = await Geolocator.getCurrentPosition(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.low,
-        timeLimit: Duration(seconds: 10),
-      ),
-    );
-    if (mounted) {
-      setState(() {
-        _latitude = position.latitude;
-        _longitude = position.longitude;
-        _hasChanges = true;
-      });
-    }
-  }
-
-  Future<void> _clearLocation() async {
-    final l10n = AppLocalizations.of(context);
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l10n.deleteGeotag),
-        content: Text(l10n.deleteGeotagConfirm),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(l10n.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(l10n.delete),
-          ),
-        ],
-      ),
-    );
-    if (confirm == true && mounted) {
-      setState(() {
-        _latitude = null;
-        _longitude = null;
-        _hasChanges = true;
-      });
-    }
-  }
-
-  Future<void> _save() async {
-    final updateTs = ref.read(updateTimestampOnEditProvider);
-    final createdAt = _existingNote != null && updateTs
-        ? DateTime.now()
-        : _existingNote?.createdAt ?? DateTime.now();
-
+    final noteId = _existingNote?.id ?? _savedNoteId;
     final note = Note(
-      id: _existingNote?.id,
-      text: _textController.text.isEmpty ? null : _textController.text,
-      tags: _tags,
-      imagePaths: _imagePaths,
-      audioPaths: _audioPaths,
+      id: noteId,
+      text: _textController.text.trim().isEmpty ? null : _textController.text.trim(),
+      tags: _tagNames,
+      imagePaths: [
+        ...?_existingNote?.imagePaths,
+        ..._imagePaths,
+      ],
+      audioPaths: [
+        ...?_existingNote?.audioPaths,
+        ..._audioPaths,
+      ],
       filePaths: _filePaths,
-      createdAt: createdAt,
+      createdAt: _existingNote?.createdAt ?? now,
       latitude: _latitude,
       longitude: _longitude,
     );
 
     final repo = NoteRepository();
-    if (note.id == null) {
-      await repo.insert(note);
-    } else {
+    if (noteId != null) {
       await repo.update(note);
+    } else {
+      final id = await repo.insert(note);
+      _savedNoteId = id;
     }
+
     ref.invalidate(noteListProvider);
     ref.invalidate(tagListProvider);
-  }
 
-  void _forcePop() {
-    setState(() => _canPop = true);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (context.mounted) Navigator.of(context).pop();
-    });
-  }
-
-  @override
-  void dispose() {
-    _textController.dispose();
-    _focusNode.dispose();
-    super.dispose();
-  }
-
-  void _showTagSelector() {
-    final l10n = AppLocalizations.of(context);
-    final allTagsAsync = ref.read(tagListProvider);
-    final allTags = allTagsAsync.asData?.value ?? [];
-    if (allTags.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.noTagsCreated)),
-      );
-      return;
+    if (mounted && autoSave) {
+      setState(() => _hasChanges = false);
     }
+  }
 
+  Future<void> _showTagSelector() async {
+    ref.invalidate(tagListProvider);
+    final repo = TagRepository();
+    final allTags = await repo.getAll();
+    if (!mounted) return;
     showDialog(
       context: context,
       builder: (ctx) => _TagSelectorDialog(
         allTags: allTags,
-        initialSelected: _tags,
-        l10n: l10n,
+        initialSelected: _tagNames,
+        l10n: AppLocalizations.of(context),
         onApply: (selected) {
           setState(() {
-            _tags = selected..sort();
+            _tagNames = selected;
             _hasChanges = true;
           });
+          final autoSave = ref.read(autoSaveProvider);
+          if (autoSave) _scheduleAutoSave();
         },
-      ),
-    );
-  }
-
-  void _showImageSourcePicker() {
-    final l10n = AppLocalizations.of(context);
-    showModalBottomSheet(
-      context: context,
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: Text(l10n.makePhoto),
-              onTap: () {
-                Navigator.pop(ctx);
-                _pickImage(ImageSource.camera);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: Text(l10n.chooseFromGallery),
-              onTap: () {
-                Navigator.pop(ctx);
-                _pickImage(ImageSource.gallery);
-              },
-            ),
-          ],
-        ),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final autoSave = ref.watch(autoSaveProvider);
     final isRecording = ref.watch(mediaRecorderProvider);
     final showTs = ref.watch(showTimestampProvider);
-    final fontSize = ref.watch(fontSizeProvider);
-    final hasLocation = _latitude != null && _longitude != null;
-
-    TextStyle editorStyle() {
-      final base = theme.textTheme.bodyLarge!;
-      switch (fontSize) {
-        case FontSize.small: return base.copyWith(fontSize: 14);
-        case FontSize.medium: return base;
-        case FontSize.large: return base.copyWith(fontSize: 20);
-      }
-    }
-
-    if (_isLoading) {
-      return Scaffold(
-        appBar: AppBar(),
-        body: const Center(child: CircularProgressIndicator()),
-      );
-    }
 
     return PopScope(
-      canPop: _canPop,
+      canPop: !_hasUnsavedChanges,
       onPopInvokedWithResult: (didPop, _) async {
         if (didPop) return;
-        if (_isEmptyNote && widget.existingNoteId == null) {
-          final save = await showDialog<bool>(
-            context: context,
-            builder: (ctx) => AlertDialog(
-              title: Text(l10n.emptyNote),
-              content: Text(l10n.emptyNoteConfirm),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx, false),
-                  child: Text(l10n.discard),
-                ),
-                FilledButton(
-                  onPressed: () => Navigator.pop(ctx, true),
-                  child: Text(l10n.save),
-                ),
-              ],
-            ),
-          );
-          if (save == true) {
-            await _save();
+        if (!autoSave && _hasChanges) {
+          if (!_isEmptyNote) {
+            final confirm = await showDialog<bool>(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                title: Text(l10n.saveChanges),
+                content: Text(l10n.emptyNoteConfirm),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx, false),
+                    child: Text(l10n.discard),
+                  ),
+                  FilledButton(
+                    onPressed: () => Navigator.pop(ctx, true),
+                    child: Text(l10n.save),
+                  ),
+                ],
+              ),
+            );
+            if (confirm == true) {
+              await _saveNote();
+            }
+          } else if (mounted) {
+            setState(() => _hasChanges = false);
           }
-          if (context.mounted) _forcePop();
-          return;
+        } else if (autoSave && _hasChanges) {
+          await _saveNote();
         }
-        if (autoSave) {
-          await _save();
-          if (context.mounted) _forcePop();
-        } else if (_hasChanges) {
-          final discard = await showDialog<bool>(
-            context: context,
-            builder: (ctx) => AlertDialog(
-              title: Text(l10n.saveChanges),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx, true),
-                  child: Text(l10n.discard),
-                ),
-                FilledButton(
-                  onPressed: () => Navigator.pop(ctx, false),
-                  child: Text(l10n.save),
-                ),
-              ],
-            ),
-          );
-          if (discard == true) {
-            if (context.mounted) _forcePop();
-          } else {
-            await _save();
-            if (context.mounted) _forcePop();
-          }
-        } else {
-          if (context.mounted) _forcePop();
-        }
+        if (mounted) Navigator.pop(context);
       },
       child: Scaffold(
         appBar: AppBar(
           title: Text(_existingNote != null ? l10n.editNote : l10n.newNote),
           actions: [
             if (!autoSave)
-              TextButton(
-                onPressed: () async {
-                  await _save();
-                  if (context.mounted) _forcePop();
-                },
-                child: Text(l10n.done),
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: FilledButton(
+                  onPressed: _hasChanges ? _saveNote : null,
+                  child: Text(l10n.save),
+                ),
               ),
           ],
         ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (showTs || hasLocation)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Row(
-                    children: [
-                      if (showTs)
-                        Row(
-                          children: [
-                            Icon(Icons.access_time, size: 14, color: theme.colorScheme.onSurfaceVariant),
-                            const SizedBox(width: 6),
-                            Text(
-                              DateFormatter.formatAbsoluteWithWeekday(_existingNote?.createdAt ?? DateTime.now()),
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                          ],
+              if (showTs || hasLocation) ...[
+                Row(
+                  children: [
+                    if (showTs) ...[
+                      Icon(Icons.access_time, size: 14, color: theme.colorScheme.onSurfaceVariant),
+                      const SizedBox(width: 6),
+                      Text(
+                        DateFormatter.formatAbsoluteWithWeekday(
+                          _existingNote?.createdAt ?? DateTime.now(),
                         ),
-                      if (showTs && hasLocation) const SizedBox(width: 16),
-                      if (hasLocation)
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.location_on, size: 14, color: theme.colorScheme.onSurfaceVariant),
-                            const SizedBox(width: 4),
-                            Text(
-                              DateFormatter.formatDMS(_latitude!, _longitude!),
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                          ],
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
                         ),
+                      ),
                     ],
-                  ),
+                    if (showTs && hasLocation) const SizedBox(width: 16),
+                    if (hasLocation) ...[
+                      Icon(Icons.location_on, size: 14, color: theme.colorScheme.onSurfaceVariant),
+                      const SizedBox(width: 4),
+                      Text(
+                        DateFormatter.formatDMS(_latitude!, _longitude!),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
+                const SizedBox(height: 16),
+              ],
+              Wrap(
+                spacing: 6,
+                runSpacing: 4,
+                children: [
+                  ..._tagNames.map((name) => Chip(
+                    label: Text('#$name', style: const TextStyle(fontSize: 12)),
+                    onDeleted: () {
+                      setState(() {
+                        _tagNames.remove(name);
+                        _hasChanges = true;
+                      });
+                      if (autoSave) _scheduleAutoSave();
+                    },
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    visualDensity: VisualDensity.compact,
+                  )),
+                  ActionChip(
+                    label: Text(l10n.selectTags, style: const TextStyle(fontSize: 12)),
+                    avatar: const Icon(Icons.add, size: 16),
+                    onPressed: _showTagSelector,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    visualDensity: VisualDensity.compact,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
               NoteTextField(
                 controller: _textController,
                 focusNode: _focusNode,
                 hintText: l10n.startWriting,
-                textStyle: editorStyle(),
-              ),
-              const SizedBox(height: 24),
-              Text(l10n.tags, style: theme.textTheme.titleSmall),
-              const SizedBox(height: 8),
-              TagChipsField(
-                tags: _tags,
-                onChanged: (tags) {
-                  setState(() {
-                    _tags = tags;
-                    _hasChanges = true;
-                  });
-                },
-                onSearch: (query) async {
-                  final repo = TagRepository();
-                  return repo.searchNames(query);
-                },
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  OutlinedButton.icon(
-                    onPressed: _showTagSelector,
-                    icon: const Icon(Icons.label, size: 18),
-                    label: Text(l10n.selectTag),
-                  ),
-                  const SizedBox(width: 8),
-                  TextButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const TagManagerScreen(),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.settings, size: 18),
-                    label: Text(l10n.manage),
-                  ),
-                ],
               ),
               if (_imagePaths.isNotEmpty) ...[
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
                 ImageGridWidget(
                   imagePaths: _imagePaths,
                   onDelete: (path) {
@@ -516,76 +297,52 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                       _imagePaths.remove(path);
                       _hasChanges = true;
                     });
+                    if (autoSave) _scheduleAutoSave();
                   },
                 ),
               ],
               if (_audioPaths.isNotEmpty) ...[
-                const SizedBox(height: 16),
-                Text(l10n.audio, style: theme.textTheme.titleSmall),
-                ..._audioPaths.map((path) => AudioPlayerWidget(
-                      audioPath: path,
-                      onDelete: () {
-                        setState(() {
-                          _audioPaths.remove(path);
-                          _hasChanges = true;
-                        });
-                      },
-                    )),
+                ..._audioPaths.map((audioPath) => Padding(
+                  padding: const EdgeInsets.only(top: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(l10n.audio, style: theme.textTheme.titleSmall),
+                      const SizedBox(height: 8),
+                      AudioPlayerWidget(
+                        audioPath: audioPath,
+                        onDelete: () {
+                          setState(() {
+                            _audioPaths.remove(audioPath);
+                            _hasChanges = true;
+                          });
+                          if (autoSave) _scheduleAutoSave();
+                        },
+                      ),
+                    ],
+                  ),
+                )),
               ],
               if (_filePaths.isNotEmpty) ...[
                 const SizedBox(height: 16),
                 Text(l10n.files, style: theme.textTheme.titleSmall),
                 ..._filePaths.map((path) => Card(
-                      margin: const EdgeInsets.symmetric(vertical: 2),
-                      child: ListTile(
-                        dense: true,
-                        leading: const Icon(Icons.attach_file),
-                        title: Text(path.split('/').last, style: const TextStyle(fontSize: 13)),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.close, size: 18),
-                          onPressed: () {
-                            setState(() {
-                              _filePaths.remove(path);
-                              _hasChanges = true;
-                            });
-                          },
-                        ),
-                      ),
-                    )),
+                  child: ListTile(
+                    leading: const Icon(Icons.insert_drive_file),
+                    title: Text(path.split('/').last),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () {
+                        setState(() {
+                          _filePaths.remove(path);
+                          _hasChanges = true;
+                        });
+                        if (autoSave) _scheduleAutoSave();
+                      },
+                    ),
+                  ),
+                )),
               ],
-              const SizedBox(height: 24),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  OutlinedButton.icon(
-                    onPressed: _showImageSourcePicker,
-                    icon: const Icon(Icons.photo_camera),
-                    label: Text(l10n.addPhoto),
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: _recordAudio,
-                    icon: Icon(
-                      isRecording ? Icons.stop : Icons.mic,
-                      color: isRecording ? Colors.red : null,
-                    ),
-                    label: Text(isRecording ? l10n.stopLabel : l10n.recordAudio),
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: _pickFile,
-                    icon: const Icon(Icons.attach_file),
-                    label: Text(l10n.addFile),
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: hasLocation ? _clearLocation : _requestLocation,
-                    icon: Icon(
-                      Icons.location_on,
-                      color: hasLocation ? theme.colorScheme.primary : null,
-                    ),
-                    label: Text(hasLocation ? DateFormatter.formatDMS(_latitude!, _longitude!) : 'Geo'),
-                  ),
-                ],
-              ),
               if (isRecording) ...[
                 const SizedBox(height: 12),
                 Card(
@@ -611,6 +368,46 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
             ],
           ),
         ),
+        bottomSheet: NoteActionButtons(
+          hasLocation: hasLocation,
+          onImageAdded: (path) {
+            setState(() {
+              _imagePaths.add(path);
+              _hasChanges = true;
+            });
+          },
+          onAudioAdded: (path) {
+            setState(() {
+              _audioPaths.add(path);
+              _hasChanges = true;
+            });
+          },
+          onFileAdded: (path) {
+            setState(() {
+              _filePaths.add(path);
+              _hasChanges = true;
+            });
+          },
+          onLatitudeChanged: (lat) {
+            setState(() {
+              _latitude = lat;
+              _hasChanges = true;
+            });
+          },
+          onLongitudeChanged: (lon) {
+            setState(() {
+              _longitude = lon;
+              _hasChanges = true;
+            });
+          },
+          onLocationCleared: () {
+            setState(() {
+              _latitude = null;
+              _longitude = null;
+              _hasChanges = true;
+            });
+          },
+        ),
       ),
     );
   }
@@ -634,27 +431,53 @@ class _TagSelectorDialog extends StatefulWidget {
 }
 
 class _TagSelectorDialogState extends State<_TagSelectorDialog> {
+  late List<Tag> _allTags;
   late Set<String> _selected;
   final _searchController = TextEditingController();
+  final _createController = TextEditingController();
+  final _createFocusNode = FocusNode();
   String _searchQuery = '';
+
+  List<Tag> get _filteredTags {
+    if (_searchQuery.isEmpty) return _allTags;
+    return _allTags
+        .where((t) => t.name.toLowerCase().contains(_searchQuery.toLowerCase()))
+        .toList();
+  }
 
   @override
   void initState() {
     super.initState();
-    _selected = Set<String>.from(widget.initialSelected);
+    _allTags = List.from(widget.allTags);
+    _selected = widget.initialSelected.toSet();
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _createController.dispose();
+    _createFocusNode.dispose();
     super.dispose();
   }
 
-  List<Tag> get _filteredTags {
-    if (_searchQuery.isEmpty) return widget.allTags;
-    return widget.allTags.where((t) =>
-      t.name.toLowerCase().contains(_searchQuery.toLowerCase()),
-    ).toList();
+  Future<void> _createTag() async {
+    final name = _createController.text.trim();
+    if (name.isEmpty || _selected.contains(name)) return;
+
+    if (_allTags.any((t) => t.name == name)) {
+      setState(() => _selected.add(name));
+    } else {
+      await ProviderScope.containerOf(context).read(tagListProvider.notifier).add(name);
+      if (!mounted) return;
+      setState(() {
+        _allTags.add(Tag(name: name, usageCount: 0));
+        _selected.add(name);
+      });
+    }
+
+    _createController.clear();
+    _createFocusNode.unfocus();
+    FocusScope.of(context).unfocus();
   }
 
   @override
@@ -699,14 +522,40 @@ class _TagSelectorDialogState extends State<_TagSelectorDialog> {
               ),
               const Divider(),
             ],
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _createController,
+                    focusNode: _createFocusNode,
+                    decoration: InputDecoration(
+                      hintText: l10n.addTag,
+                      prefixText: '# ',
+                      isDense: true,
+                      border: OutlineInputBorder(),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    ),
+                    onSubmitted: (_) => _createTag(),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.add_circle_outline),
+                  onPressed: _createTag,
+                ),
+              ],
+            ),
+            const Divider(),
             Expanded(
               child: filtered.isEmpty
-                ? Center(child: Text(
-                    _searchQuery.isNotEmpty ? l10n.noTagsForQuery : l10n.noTags,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
+                ? Center(
+                    child: Text(
+                      _searchQuery.isNotEmpty ? l10n.noTagsForQuery : l10n.noTags,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
                     ),
-                  ))
+                  )
                 : ListView(
                     children: filtered.map((tag) {
                       final isSelected = _selected.contains(tag.name);

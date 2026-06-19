@@ -1,5 +1,7 @@
 # Tack
 
+*[Read this document in Russian](README.ru.md)*
+
 A new Flutter project.
 
 ## Getting Started

@@ -68,7 +68,7 @@
   "exportZip": "Экспорт в ZIP",
   "exportZipDesc": "Выгрузить все заметки (формат из настроек)",
   "viewModeList": "Список",
-  "viewModeGrid": "Плитки (2 колонки)",
+  "viewModeGrid": "Плитки",
   "fontSizeSmall": "Мелкий",
   "fontSizeMedium": "Средний",
   "fontSizeLarge": "Крупный",

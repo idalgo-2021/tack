@@ -217,7 +217,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get viewModeList => 'Lista';
 
   @override
-  String get viewModeGrid => 'Siatka (2 kolumny)';
+  String get viewModeGrid => 'Siatka';
 
   @override
   String get fontSizeSmall => 'Mały';

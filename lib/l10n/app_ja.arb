@@ -68,7 +68,7 @@
   "exportZip": "ZIPにエクスポート",
   "exportZipDesc": "すべてのノートをエクスポート（設定の形式）",
   "viewModeList": "リスト",
-  "viewModeGrid": "グリッド（2列）",
+  "viewModeGrid": "グリッド",
   "fontSizeSmall": "小",
   "fontSizeMedium": "中",
   "fontSizeLarge": "大",

@@ -68,7 +68,7 @@
   "exportZip": "Als ZIP exportieren",
   "exportZipDesc": "Alle Notizen exportieren (Format aus Einstellungen)",
   "viewModeList": "Liste",
-  "viewModeGrid": "Raster (2 Spalten)",
+  "viewModeGrid": "Raster",
   "fontSizeSmall": "Klein",
   "fontSizeMedium": "Mittel",
   "fontSizeLarge": "Groß",

@@ -1,5 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' as p;
+import '../../core/constants/app_constants.dart';
 import 'tables.dart';
 
 class DatabaseHelper {
@@ -19,7 +20,7 @@ class DatabaseHelper {
     final path = p.join(dbPath, 'tack.db');
     return openDatabase(
       path,
-      version: 2,
+      version: AppConstants.dbVersion,
       onCreate: (db, version) async {
         for (final query in DatabaseSchema.v1Queries) {
           await db.execute(query);

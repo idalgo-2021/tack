@@ -217,7 +217,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get viewModeList => 'List';
 
   @override
-  String get viewModeGrid => 'Grid (2 columns)';
+  String get viewModeGrid => 'Grid';
 
   @override
   String get fontSizeSmall => 'Small';

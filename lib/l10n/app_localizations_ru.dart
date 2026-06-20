@@ -217,7 +217,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get viewModeList => 'Список';
 
   @override
-  String get viewModeGrid => 'Плитки (2 колонки)';
+  String get viewModeGrid => 'Плитки';
 
   @override
   String get fontSizeSmall => 'Мелкий';

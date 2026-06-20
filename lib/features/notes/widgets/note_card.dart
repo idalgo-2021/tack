@@ -8,6 +8,7 @@ import '../../settings/providers/settings_provider.dart';
 class NoteCard extends ConsumerWidget {
   final Note note;
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
   final bool isSelected;
   final bool showSelectionCheck;
 
@@ -15,6 +16,7 @@ class NoteCard extends ConsumerWidget {
     super.key,
     required this.note,
     required this.onTap,
+    this.onLongPress,
     this.isSelected = false,
     this.showSelectionCheck = false,
   });
@@ -36,6 +38,7 @@ class NoteCard extends ConsumerWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: onTap,
+        onLongPress: onLongPress,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(

@@ -5,6 +5,9 @@ import 'note_repository.dart';
 
 class TagRepository {
   final DatabaseHelper _dbHelper = DatabaseHelper.instance;
+  final NoteRepository _noteRepo;
+
+  TagRepository({NoteRepository? noteRepo}) : _noteRepo = noteRepo ?? NoteRepository();
 
   Future<List<Tag>> getAll() async {
     await rebuildCounts();
@@ -39,7 +42,8 @@ class TagRepository {
 
     // Replace old tag name with new name directly in notes' JSON tags
     await db.execute(
-      "UPDATE ${TableNotes.tableName} SET ${TableNotes.tags} = REPLACE(${TableNotes.tags}, '\"$oldName\"', '\"${tag.name}\"') WHERE ${TableNotes.tags} LIKE '%\"$oldName\"%'",
+      "UPDATE ${TableNotes.tableName} SET ${TableNotes.tags} = REPLACE(${TableNotes.tags}, ?, ?) WHERE ${TableNotes.tags} LIKE ?",
+      ['"$oldName"', '"${tag.name}"', '%"$oldName"%'],
     );
 
     // Rename the tag in tags table (usage count stays unchanged)
@@ -71,11 +75,10 @@ class TagRepository {
       whereArgs: [id],
     );
 
-    final noteRepo = NoteRepository();
-    final notes = await noteRepo.getByTag(tag.name);
+    final notes = await _noteRepo.getByTag(tag.name);
     for (final note in notes) {
       final updatedTags = note.tags.where((t) => t != tag.name).toList();
-      await noteRepo.update(note.copyWith(tags: updatedTags));
+      await _noteRepo.update(note.copyWith(tags: updatedTags));
     }
   }
 

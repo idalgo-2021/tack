@@ -217,7 +217,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get viewModeList => 'Liste';
 
   @override
-  String get viewModeGrid => 'Izgara (2 sütun)';
+  String get viewModeGrid => 'Izgara';
 
   @override
   String get fontSizeSmall => 'Küçük';

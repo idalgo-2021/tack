@@ -54,7 +54,7 @@ class MediaRecorder extends _$MediaRecorder {
 
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class ImagePicking extends _$ImagePicking {
   final _picker = ImagePicker();
 

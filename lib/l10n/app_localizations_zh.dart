@@ -215,7 +215,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get viewModeList => '列表';
 
   @override
-  String get viewModeGrid => '网格（2列）';
+  String get viewModeGrid => '网格';
 
   @override
   String get fontSizeSmall => '小';

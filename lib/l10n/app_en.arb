@@ -68,7 +68,7 @@
   "exportZip": "Export to ZIP",
   "exportZipDesc": "Export all notes (format from settings)",
   "viewModeList": "List",
-  "viewModeGrid": "Grid (2 columns)",
+  "viewModeGrid": "Grid",
   "fontSizeSmall": "Small",
   "fontSizeMedium": "Medium",
   "fontSizeLarge": "Large",

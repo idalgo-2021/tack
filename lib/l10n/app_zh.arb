@@ -68,7 +68,7 @@
   "exportZip": "导出到ZIP",
   "exportZipDesc": "导出所有笔记（格式来自设置）",
   "viewModeList": "列表",
-  "viewModeGrid": "网格（2列）",
+  "viewModeGrid": "网格",
   "fontSizeSmall": "小",
   "fontSizeMedium": "中",
   "fontSizeLarge": "大",

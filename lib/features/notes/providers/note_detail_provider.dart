@@ -1,6 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../data/models/note.dart';
-import '../../../data/repositories/note_repository.dart';
+import '../../../core/providers/repository_providers.dart';
 
 part 'note_detail_provider.g.dart';
 
@@ -9,12 +9,12 @@ class NoteDetail extends _$NoteDetail {
   @override
   Future<Note?> build(int noteId) async {
     if (noteId <= 0) return null;
-    final repo = NoteRepository();
+    final repo = ref.watch(noteRepositoryProvider);
     return repo.getById(noteId);
   }
 
   Future<void> save(Note note) async {
-    final repo = NoteRepository();
+    final repo = ref.read(noteRepositoryProvider);
     if (note.id == null) {
       await repo.insert(note);
     } else {
@@ -24,7 +24,7 @@ class NoteDetail extends _$NoteDetail {
   }
 
   Future<void> delete(int noteId) async {
-    final repo = NoteRepository();
+    final repo = ref.read(noteRepositoryProvider);
     await repo.delete(noteId);
   }
 }

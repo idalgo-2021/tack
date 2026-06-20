@@ -531,7 +531,7 @@ abstract class AppLocalizations {
   /// No description provided for @viewModeGrid.
   ///
   /// In en, this message translates to:
-  /// **'Grid (2 columns)'**
+  /// **'Grid'**
   String get viewModeGrid;
 
   /// No description provided for @fontSizeSmall.

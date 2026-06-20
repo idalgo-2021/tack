@@ -219,7 +219,7 @@ class AppLocalizationsKy extends AppLocalizations {
   String get viewModeList => 'Тизме';
 
   @override
-  String get viewModeGrid => 'Тор (2 мамыча)';
+  String get viewModeGrid => 'Тор';
 
   @override
   String get fontSizeSmall => 'Кичине';

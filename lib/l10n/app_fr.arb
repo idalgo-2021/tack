@@ -68,7 +68,7 @@
   "exportZip": "Exporter en ZIP",
   "exportZipDesc": "Exporter toutes les notes (format des paramètres)",
   "viewModeList": "Liste",
-  "viewModeGrid": "Grille (2 colonnes)",
+  "viewModeGrid": "Grille",
   "fontSizeSmall": "Petit",
   "fontSizeMedium": "Moyen",
   "fontSizeLarge": "Grand",

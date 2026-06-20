@@ -68,7 +68,7 @@
   "exportZip": "Exportar a ZIP",
   "exportZipDesc": "Exportar todas las notas (formato de ajustes)",
   "viewModeList": "Lista",
-  "viewModeGrid": "Cuadrícula (2 columnas)",
+  "viewModeGrid": "Cuadrícula",
   "fontSizeSmall": "Pequeño",
   "fontSizeMedium": "Mediano",
   "fontSizeLarge": "Grande",

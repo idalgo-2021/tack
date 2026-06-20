@@ -117,7 +117,13 @@ class _NoteActionButtonsState extends ConsumerState<NoteActionButtons> {
       );
       widget.onLatitudeChanged(position.latitude);
       widget.onLongitudeChanged(position.longitude);
-    } catch (_) {}
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context).locationPermissionDenied)),
+        );
+      }
+    }
   }
 
   @override

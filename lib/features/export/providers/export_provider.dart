@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../../../data/repositories/note_repository.dart';
+import '../../../core/providers/repository_providers.dart';
 import '../../../core/utils/export_helper.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../settings/providers/settings_provider.dart';
@@ -30,7 +30,7 @@ class Export extends _$Export {
     state = const ExportState(isExporting: true);
 
     try {
-      final repo = NoteRepository();
+      final repo = ref.read(noteRepositoryProvider);
       final notes = await repo.getAll();
 
       if (notes.isEmpty) {

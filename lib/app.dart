@@ -43,7 +43,7 @@ class TackApp extends ConsumerWidget {
       case ThemeModeOption.highContrast:
         theme = AppTheme.highContrast();
         darkTheme = null;
-        useDark = false;
+        useDark = true;
       case ThemeModeOption.light:
         theme = AppTheme.light(seed);
         darkTheme = AppTheme.dark(seed);

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../data/models/tag.dart';
 import '../providers/search_provider.dart';
 import '../../notes/widgets/note_card.dart';
 import '../../notes/screens/note_detail_screen.dart';
@@ -187,7 +188,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     return '';
   }
 
-  Widget _buildTagSuggestions(AsyncValue<List> allTagsAsync, ThemeData theme, AppLocalizations l10n) {
+  Widget _buildTagSuggestions(AsyncValue<List<Tag>> allTagsAsync, ThemeData theme, AppLocalizations l10n) {
     return allTagsAsync.when(
       data: (tags) {
         if (tags.isEmpty) {

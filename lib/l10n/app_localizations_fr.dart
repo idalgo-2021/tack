@@ -222,7 +222,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get viewModeList => 'Liste';
 
   @override
-  String get viewModeGrid => 'Grille (2 colonnes)';
+  String get viewModeGrid => 'Grille';
 
   @override
   String get fontSizeSmall => 'Petit';

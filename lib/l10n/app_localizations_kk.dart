@@ -218,7 +218,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get viewModeList => 'Тізім';
 
   @override
-  String get viewModeGrid => 'Тор (2 баған)';
+  String get viewModeGrid => 'Тор';
 
   @override
   String get fontSizeSmall => 'Кіші';

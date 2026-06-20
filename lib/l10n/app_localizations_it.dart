@@ -220,7 +220,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get viewModeList => 'Elenco';
 
   @override
-  String get viewModeGrid => 'Griglia (2 colonne)';
+  String get viewModeGrid => 'Griglia';
 
   @override
   String get fontSizeSmall => 'Piccolo';

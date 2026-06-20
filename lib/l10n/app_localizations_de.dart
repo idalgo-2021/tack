@@ -220,7 +220,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get viewModeList => 'Liste';
 
   @override
-  String get viewModeGrid => 'Raster (2 Spalten)';
+  String get viewModeGrid => 'Raster';
 
   @override
   String get fontSizeSmall => 'Klein';

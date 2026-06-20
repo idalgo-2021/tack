@@ -6,7 +6,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../data/models/note.dart';
-import '../../../data/repositories/note_repository.dart';
+import '../../../core/providers/repository_providers.dart';
 import '../../../core/utils/date_formatter.dart';
 import '../../../core/utils/export_helper.dart';
 import '../../../core/widgets/centered_app_bar_title.dart';
@@ -65,7 +65,7 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
     );
     if (confirm != true) return;
 
-    final repo = NoteRepository();
+    final repo = ref.read(noteRepositoryProvider);
     for (final id in _selectedIds) {
       await repo.delete(id);
     }
@@ -76,7 +76,7 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
   Future<void> _shareSelected() async {
     if (_selectedIds.isEmpty) return;
     final l10n = AppLocalizations.of(context);
-    final repo = NoteRepository();
+    final repo = ref.read(noteRepositoryProvider);
     final allNotes = await repo.getAll();
     final selected = allNotes
         .where((n) => _selectedIds.contains(n.id))
@@ -172,6 +172,11 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
     final groupMode = ref.watch(groupModeProvider);
     final theme = Theme.of(context);
 
+    final screenWidth = MediaQuery.of(context).size.width;
+    final maxCrossAxisExtent = screenWidth <= 600
+        ? 200.0
+        : (screenWidth / 4.5).clamp(300.0, 600.0);
+
     return Scaffold(
           appBar: AppBar(
         centerTitle: false,
@@ -260,18 +265,18 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
                 return RefreshIndicator(
                   onRefresh: () async => ref.invalidate(noteListProvider),
                   child: groupMode != GroupMode.none
-                      ? _buildGroupedView(notes, viewMode, groupMode, theme, context)
+                      ? _buildGroupedView(notes, viewMode, groupMode, theme, context, maxCrossAxisExtent)
                       : viewMode == ViewMode.list
                           ? ListView.builder(
                               padding: const EdgeInsets.symmetric(vertical: 8),
                               itemCount: notes.length,
                               itemBuilder: (context, index) => _buildNoteItem(notes[index]),
                             )
-                          : MasonryGridView.count(
+                          : MasonryGridView.extent(
                               padding: const EdgeInsets.all(8),
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 0,
-                              mainAxisSpacing: 0,
+                              maxCrossAxisExtent: maxCrossAxisExtent,
+                              crossAxisSpacing: 8,
+                              mainAxisSpacing: 8,
                               itemCount: notes.length,
                               itemBuilder: (context, index) => _buildNoteItem(notes[index]),
                             ),
@@ -326,7 +331,7 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
     );
   }
 
-  Widget _buildGroupedView(List<Note> notes, ViewMode viewMode, GroupMode groupMode, ThemeData theme, BuildContext context) {
+  Widget _buildGroupedView(List<Note> notes, ViewMode viewMode, GroupMode groupMode, ThemeData theme, BuildContext context, double maxCrossAxisExtent) {
     final groups = _groupNotes(notes, groupMode, context);
     final slivers = <Widget>[];
 
@@ -343,10 +348,10 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
           ),
         ));
       } else {
-        slivers.add(SliverMasonryGrid.count(
-          crossAxisCount: 2,
-          mainAxisSpacing: 0,
-          crossAxisSpacing: 0,
+        slivers.add(SliverMasonryGrid.extent(
+          maxCrossAxisExtent: maxCrossAxisExtent,
+          mainAxisSpacing: 8,
+          crossAxisSpacing: 8,
           childCount: entry.value.length,
           itemBuilder: (context, index) => _buildNoteItem(entry.value[index]),
         ));
@@ -360,33 +365,24 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
 
   Widget _buildNoteItem(Note note) {
     final isSelected = _selectedIds.contains(note.id);
-    final viewMode = ref.read(viewModeProvider);
 
-    final card = GestureDetector(
+    final card = NoteCard(
+      note: note,
+      isSelected: isSelected,
+      showSelectionCheck: _selectionMode,
       onLongPress: () {
         if (!_selectionMode) {
           _toggleSelection(note.id!);
         }
       },
-      child: NoteCard(
-        note: note,
-        isSelected: isSelected,
-        showSelectionCheck: _selectionMode,
-        onTap: _selectionMode
-            ? () => _toggleSelection(note.id!)
-            : () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => NoteDetailScreen(noteId: note.id!)),
-              ),
-      ),
+      onTap: _selectionMode
+          ? () => _toggleSelection(note.id!)
+          : () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => NoteDetailScreen(noteId: note.id!)),
+            ),
     );
 
-    if (viewMode == ViewMode.grid) {
-      return Padding(
-        padding: const EdgeInsets.all(4),
-        child: card,
-      );
-    }
     return card;
   }
 }

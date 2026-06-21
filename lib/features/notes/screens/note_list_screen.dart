@@ -9,6 +9,7 @@ import '../../../data/models/note.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../core/utils/date_formatter.dart';
 import '../../../core/utils/export_helper.dart';
+import '../../../core/utils/file_utils.dart';
 import '../../../core/widgets/centered_app_bar_title.dart';
 import '../../settings/providers/settings_provider.dart';
 import '../providers/note_list_provider.dart';
@@ -67,6 +68,14 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
 
     final repo = ref.read(noteRepositoryProvider);
     for (final id in _selectedIds) {
+      final note = await repo.getById(id);
+      if (note != null) {
+        await FileUtils.deleteFiles([
+          ...note.imagePaths,
+          ...note.audioPaths,
+          ...note.filePaths,
+        ]);
+      }
       await repo.delete(id);
     }
     ref.invalidate(noteListProvider);

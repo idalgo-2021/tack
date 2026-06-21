@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/utils/date_formatter.dart';
+import '../../../core/utils/file_utils.dart';
 import '../../../data/models/note.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../widgets/note_text_field.dart';
@@ -41,6 +42,9 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
   double? _longitude;
   int? _savedNoteId;
   Timer? _saveTimer;
+
+  final Set<String> _newFilePaths = {};
+  final Set<String> _deletedFilePaths = {};
 
   Note? get _existingNote => widget.existingNote;
 
@@ -139,6 +143,15 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
     _saveTimer = Timer(const Duration(seconds: 2), _saveNote);
   }
 
+  void _handleFileRemoved(String path) {
+    if (_newFilePaths.contains(path)) {
+      _newFilePaths.remove(path);
+      FileUtils.deleteFile(path);
+    } else {
+      _deletedFilePaths.add(path);
+    }
+  }
+
   Future<void> _saveNote() async {
     final now = DateTime.now();
 
@@ -170,6 +183,10 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
 
     ref.invalidate(noteListProvider);
     ref.invalidate(tagListProvider);
+
+    await FileUtils.deleteFiles(_deletedFilePaths.toList());
+    _newFilePaths.clear();
+    _deletedFilePaths.clear();
 
     if (mounted) {
       setState(() => _hasChanges = false);
@@ -233,6 +250,9 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
             );
             if (confirm == true) {
               await _saveNote();
+            } else {
+              await FileUtils.deleteFiles(_newFilePaths.toList());
+              _newFilePaths.clear();
             }
           } else if (mounted) {
             setState(() => _hasChanges = false);
@@ -338,6 +358,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                             _imagePaths.remove(path);
                             _hasChanges = true;
                           });
+                          _handleFileRemoved(path);
                           if (autoSave) _scheduleAutoSave();
                         },
                       ),
@@ -354,6 +375,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                             _audioPaths.remove(audioPath);
                             _hasChanges = true;
                           });
+                          _handleFileRemoved(audioPath);
                           if (autoSave) _scheduleAutoSave();
                         },
                       )),
@@ -370,6 +392,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                               _filePaths.remove(path);
                               _hasChanges = true;
                             });
+                            _handleFileRemoved(path);
                             if (autoSave) _scheduleAutoSave();
                           },
                         )
@@ -385,6 +408,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                                   _filePaths.remove(path);
                                   _hasChanges = true;
                                 });
+                                _handleFileRemoved(path);
                                 if (autoSave) _scheduleAutoSave();
                               },
                             ),
@@ -402,18 +426,21 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
           onImageAdded: (path) {
             setState(() {
               _imagePaths.add(path);
+              _newFilePaths.add(path);
               _hasChanges = true;
             });
           },
           onAudioAdded: (path) {
             setState(() {
               _audioPaths.insert(0, path);
+              _newFilePaths.add(path);
               _hasChanges = true;
             });
           },
           onFileAdded: (path) {
             setState(() {
               _filePaths.add(path);
+              _newFilePaths.add(path);
               _hasChanges = true;
             });
           },

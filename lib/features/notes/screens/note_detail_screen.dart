@@ -7,6 +7,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/utils/export_helper.dart';
 import '../../../core/utils/date_formatter.dart';
+import '../../../core/utils/file_utils.dart';
 import '../../../data/models/note.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../providers/note_detail_provider.dart';
@@ -46,6 +47,9 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
   bool _hasChanges = false;
   Timer? _saveTimer;
 
+  final Set<String> _newFilePaths = {};
+  final Set<String> _deletedFilePaths = {};
+
   @override
   void initState() {
     super.initState();
@@ -79,6 +83,15 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
     _saveTimer = Timer(const Duration(seconds: 2), _save);
   }
 
+  void _handleFileRemoved(String path) {
+    if (_newFilePaths.contains(path)) {
+      _newFilePaths.remove(path);
+      FileUtils.deleteFile(path);
+    } else {
+      _deletedFilePaths.add(path);
+    }
+  }
+
   void _initFromNote(Note note) {
     _textController.text = note.text ?? '';
     _tags = List.from(note.tags);
@@ -110,6 +123,11 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
     ref.invalidate(noteListProvider);
     ref.invalidate(tagListProvider);
     ref.invalidate(noteDetailProvider(widget.noteId));
+
+    await FileUtils.deleteFiles(_deletedFilePaths.toList());
+    _newFilePaths.clear();
+    _deletedFilePaths.clear();
+
     _hasChanges = false;
   }
 
@@ -150,6 +168,8 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
       ),
     );
     if (confirmed != true) return;
+    final allPaths = [..._imagePaths, ..._audioPaths, ..._filePaths];
+    await FileUtils.deleteFiles(allPaths);
     final repo = ref.read(noteRepositoryProvider);
     await repo.delete(widget.noteId);
     if (context.mounted) {
@@ -256,6 +276,8 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
                 ),
               );
               if (discard == true) {
+                await FileUtils.deleteFiles(_newFilePaths.toList());
+                _newFilePaths.clear();
                 if (context.mounted) Navigator.of(context).pop();
               } else {
                 await _save();
@@ -408,6 +430,7 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
                                 _imagePaths.remove(path);
                                 _hasChanges = true;
                               });
+                              _handleFileRemoved(path);
                               if (autoSave) _scheduleAutoSave();
                             },
                           ),
@@ -424,6 +447,7 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
                                 _audioPaths.remove(path);
                                 _hasChanges = true;
                               });
+                              _handleFileRemoved(path);
                               if (autoSave) _scheduleAutoSave();
                             },
                           )),
@@ -440,6 +464,7 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
                                   _filePaths.remove(path);
                                   _hasChanges = true;
                                 });
+                                _handleFileRemoved(path);
                                 if (autoSave) _scheduleAutoSave();
                               },
                             )
@@ -457,6 +482,7 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
                                       _filePaths.remove(path);
                                       _hasChanges = true;
                                     });
+                                    _handleFileRemoved(path);
                                     if (autoSave) _scheduleAutoSave();
                                   },
                                 ),
@@ -476,6 +502,7 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
               onImageAdded: (path) {
                 setState(() {
                   _imagePaths.add(path);
+                  _newFilePaths.add(path);
                   _hasChanges = true;
                 });
                 if (autoSave) _scheduleAutoSave();
@@ -483,6 +510,7 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
               onAudioAdded: (path) {
                 setState(() {
                   _audioPaths.insert(0, path);
+                  _newFilePaths.add(path);
                   _hasChanges = true;
                 });
                 if (autoSave) _scheduleAutoSave();
@@ -490,6 +518,7 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
               onFileAdded: (path) {
                 setState(() {
                   _filePaths.add(path);
+                  _newFilePaths.add(path);
                   _hasChanges = true;
                 });
                 if (autoSave) _scheduleAutoSave();

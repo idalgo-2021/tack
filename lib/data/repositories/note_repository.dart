@@ -29,7 +29,7 @@ class NoteRepository {
     return result;
   }
 
-  Future<int> delete(int id, {bool deleteFiles = false}) async {
+  Future<int> delete(int id) async {
     final db = await _dbHelper.database;
     final note = await getById(id);
     final result = await db.delete(

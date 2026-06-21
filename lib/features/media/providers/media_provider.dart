@@ -66,7 +66,7 @@ class ImagePicking extends _$ImagePicking {
       source: ImageSource.gallery,
       maxWidth: 1920,
       maxHeight: 1920,
-      imageQuality: 85,
+
     );
     if (xFile == null) return null;
     return FileUtils.copyToImages(xFile.path);
@@ -77,9 +77,32 @@ class ImagePicking extends _$ImagePicking {
       source: ImageSource.camera,
       maxWidth: 1920,
       maxHeight: 1920,
-      imageQuality: 85,
+
     );
     if (xFile == null) return null;
+    return FileUtils.copyToImages(xFile.path);
+  }
+
+  Future<String?> recordVideo() async {
+    final xFile = await _picker.pickVideo(source: ImageSource.camera);
+    if (xFile == null) return null;
+    return FileUtils.copyToVideos(xFile.path);
+  }
+
+  Future<String?> pickVideoFromGallery() async {
+    final xFile = await _picker.pickVideo(source: ImageSource.gallery);
+    if (xFile == null) return null;
+    return FileUtils.copyToVideos(xFile.path);
+  }
+
+  Future<String?> pickMedia() async {
+    final xFile = await _picker.pickMedia();
+    if (xFile == null) return null;
+    final ext = xFile.path.split('.').last.toLowerCase();
+    const videoExts = {'mp4', 'avi', 'mkv', 'mov', 'webm', '3gp', 'm4v'};
+    if (videoExts.contains(ext)) {
+      return FileUtils.copyToVideos(xFile.path);
+    }
     return FileUtils.copyToImages(xFile.path);
   }
 }

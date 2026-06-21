@@ -6,6 +6,7 @@ class TableNotes {
   static const imagePaths = 'image_paths';
   static const audioPaths = 'audio_paths';
   static const filePaths = 'file_paths';
+  static const videoPaths = 'video_paths';
   static const createdAt = 'created_at';
   static const latitude = 'latitude';
   static const longitude = 'longitude';
@@ -35,6 +36,11 @@ class DatabaseSchema {
   static const addFilePathsColumn = '''
     ALTER TABLE ${TableNotes.tableName}
     ADD COLUMN ${TableNotes.filePaths} TEXT DEFAULT '[]'
+  ''';
+
+  static const addVideoPathsColumn = '''
+    ALTER TABLE ${TableNotes.tableName}
+    ADD COLUMN ${TableNotes.videoPaths} TEXT DEFAULT '[]'
   ''';
 
   static const createTagsTable = '''

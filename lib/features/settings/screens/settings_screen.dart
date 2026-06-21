@@ -29,7 +29,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     final autoSaveValue = ref.watch(autoSaveProvider);
     final localeValue = ref.watch(appLocaleProvider);
-    final compressImagesValue = ref.watch(compressImagesProvider);
     final autoGeotagValue = ref.watch(autoGeotagProvider);
     final viewModeValue = ref.watch(viewModeProvider);
     final showFileNamesValue = ref.watch(showFileNamesProvider);
@@ -109,13 +108,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             subtitle: Text(l10n.autoSaveDesc),
             value: autoSaveValue,
             onChanged: (v) => ref.read(settingsProvider.notifier).setAutoSave(v),
-          ),
-          SwitchListTile(
-            secondary: const Icon(Icons.compress),
-            title: Text(l10n.compressImages),
-            subtitle: Text(l10n.compressImagesDesc),
-            value: compressImagesValue,
-            onChanged: (v) => ref.read(settingsProvider.notifier).setCompressImages(v),
           ),
           SwitchListTile(
             secondary: const Icon(Icons.location_on),

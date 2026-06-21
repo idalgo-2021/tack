@@ -6,6 +6,7 @@ class FileUtils {
   static const _imagesDir = 'tack/images';
   static const _audioDir = 'tack/audio';
   static const _filesDir = 'tack/files';
+  static const _videosDir = 'tack/videos';
 
   static Future<String> get _appDir async {
     final dir = await getApplicationDocumentsDirectory();
@@ -51,6 +52,21 @@ class FileUtils {
 
   static Future<String> copyToFiles(String sourcePath) async {
     final dir = await filesDir;
+    final name = '${DateTime.now().millisecondsSinceEpoch}_${p.basename(sourcePath)}';
+    final dest = p.join(dir, name);
+    await File(sourcePath).copy(dest);
+    return dest;
+  }
+
+  static Future<String> get videosDir async {
+    final base = await _appDir;
+    final path = p.join(base, _videosDir);
+    await Directory(path).create(recursive: true);
+    return path;
+  }
+
+  static Future<String> copyToVideos(String sourcePath) async {
+    final dir = await videosDir;
     final name = '${DateTime.now().millisecondsSinceEpoch}_${p.basename(sourcePath)}';
     final dest = p.join(dir, name);
     await File(sourcePath).copy(dest);

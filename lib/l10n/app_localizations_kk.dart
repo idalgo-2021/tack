@@ -126,6 +126,9 @@ class AppLocalizationsKk extends AppLocalizations {
   String get audio => 'Аудио';
 
   @override
+  String get video => 'Бейне';
+
+  @override
   String get attachedFiles => 'Тіркелген файлдар';
 
   @override
@@ -133,6 +136,9 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get recordAudio => 'Аудио жазу';
+
+  @override
+  String get recordVideo => 'Бейне жазу';
 
   @override
   String get appearance => 'Сыртқы түрі';
@@ -163,12 +169,6 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get autoSaveDesc => 'Шыққанда автоматты түрде сақтау';
-
-  @override
-  String get compressImages => 'Суреттерді қысу';
-
-  @override
-  String get compressImagesDesc => 'Қосқанда фото өлшемін азайту';
 
   @override
   String get autoGeotag => 'Авто-геотег';

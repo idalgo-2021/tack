@@ -127,6 +127,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get audio => 'Audio';
 
   @override
+  String get video => 'Video';
+
+  @override
   String get attachedFiles => 'Angehängte Dateien';
 
   @override
@@ -134,6 +137,9 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get recordAudio => 'Audio aufnehmen';
+
+  @override
+  String get recordVideo => 'Video aufnehmen';
 
   @override
   String get appearance => 'Aussehen';
@@ -164,12 +170,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get autoSaveDesc => 'Automatisch speichern beim Verlassen';
-
-  @override
-  String get compressImages => 'Bilder komprimieren';
-
-  @override
-  String get compressImagesDesc => 'Fotogröße beim Hinzufügen reduzieren';
 
   @override
   String get autoGeotag => 'Auto-Geotag';

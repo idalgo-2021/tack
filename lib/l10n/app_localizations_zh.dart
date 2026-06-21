@@ -125,6 +125,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get audio => '音频';
 
   @override
+  String get video => '视频';
+
+  @override
   String get attachedFiles => '附件';
 
   @override
@@ -132,6 +135,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get recordAudio => '录制音频';
+
+  @override
+  String get recordVideo => '录制视频';
 
   @override
   String get appearance => '外观';
@@ -162,12 +168,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get autoSaveDesc => '退出时自动保存';
-
-  @override
-  String get compressImages => '压缩图片';
-
-  @override
-  String get compressImagesDesc => '添加时减小照片大小';
 
   @override
   String get autoGeotag => '自动地理标签';

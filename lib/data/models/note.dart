@@ -7,6 +7,7 @@ class Note {
   final List<String> imagePaths;
   final List<String> audioPaths;
   final List<String> filePaths;
+  final List<String> videoPaths;
   final DateTime createdAt;
   final double? latitude;
   final double? longitude;
@@ -18,6 +19,7 @@ class Note {
     this.imagePaths = const [],
     this.audioPaths = const [],
     this.filePaths = const [],
+    this.videoPaths = const [],
     required this.createdAt,
     this.latitude,
     this.longitude,
@@ -30,6 +32,7 @@ class Note {
     List<String>? imagePaths,
     List<String>? audioPaths,
     List<String>? filePaths,
+    List<String>? videoPaths,
     DateTime? createdAt,
     double? latitude,
     double? longitude,
@@ -42,6 +45,7 @@ class Note {
       imagePaths: imagePaths ?? this.imagePaths,
       audioPaths: audioPaths ?? this.audioPaths,
       filePaths: filePaths ?? this.filePaths,
+      videoPaths: videoPaths ?? this.videoPaths,
       createdAt: createdAt ?? this.createdAt,
       latitude: clearLocation ? null : (latitude ?? this.latitude),
       longitude: clearLocation ? null : (longitude ?? this.longitude),
@@ -56,6 +60,7 @@ class Note {
       'image_paths': jsonEncode(imagePaths),
       'audio_paths': jsonEncode(audioPaths),
       'file_paths': jsonEncode(filePaths),
+      'video_paths': jsonEncode(videoPaths),
       'created_at': createdAt.millisecondsSinceEpoch,
       'latitude': latitude,
       'longitude': longitude,
@@ -70,6 +75,7 @@ class Note {
       imagePaths: _parseJsonList(map['image_paths'] as String?),
       audioPaths: _parseJsonList(map['audio_paths'] as String?),
       filePaths: _parseJsonList(map['file_paths'] as String?),
+      videoPaths: _parseJsonList(map['video_paths'] as String?),
       createdAt: DateTime.fromMillisecondsSinceEpoch(map['created_at'] as int),
       latitude: (map['latitude'] as num?)?.toDouble(),
       longitude: (map['longitude'] as num?)?.toDouble(),

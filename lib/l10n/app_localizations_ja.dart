@@ -125,6 +125,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get audio => '音声';
 
   @override
+  String get video => 'ビデオ';
+
+  @override
   String get attachedFiles => '添付ファイル';
 
   @override
@@ -132,6 +135,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get recordAudio => '音声を録音';
+
+  @override
+  String get recordVideo => 'ビデオを録画';
 
   @override
   String get appearance => '外観';
@@ -162,12 +168,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get autoSaveDesc => '終了時に自動保存';
-
-  @override
-  String get compressImages => '画像を圧縮';
-
-  @override
-  String get compressImagesDesc => '追加時に写真サイズを縮小';
 
   @override
   String get autoGeotag => '自動ジオタグ';

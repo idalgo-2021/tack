@@ -39,6 +39,7 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
   List<String> _imagePaths = [];
   List<String> _audioPaths = [];
   List<String> _filePaths = [];
+  List<String> _videoPaths = [];
   double? _latitude;
   double? _longitude;
   DateTime? _createdAt;
@@ -98,6 +99,7 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
     _imagePaths = List.from(note.imagePaths);
     _audioPaths = List.from(note.audioPaths);
     _filePaths = List.from(note.filePaths);
+    _videoPaths = List.from(note.videoPaths);
     _latitude = note.latitude;
     _longitude = note.longitude;
     _createdAt = note.createdAt;
@@ -114,6 +116,7 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
       imagePaths: _imagePaths,
       audioPaths: _audioPaths,
       filePaths: _filePaths,
+      videoPaths: _videoPaths,
       createdAt: _createdAt ?? DateTime.now(),
       latitude: _latitude,
       longitude: _longitude,
@@ -168,7 +171,7 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
       ),
     );
     if (confirmed != true) return;
-    final allPaths = [..._imagePaths, ..._audioPaths, ..._filePaths];
+    final allPaths = [..._imagePaths, ..._audioPaths, ..._filePaths, ..._videoPaths];
     await FileUtils.deleteFiles(allPaths);
     final repo = ref.read(noteRepositoryProvider);
     await repo.delete(widget.noteId);
@@ -201,6 +204,7 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
       final attachPaths = <String>[allFiles.first.path];
       for (final p in note.imagePaths) { attachPaths.add(p); }
       for (final p in note.audioPaths) { attachPaths.add(p); }
+      for (final p in note.videoPaths) { attachPaths.add(p); }
       for (final p in note.filePaths) { attachPaths.add(p); }
       final zipPath = '${Directory.systemTemp.path}/smart_note_$timestamp.zip';
       await ExportHelper.createZip(zipPath, attachPaths);
@@ -210,6 +214,7 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
     } else {
       for (final p in note.imagePaths) { allFiles.add(XFile(p)); }
       for (final p in note.audioPaths) { allFiles.add(XFile(p)); }
+      for (final p in note.videoPaths) { allFiles.add(XFile(p)); }
       for (final p in note.filePaths) { allFiles.add(XFile(p)); }
       await SharePlus.instance.share(
         ShareParams(files: allFiles),
@@ -452,6 +457,43 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
                             },
                           )),
                         ],
+                        if (_videoPaths.isNotEmpty) ...[
+                          const SizedBox(height: 16),
+                          Text(l10n.video, style: theme.textTheme.titleSmall),
+                          const SizedBox(height: 8),
+                          if (showThumbnails)
+                            FileThumbnailGrid(
+                              filePaths: _videoPaths,
+                              onDelete: (path) {
+                                setState(() {
+                                  _videoPaths.remove(path);
+                                  _hasChanges = true;
+                                });
+                                _handleFileRemoved(path);
+                                if (autoSave) _scheduleAutoSave();
+                              },
+                            )
+                          else
+                            ..._videoPaths.map((path) => Card(
+                              margin: const EdgeInsets.symmetric(vertical: 2),
+                              child: ListTile(
+                                dense: true,
+                                leading: const Icon(Icons.videocam),
+                                title: Text(path.split('/').last, style: const TextStyle(fontSize: 13)),
+                                trailing: IconButton(
+                                  icon: const Icon(Icons.close, size: 18),
+                                  onPressed: () {
+                                    setState(() {
+                                      _videoPaths.remove(path);
+                                      _hasChanges = true;
+                                    });
+                                    _handleFileRemoved(path);
+                                    if (autoSave) _scheduleAutoSave();
+                                  },
+                                ),
+                              ),
+                            )),
+                        ],
                         if (_filePaths.isNotEmpty) ...[
                           const SizedBox(height: 16),
                           Text(l10n.files, style: theme.textTheme.titleSmall),
@@ -502,6 +544,14 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
               onImageAdded: (path) {
                 setState(() {
                   _imagePaths.add(path);
+                  _newFilePaths.add(path);
+                  _hasChanges = true;
+                });
+                if (autoSave) _scheduleAutoSave();
+              },
+              onVideoAdded: (path) {
+                setState(() {
+                  _videoPaths.add(path);
                   _newFilePaths.add(path);
                   _hasChanges = true;
                 });

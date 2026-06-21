@@ -12,8 +12,6 @@ class AppDefaults {
 
   // Поведение
   static const bool autoSave = false;
-  static const bool compressImages = true;
-  static const int imageQuality = 85;
   static const bool updateTimestampOnEdit = false;
   static const bool autoGeotag = false;
   static const bool showFileNames = false;

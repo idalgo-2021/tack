@@ -63,6 +63,7 @@ class NoteRepository {
     bool? hasImages,
     bool? hasAudio,
     bool? hasFiles,
+    bool? hasVideos,
     String sortBy = 'created_at',
     bool ascending = false,
   }) async {
@@ -98,6 +99,9 @@ class NoteRepository {
     }
     if (hasFiles == true) {
       where.add('${TableNotes.filePaths} != \'[]\'');
+    }
+    if (hasVideos == true) {
+      where.add('${TableNotes.videoPaths} != \'[]\'');
     }
 
     final maps = await db.query(

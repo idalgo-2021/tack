@@ -348,6 +348,12 @@ abstract class AppLocalizations {
   /// **'Audio'**
   String get audio;
 
+  /// No description provided for @video.
+  ///
+  /// In en, this message translates to:
+  /// **'Video'**
+  String get video;
+
   /// No description provided for @attachedFiles.
   ///
   /// In en, this message translates to:
@@ -365,6 +371,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Record audio'**
   String get recordAudio;
+
+  /// No description provided for @recordVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Record video'**
+  String get recordVideo;
 
   /// No description provided for @appearance.
   ///
@@ -425,18 +437,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Automatically save on exit'**
   String get autoSaveDesc;
-
-  /// No description provided for @compressImages.
-  ///
-  /// In en, this message translates to:
-  /// **'Compress images'**
-  String get compressImages;
-
-  /// No description provided for @compressImagesDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'Reduce photo size when adding'**
-  String get compressImagesDesc;
 
   /// No description provided for @autoGeotag.
   ///

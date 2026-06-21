@@ -73,6 +73,7 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
         await FileUtils.deleteFiles([
           ...note.imagePaths,
           ...note.audioPaths,
+          ...note.videoPaths,
           ...note.filePaths,
         ]);
       }
@@ -114,6 +115,7 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
       for (final note in selected) {
         for (final p in note.imagePaths) { attachPaths.add(p); }
         for (final p in note.audioPaths) { attachPaths.add(p); }
+        for (final p in note.videoPaths) { attachPaths.add(p); }
         for (final p in note.filePaths) { attachPaths.add(p); }
       }
       final zipPath = '${Directory.systemTemp.path}/tack_$timestamp.zip';
@@ -125,6 +127,7 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
       for (final note in selected) {
         for (final p in note.imagePaths) { allFiles.add(XFile(p)); }
         for (final p in note.audioPaths) { allFiles.add(XFile(p)); }
+        for (final p in note.videoPaths) { allFiles.add(XFile(p)); }
         for (final p in note.filePaths) { allFiles.add(XFile(p)); }
       }
       await SharePlus.instance.share(

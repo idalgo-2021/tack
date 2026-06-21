@@ -21,7 +21,6 @@ class Settings extends _$Settings {
 
   Future<void> setLocale(String locale) async { await _set('locale', locale); }
   Future<void> setAutoSave(bool enabled) async { await _set('auto_save', enabled); }
-  Future<void> setCompressImages(bool compress) async { await _set('compress_images', compress); }
   Future<void> setUpdateTimestampOnEdit(bool enabled) async { await _set('update_timestamp_on_edit', enabled); }
   Future<void> setAutoGeotag(bool enabled) async { await _set('auto_geotag', enabled); }
   Future<void> setViewMode(ViewMode mode) async { await _set('view_mode', mode.name); }
@@ -72,9 +71,6 @@ String appLocale(Ref ref) => _prefString(ref, 'locale', AppDefaults.locale);
 
 @riverpod
 bool autoSave(Ref ref) => _prefBool(ref, 'auto_save', AppDefaults.autoSave);
-
-@riverpod
-bool compressImages(Ref ref) => _prefBool(ref, 'compress_images', AppDefaults.compressImages);
 
 @riverpod
 bool updateTimestampOnEdit(Ref ref) => _prefBool(ref, 'update_timestamp_on_edit', AppDefaults.updateTimestampOnEdit);

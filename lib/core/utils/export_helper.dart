@@ -32,6 +32,7 @@ class ExportHelper {
       final noteFiles = [
         ...note.imagePaths,
         ...note.audioPaths,
+        ...note.videoPaths,
         ...note.filePaths,
       ];
       if (noteFiles.isNotEmpty) {
@@ -51,6 +52,7 @@ class ExportHelper {
       final noteFiles = [
         ...note.imagePaths,
         ...note.audioPaths,
+        ...note.videoPaths,
         ...note.filePaths,
       ];
       return {

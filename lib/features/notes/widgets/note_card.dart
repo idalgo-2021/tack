@@ -82,6 +82,8 @@ class NoteCard extends ConsumerWidget {
                         _MediaBadge(icon: Icons.image, count: note.imagePaths.length, colorScheme: colorScheme, theme: theme),
                       if (note.audioPaths.isNotEmpty)
                         _MediaBadge(icon: Icons.mic, count: note.audioPaths.length, colorScheme: colorScheme, theme: theme),
+                      if (note.videoPaths.isNotEmpty)
+                        _MediaBadge(icon: Icons.videocam, count: note.videoPaths.length, colorScheme: colorScheme, theme: theme),
                       if (note.filePaths.isNotEmpty)
                         _MediaBadge(icon: Icons.attach_file, count: note.filePaths.length, colorScheme: colorScheme, theme: theme),
                     ],
@@ -225,7 +227,7 @@ class NoteCard extends ConsumerWidget {
     return [...tags.take(5), tags.length - 5];
   }
 
-  List<String> _allFiles(Note note) => [...note.imagePaths, ...note.audioPaths, ...note.filePaths];
+  List<String> _allFiles(Note note) => [...note.imagePaths, ...note.audioPaths, ...note.videoPaths, ...note.filePaths];
 }
 
 class _MediaBadge extends StatelessWidget {

@@ -126,6 +126,9 @@ class AppLocalizationsKy extends AppLocalizations {
   String get audio => 'Аудио';
 
   @override
+  String get video => 'Видео';
+
+  @override
   String get attachedFiles => 'Тиркелген файлдар';
 
   @override
@@ -133,6 +136,9 @@ class AppLocalizationsKy extends AppLocalizations {
 
   @override
   String get recordAudio => 'Аудио жаздыруу';
+
+  @override
+  String get recordVideo => 'Видео жаздыру';
 
   @override
   String get appearance => 'Сырткы көрүнүш';
@@ -163,12 +169,6 @@ class AppLocalizationsKy extends AppLocalizations {
 
   @override
   String get autoSaveDesc => 'Чыкканда автоматтык түрдө сактоо';
-
-  @override
-  String get compressImages => 'Сүрөттөрдү кысуу';
-
-  @override
-  String get compressImagesDesc => 'Кошкондо сүрөт өлчөмүн азайтуу';
 
   @override
   String get autoGeotag => 'Авто-геотег';

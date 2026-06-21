@@ -26,10 +26,14 @@ class DatabaseHelper {
           await db.execute(query);
         }
         await db.execute(DatabaseSchema.addFilePathsColumn);
+        await db.execute(DatabaseSchema.addVideoPathsColumn);
       },
       onUpgrade: (db, oldVersion, newVersion) async {
         if (oldVersion < 2) {
           await db.execute(DatabaseSchema.addFilePathsColumn);
+        }
+        if (oldVersion < 3) {
+          await db.execute(DatabaseSchema.addVideoPathsColumn);
         }
       },
     );

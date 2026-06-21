@@ -126,6 +126,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get audio => 'Ses';
 
   @override
+  String get video => 'Video';
+
+  @override
   String get attachedFiles => 'Ekli dosyalar';
 
   @override
@@ -133,6 +136,9 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get recordAudio => 'Ses kaydet';
+
+  @override
+  String get recordVideo => 'Video kaydet';
 
   @override
   String get appearance => 'Görünüm';
@@ -163,12 +169,6 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get autoSaveDesc => 'Çıkışta otomatik kaydet';
-
-  @override
-  String get compressImages => 'Görselleri sıkıştır';
-
-  @override
-  String get compressImagesDesc => 'Eklerken fotoğraf boyutunu küçült';
 
   @override
   String get autoGeotag => 'Otomatik coğrafi etiket';

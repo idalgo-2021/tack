@@ -126,6 +126,9 @@ class AppLocalizationsUk extends AppLocalizations {
   String get audio => 'Аудіо';
 
   @override
+  String get video => 'Відео';
+
+  @override
   String get attachedFiles => 'Прикріплені файли';
 
   @override
@@ -133,6 +136,9 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get recordAudio => 'Записати аудіо';
+
+  @override
+  String get recordVideo => 'Записати відео';
 
   @override
   String get appearance => 'Зовнішній вигляд';
@@ -163,12 +169,6 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get autoSaveDesc => 'Автоматично зберігати при виході';
-
-  @override
-  String get compressImages => 'Стискати зображення';
-
-  @override
-  String get compressImagesDesc => 'Зменшувати розмір фото при додаванні';
 
   @override
   String get autoGeotag => 'Авто-геотег';

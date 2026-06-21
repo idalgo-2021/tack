@@ -37,6 +37,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
   List<String> _imagePaths = [];
   List<String> _audioPaths = [];
   List<String> _filePaths = [];
+  List<String> _videoPaths = [];
   List<String> _tagNames = [];
   double? _latitude;
   double? _longitude;
@@ -58,6 +59,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
       _imagePaths.isEmpty &&
       _audioPaths.isEmpty &&
       _filePaths.isEmpty &&
+      _videoPaths.isEmpty &&
       !hasLocation;
 
   @override
@@ -68,6 +70,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
     _searchController = TextEditingController();
     _createController = TextEditingController();
     _filePaths = List.from(_existingNote?.filePaths ?? []);
+    _videoPaths = List.from(_existingNote?.videoPaths ?? []);
     _imagePaths = List.from(_existingNote?.imagePaths ?? []);
     _audioPaths = List.from(_existingNote?.audioPaths ?? []);
     _tagNames = List.from(_existingNote?.tags ?? []);
@@ -168,6 +171,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
       imagePaths: _imagePaths,
       audioPaths: _audioPaths,
       filePaths: _filePaths,
+      videoPaths: _videoPaths,
       createdAt: _existingNote?.createdAt ?? now,
       latitude: _latitude,
       longitude: _longitude,
@@ -380,6 +384,41 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                         },
                       )),
                     ],
+                    if (_videoPaths.isNotEmpty) ...[
+                      const SizedBox(height: 16),
+                      Text(l10n.video, style: theme.textTheme.titleSmall),
+                      const SizedBox(height: 8),
+                      if (showThumbnails)
+                        FileThumbnailGrid(
+                          filePaths: _videoPaths,
+                          onDelete: (path) {
+                            setState(() {
+                              _videoPaths.remove(path);
+                              _hasChanges = true;
+                            });
+                            _handleFileRemoved(path);
+                            if (autoSave) _scheduleAutoSave();
+                          },
+                        )
+                      else
+                        ..._videoPaths.map((path) => Card(
+                          child: ListTile(
+                            leading: const Icon(Icons.videocam),
+                            title: Text(path.split('/').last),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.close),
+                              onPressed: () {
+                                setState(() {
+                                  _videoPaths.remove(path);
+                                  _hasChanges = true;
+                                });
+                                _handleFileRemoved(path);
+                                if (autoSave) _scheduleAutoSave();
+                              },
+                            ),
+                          ),
+                        )),
+                    ],
                     if (_filePaths.isNotEmpty) ...[
                       const SizedBox(height: 16),
                       Text(l10n.files, style: theme.textTheme.titleSmall),
@@ -421,11 +460,18 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
             ),
           ],
         ),
-        bottomSheet: NoteActionButtons(
+          bottomSheet: NoteActionButtons(
           hasLocation: hasLocation,
           onImageAdded: (path) {
             setState(() {
               _imagePaths.add(path);
+              _newFilePaths.add(path);
+              _hasChanges = true;
+            });
+          },
+          onVideoAdded: (path) {
+            setState(() {
+              _videoPaths.add(path);
               _newFilePaths.add(path);
               _hasChanges = true;
             });

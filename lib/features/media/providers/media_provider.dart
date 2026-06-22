@@ -80,13 +80,13 @@ class ImagePicking extends _$ImagePicking {
 
     );
     if (xFile == null) return null;
-    return FileUtils.copyToImages(xFile.path);
+    return FileUtils.copyToCameraImages(xFile.path);
   }
 
   Future<String?> recordVideo() async {
     final xFile = await _picker.pickVideo(source: ImageSource.camera);
     if (xFile == null) return null;
-    return FileUtils.copyToVideos(xFile.path);
+    return FileUtils.copyToCameraVideos(xFile.path);
   }
 
   Future<String?> pickVideoFromGallery() async {

@@ -119,13 +119,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get allNotes => '所有笔记';
 
   @override
-  String get photo => '照片';
-
-  @override
   String get audio => '音频';
 
   @override
-  String get video => '视频';
+  String get camera => '相机';
 
   @override
   String get attachedFiles => '附件';
@@ -174,12 +171,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get autoGeotagDesc => '自动添加坐标';
-
-  @override
-  String get showFileNames => '文件名';
-
-  @override
-  String get showFileNamesDesc => '在笔记卡片中显示名称';
 
   @override
   String get showTimestamp => '时间戳';
@@ -488,6 +479,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get exportNoNotes => 'No notes to export';
 
   @override
+  String get showFileThumbnails => 'File thumbnails';
+
+  @override
+  String get showFileThumbnailsDesc => 'Show files as grid with icons';
+
+  @override
   String exportError(Object error) {
     return 'Export error: $error';
   }
@@ -507,12 +504,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String toDate(Object date) {
     return 'To: $date';
   }
-
-  @override
-  String get showFileThumbnails => 'File thumbnails';
-
-  @override
-  String get showFileThumbnailsDesc => 'Show files as grid with icons';
 
   @override
   String get recordingError => 'Recording failed. Please try again.';

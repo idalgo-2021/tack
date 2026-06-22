@@ -5,6 +5,13 @@ import '../models/note.dart';
 class NoteRepository {
   final DatabaseHelper _dbHelper = DatabaseHelper.instance;
 
+  static String _escapeLike(String s) {
+    return s
+      .replaceAll('\\', '\\\\')
+      .replaceAll('%', '\\%')
+      .replaceAll('_', '\\_');
+  }
+
   Future<int> insert(Note note) async {
     final db = await _dbHelper.database;
     final id = await db.insert(TableNotes.tableName, note.toMap());
@@ -77,8 +84,8 @@ class NoteRepository {
     }
 
     if (tagFilter != null && tagFilter.isNotEmpty) {
-      where.add('${TableNotes.tags} LIKE ?');
-      whereArgs.add('%"$tagFilter"%');
+      where.add('${TableNotes.tags} LIKE ? ESCAPE \'\\\'');
+      whereArgs.add('%"${_escapeLike(tagFilter)}"%');
     }
 
     if (dateFrom != null) {

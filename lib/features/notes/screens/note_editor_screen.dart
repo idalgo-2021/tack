@@ -1,22 +1,21 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/utils/date_formatter.dart';
+import '../../../core/utils/file_type_icons.dart';
+
 import '../../../core/utils/file_utils.dart';
 import '../../../data/models/note.dart';
-import '../../../core/providers/repository_providers.dart';
-import '../widgets/note_text_field.dart';
 import '../../media/widgets/audio_player_widget.dart';
 import '../../media/widgets/file_thumbnail_grid.dart';
-import '../../media/widgets/image_grid_widget.dart';
 import '../../media/widgets/recording_banner.dart';
+import '../../media/widgets/thumbnail_preview.dart';
+
 import '../../media/providers/media_provider.dart';
 import '../../settings/providers/settings_provider.dart';
-import '../../tags/providers/tag_provider.dart';
-import '../../tags/widgets/tag_selector_dialog.dart';
-import '../providers/note_list_provider.dart';
+import '../widgets/note_editor_base.dart';
+import '../widgets/note_text_field.dart';
 import '../widgets/note_action_buttons.dart';
 
 class NoteEditorScreen extends ConsumerStatefulWidget {
@@ -28,59 +27,29 @@ class NoteEditorScreen extends ConsumerStatefulWidget {
   ConsumerState<NoteEditorScreen> createState() => _NoteEditorScreenState();
 }
 
-class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
-  late final TextEditingController _textController;
-  late final FocusNode _focusNode;
-  late final TextEditingController _searchController;
-  late final TextEditingController _createController;
-  bool _hasChanges = false;
-  List<String> _imagePaths = [];
-  List<String> _audioPaths = [];
-  List<String> _filePaths = [];
-  List<String> _videoPaths = [];
-  List<String> _tagNames = [];
-  double? _latitude;
-  double? _longitude;
-  int? _savedNoteId;
-  Timer? _saveTimer;
-
-  final Set<String> _newFilePaths = {};
-  final Set<String> _deletedFilePaths = {};
-
+class _NoteEditorScreenState extends NoteEditorState<NoteEditorScreen> {
   Note? get _existingNote => widget.existingNote;
 
-  bool get _hasUnsavedChanges => _hasChanges;
+  @override
+  int? get noteIdForSave => _existingNote?.id ?? savedNoteId;
 
-  bool get hasLocation => _latitude != null && _longitude != null;
-
-  bool get _isEmptyNote =>
-      _textController.text.trim().isEmpty &&
-      _tagNames.isEmpty &&
-      _imagePaths.isEmpty &&
-      _audioPaths.isEmpty &&
-      _filePaths.isEmpty &&
-      _videoPaths.isEmpty &&
-      !hasLocation;
+  @override
+  DateTime get effectiveCreatedAt => _existingNote?.createdAt ?? DateTime.now();
 
   @override
   void initState() {
     super.initState();
-    _textController = TextEditingController(text: _existingNote?.text ?? '');
-    _focusNode = FocusNode();
-    _searchController = TextEditingController();
-    _createController = TextEditingController();
-    _filePaths = List.from(_existingNote?.filePaths ?? []);
-    _videoPaths = List.from(_existingNote?.videoPaths ?? []);
-    _imagePaths = List.from(_existingNote?.imagePaths ?? []);
-    _audioPaths = List.from(_existingNote?.audioPaths ?? []);
-    _tagNames = List.from(_existingNote?.tags ?? []);
-    _latitude = _existingNote?.latitude;
-    _longitude = _existingNote?.longitude;
-
-    _textController.addListener(_onFieldChanged);
+    textController.text = _existingNote?.text ?? '';
+    imagePaths = List.from(_existingNote?.imagePaths ?? []);
+    audioPaths = List.from(_existingNote?.audioPaths ?? []);
+    filePaths = List.from(_existingNote?.filePaths ?? []);
+    videoPaths = List.from(_existingNote?.videoPaths ?? []);
+    tagNames = List.from(_existingNote?.tags ?? []);
+    latitude = _existingNote?.latitude;
+    longitude = _existingNote?.longitude;
 
     if (_existingNote == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _focusNode.requestFocus());
+      WidgetsBinding.instance.addPostFrameCallback((_) => focusNode.requestFocus());
       if (ref.read(autoGeotagProvider)) {
         _requestAutoLocation();
       }
@@ -107,11 +76,11 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
       );
       if (mounted) {
         setState(() {
-          _latitude = position.latitude;
-          _longitude = position.longitude;
-          _hasChanges = true;
+          latitude = position.latitude;
+          longitude = position.longitude;
+          hasChanges = true;
         });
-        if (ref.read(autoSaveProvider)) _scheduleAutoSave();
+        if (ref.read(autoSaveProvider)) scheduleAutoSave();
       }
     } catch (_) {
       if (mounted) {
@@ -120,104 +89,6 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
         );
       }
     }
-  }
-
-  @override
-  void dispose() {
-    _textController.removeListener(_onFieldChanged);
-    _saveTimer?.cancel();
-    _textController.dispose();
-    _focusNode.dispose();
-    _searchController.dispose();
-    _createController.dispose();
-    super.dispose();
-  }
-
-  void _onFieldChanged() {
-    if (!_hasChanges) {
-      setState(() => _hasChanges = true);
-    }
-    final autoSave = ref.read(autoSaveProvider);
-    if (autoSave) _scheduleAutoSave();
-  }
-
-  void _scheduleAutoSave() {
-    _saveTimer?.cancel();
-    _saveTimer = Timer(const Duration(seconds: 2), _saveNote);
-  }
-
-  void _handleFileRemoved(String path) {
-    if (_newFilePaths.contains(path)) {
-      _newFilePaths.remove(path);
-      FileUtils.deleteFile(path);
-    } else {
-      _deletedFilePaths.add(path);
-    }
-  }
-
-  Future<void> _saveNote() async {
-    final now = DateTime.now();
-
-    if (_isEmptyNote) {
-      if (mounted) setState(() => _hasChanges = false);
-      return;
-    }
-
-    final noteId = _existingNote?.id ?? _savedNoteId;
-    final note = Note(
-      id: noteId,
-      text: _textController.text.trim().isEmpty ? null : _textController.text.trim(),
-      tags: _tagNames,
-      imagePaths: _imagePaths,
-      audioPaths: _audioPaths,
-      filePaths: _filePaths,
-      videoPaths: _videoPaths,
-      createdAt: _existingNote?.createdAt ?? now,
-      latitude: _latitude,
-      longitude: _longitude,
-    );
-
-    final repo = ref.read(noteRepositoryProvider);
-    if (noteId != null) {
-      await repo.update(note);
-    } else {
-      final id = await repo.insert(note);
-      _savedNoteId = id;
-    }
-
-    ref.invalidate(noteListProvider);
-    ref.invalidate(tagListProvider);
-
-    await FileUtils.deleteFiles(_deletedFilePaths.toList());
-    _newFilePaths.clear();
-    _deletedFilePaths.clear();
-
-    if (mounted) {
-      setState(() => _hasChanges = false);
-    }
-  }
-
-  Future<void> _showTagSelector() async {
-    ref.invalidate(tagListProvider);
-    final repo = ref.read(tagRepositoryProvider);
-    final allTags = await repo.getAll();
-    if (!mounted) return;
-    showDialog(
-      context: context,
-      builder: (ctx) => TagSelectorDialog(
-        allTags: allTags,
-        initialSelected: _tagNames,
-        l10n: AppLocalizations.of(context),
-        onApply: (selected) {
-          setState(() {
-            _tagNames = selected;
-            _hasChanges = true;
-          });
-          final autoSave = ref.read(autoSaveProvider);
-          if (autoSave) _scheduleAutoSave();
-        },
-      ),
-    );
   }
 
   @override
@@ -230,11 +101,11 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
     final showThumbnails = ref.watch(showFileThumbnailsProvider);
 
     return PopScope(
-      canPop: !_hasUnsavedChanges,
+      canPop: !hasChanges,
       onPopInvokedWithResult: (didPop, _) async {
         if (didPop) return;
-        if (!autoSave && _hasChanges) {
-          if (!_isEmptyNote) {
+        if (!autoSave && hasChanges) {
+          if (!isEmptyNote) {
             final confirm = await showDialog<bool>(
               context: context,
               builder: (ctx) => AlertDialog(
@@ -253,16 +124,16 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
               ),
             );
             if (confirm == true) {
-              await _saveNote();
+              await saveNote();
             } else {
-              await FileUtils.deleteFiles(_newFilePaths.toList());
-              _newFilePaths.clear();
+              await FileUtils.deleteFiles(newFilePaths.toList());
+              newFilePaths.clear();
             }
           } else if (mounted) {
-            setState(() => _hasChanges = false);
+            setState(() => hasChanges = false);
           }
-        } else if (autoSave && _hasChanges) {
-          await _saveNote();
+        } else if (autoSave && hasChanges) {
+          await saveNote();
         }
         if (context.mounted) Navigator.pop(context);
       },
@@ -274,8 +145,8 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
               Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: FilledButton(
-                  onPressed: _hasChanges ? () async {
-                    await _saveNote();
+                  onPressed: hasChanges ? () async {
+                    await saveNote();
                     if (context.mounted) Navigator.pop(context);
                   } : null,
                   child: Text(l10n.save),
@@ -299,9 +170,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                             Icon(Icons.access_time, size: 14, color: theme.colorScheme.onSurfaceVariant),
                             const SizedBox(width: 6),
                             Text(
-                              DateFormatter.formatAbsoluteWithWeekday(
-                                _existingNote?.createdAt ?? DateTime.now(),
-                              ),
+                              DateFormatter.formatAbsoluteWithWeekday(effectiveCreatedAt),
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: theme.colorScheme.onSurfaceVariant,
                               ),
@@ -312,7 +181,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                             Icon(Icons.location_on, size: 14, color: theme.colorScheme.onSurfaceVariant),
                             const SizedBox(width: 4),
                             Text(
-                              DateFormatter.formatDMS(_latitude!, _longitude!),
+                              DateFormatter.formatDMS(latitude!, longitude!),
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: theme.colorScheme.onSurfaceVariant,
                               ),
@@ -326,14 +195,14 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                       spacing: 6,
                       runSpacing: 4,
                       children: [
-                        ..._tagNames.map((name) => Chip(
+                        ...tagNames.map((name) => Chip(
                           label: Text('#$name', style: const TextStyle(fontSize: 12)),
                           onDeleted: () {
                             setState(() {
-                              _tagNames.remove(name);
-                              _hasChanges = true;
+                              tagNames.remove(name);
+                              hasChanges = true;
                             });
-                            if (autoSave) _scheduleAutoSave();
+                            if (autoSave) scheduleAutoSave();
                           },
                           materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           visualDensity: VisualDensity.compact,
@@ -341,7 +210,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                         ActionChip(
                           label: Text(l10n.selectTags, style: const TextStyle(fontSize: 12)),
                           avatar: const Icon(Icons.add, size: 16),
-                          onPressed: _showTagSelector,
+                          onPressed: showTagSelector,
                           materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           visualDensity: VisualDensity.compact,
                         ),
@@ -349,164 +218,168 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                     ),
                     const SizedBox(height: 16),
                     NoteTextField(
-                      controller: _textController,
-                      focusNode: _focusNode,
+                      controller: textController,
+                      focusNode: focusNode,
                       hintText: l10n.startWriting,
                     ),
-                    if (_imagePaths.isNotEmpty) ...[
+if (cameraPaths.isNotEmpty) ...[
                       const SizedBox(height: 16),
-                      ImageGridWidget(
-                        imagePaths: _imagePaths,
-                        onDelete: (path) {
-                          setState(() {
-                            _imagePaths.remove(path);
-                            _hasChanges = true;
-                          });
-                          _handleFileRemoved(path);
-                          if (autoSave) _scheduleAutoSave();
-                        },
-                      ),
-                    ],
-                    if (_audioPaths.isNotEmpty) ...[
-                      const SizedBox(height: 16),
-                      Text(l10n.audio, style: theme.textTheme.titleSmall),
-                      const SizedBox(height: 8),
-                      ..._audioPaths.map((audioPath) => AudioPlayerWidget(
-                        key: ValueKey(audioPath),
-                        audioPath: audioPath,
-                        onDelete: () {
-                          setState(() {
-                            _audioPaths.remove(audioPath);
-                            _hasChanges = true;
-                          });
-                          _handleFileRemoved(audioPath);
-                          if (autoSave) _scheduleAutoSave();
-                        },
-                      )),
-                    ],
-                    if (_videoPaths.isNotEmpty) ...[
-                      const SizedBox(height: 16),
-                      Text(l10n.video, style: theme.textTheme.titleSmall),
+                      Text(l10n.camera, style: theme.textTheme.titleSmall),
                       const SizedBox(height: 8),
                       if (showThumbnails)
                         FileThumbnailGrid(
-                          filePaths: _videoPaths,
+                          filePaths: cameraPaths,
+                          showLabels: true,
+                          previewPaths: allPreviewPaths,
                           onDelete: (path) {
                             setState(() {
-                              _videoPaths.remove(path);
-                              _hasChanges = true;
+                              imagePaths.remove(path);
+                              videoPaths.remove(path);
+                              hasChanges = true;
                             });
-                            _handleFileRemoved(path);
-                            if (autoSave) _scheduleAutoSave();
+                            handleFileRemoved(path);
+                            if (autoSave) scheduleAutoSave();
                           },
                         )
                       else
-                        ..._videoPaths.map((path) => Card(
+                        ...cameraPaths.map((p) => Card(
                           child: ListTile(
-                            leading: const Icon(Icons.videocam),
-                            title: Text(path.split('/').last),
+                            leading: Icon(isImageFile(p) ? Icons.image : Icons.videocam),
+                            title: Text(p.split('/').last),
+                            onTap: () => ThumbnailPreview.show(context, allPreviewPaths, initialIndex: allPreviewPaths.indexOf(p)),
                             trailing: IconButton(
                               icon: const Icon(Icons.close),
                               onPressed: () {
                                 setState(() {
-                                  _videoPaths.remove(path);
-                                  _hasChanges = true;
+                                  imagePaths.remove(p);
+                                  videoPaths.remove(p);
+                                  hasChanges = true;
                                 });
-                                _handleFileRemoved(path);
-                                if (autoSave) _scheduleAutoSave();
+                                handleFileRemoved(p);
+                                if (autoSave) scheduleAutoSave();
                               },
                             ),
                           ),
                         )),
                     ],
-                    if (_filePaths.isNotEmpty) ...[
+                    if (audioPaths.isNotEmpty) ...[
+                      const SizedBox(height: 16),
+                      Text(l10n.audio, style: theme.textTheme.titleSmall),
+                      const SizedBox(height: 8),
+                      ...audioPaths.map((audioPath) => AudioPlayerWidget(
+                        key: ValueKey(audioPath),
+                        audioPath: audioPath,
+                        onDelete: () {
+                          setState(() {
+                            audioPaths.remove(audioPath);
+                            hasChanges = true;
+                          });
+                          handleFileRemoved(audioPath);
+                          if (autoSave) scheduleAutoSave();
+                        },
+                      ))
+
+                    ],
+if (allFilePaths.isNotEmpty) ...[
                       const SizedBox(height: 16),
                       Text(l10n.files, style: theme.textTheme.titleSmall),
                       const SizedBox(height: 8),
                       if (showThumbnails)
                         FileThumbnailGrid(
-                          filePaths: _filePaths,
+                          filePaths: allFilePaths,
+                          showLabels: true,
+                          previewPaths: allPreviewPaths,
                           onDelete: (path) {
                             setState(() {
-                              _filePaths.remove(path);
-                              _hasChanges = true;
+                              imagePaths.remove(path);
+                              videoPaths.remove(path);
+                              filePaths.remove(path);
+                              hasChanges = true;
                             });
-                            _handleFileRemoved(path);
-                            if (autoSave) _scheduleAutoSave();
+                            handleFileRemoved(path);
+                            if (autoSave) scheduleAutoSave();
                           },
                         )
                       else
-                        ..._filePaths.map((path) => Card(
+                        ...allFilePaths.map((p) => Card(
                           child: ListTile(
-                            leading: const Icon(Icons.insert_drive_file),
-                            title: Text(path.split('/').last),
+                            leading: Icon(isImageFile(p)
+                                ? Icons.image
+                                : isVideoFile(p)
+                                    ? Icons.videocam
+                                    : fileIcon(p)),
+                            title: Text(p.split('/').last),
+                            onTap: () => ThumbnailPreview.show(context, allPreviewPaths, initialIndex: allPreviewPaths.indexOf(p)),
                             trailing: IconButton(
                               icon: const Icon(Icons.close),
                               onPressed: () {
                                 setState(() {
-                                  _filePaths.remove(path);
-                                  _hasChanges = true;
+                                  imagePaths.remove(p);
+                                  videoPaths.remove(p);
+                                  filePaths.remove(p);
+                                  hasChanges = true;
                                 });
-                                _handleFileRemoved(path);
-                                if (autoSave) _scheduleAutoSave();
+                                handleFileRemoved(p);
+                                if (autoSave) scheduleAutoSave();
                               },
                             ),
                           ),
                         )),
-                    ],
+
+                      ],
                   ],
                 ),
               ),
             ),
           ],
         ),
-          bottomSheet: NoteActionButtons(
+        bottomSheet: NoteActionButtons(
           hasLocation: hasLocation,
           onImageAdded: (path) {
             setState(() {
-              _imagePaths.add(path);
-              _newFilePaths.add(path);
-              _hasChanges = true;
+              imagePaths.add(path);
+              newFilePaths.add(path);
+              hasChanges = true;
             });
           },
           onVideoAdded: (path) {
             setState(() {
-              _videoPaths.add(path);
-              _newFilePaths.add(path);
-              _hasChanges = true;
+              videoPaths.add(path);
+              newFilePaths.add(path);
+              hasChanges = true;
             });
           },
           onAudioAdded: (path) {
             setState(() {
-              _audioPaths.insert(0, path);
-              _newFilePaths.add(path);
-              _hasChanges = true;
+              audioPaths.insert(0, path);
+              newFilePaths.add(path);
+              hasChanges = true;
             });
           },
           onFileAdded: (path) {
             setState(() {
-              _filePaths.add(path);
-              _newFilePaths.add(path);
-              _hasChanges = true;
+              filePaths.add(path);
+              newFilePaths.add(path);
+              hasChanges = true;
             });
           },
           onLatitudeChanged: (lat) {
             setState(() {
-              _latitude = lat;
-              _hasChanges = true;
+              latitude = lat;
+              hasChanges = true;
             });
           },
           onLongitudeChanged: (lon) {
             setState(() {
-              _longitude = lon;
-              _hasChanges = true;
+              longitude = lon;
+              hasChanges = true;
             });
           },
           onLocationCleared: () {
             setState(() {
-              _latitude = null;
-              _longitude = null;
-              _hasChanges = true;
+              latitude = null;
+              longitude = null;
+              hasChanges = true;
             });
           },
         ),
@@ -514,5 +387,3 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
     );
   }
 }
-
-

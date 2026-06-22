@@ -121,13 +121,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get allNotes => 'Toutes les notes';
 
   @override
-  String get photo => 'Photo';
-
-  @override
   String get audio => 'Audio';
 
   @override
-  String get video => 'Vidéo';
+  String get camera => 'Caméra';
 
   @override
   String get attachedFiles => 'Fichiers joints';
@@ -176,12 +173,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get autoGeotagDesc => 'Ajouter automatiquement les coordonnées';
-
-  @override
-  String get showFileNames => 'Noms de fichiers';
-
-  @override
-  String get showFileNamesDesc => 'Afficher les noms dans la carte de note';
 
   @override
   String get showTimestamp => 'Horodatage';
@@ -496,6 +487,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get exportNoNotes => 'No notes to export';
 
   @override
+  String get showFileThumbnails => 'File thumbnails';
+
+  @override
+  String get showFileThumbnailsDesc => 'Show files as grid with icons';
+
+  @override
   String exportError(Object error) {
     return 'Export error: $error';
   }
@@ -515,12 +512,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String toDate(Object date) {
     return 'To: $date';
   }
-
-  @override
-  String get showFileThumbnails => 'File thumbnails';
-
-  @override
-  String get showFileThumbnailsDesc => 'Show files as grid with icons';
 
   @override
   String get recordingError => 'Recording failed. Please try again.';

@@ -57,6 +57,7 @@ app.*.map.json
 .agents/
 skills-lock.json
 plans/
+REVIEW*
 
 # ==========================================
 # Стандартный .gitignore для Flutter и Dart

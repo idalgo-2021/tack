@@ -67,10 +67,13 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
     if (confirm != true) return;
 
     final repo = ref.read(noteRepositoryProvider);
+
+    // Этап 1: собрать пути файлов и удалить заметки из БД
+    final allPaths = <String>[];
     for (final id in _selectedIds) {
       final note = await repo.getById(id);
       if (note != null) {
-        await FileUtils.deleteFiles([
+        allPaths.addAll([
           ...note.imagePaths,
           ...note.audioPaths,
           ...note.videoPaths,
@@ -79,6 +82,14 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
       }
       await repo.delete(id);
     }
+
+    // Этап 2: удалить файлы (заметки уже удалены — консистентность БД не нарушена)
+    try {
+      await FileUtils.deleteFiles(allPaths);
+    } catch (_) {
+      // не критично, заметки уже удалены
+    }
+
     ref.invalidate(noteListProvider);
     _clearSelection();
   }

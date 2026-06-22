@@ -55,7 +55,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     final theme = Theme.of(context);
 
     final hasActiveFilters = filters.dateFrom != null || filters.dateTo != null ||
-        filters.hasImages != null || filters.hasAudio != null || filters.hasFiles != null;
+        filters.hasAudio != null || filters.hasFiles != null;
 
     return Scaffold(
       appBar: AppBar(
@@ -95,13 +95,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   active: filters.dateFrom != null || filters.dateTo != null,
                   onTap: _pickDateRange,
                   onClear: () => ref.read(searchFiltersProvider.notifier).clearDates(),
-                ),
-                const SizedBox(width: 6),
-                _FilterChip(
-                  label: l10n.photo,
-                  icon: Icons.image,
-                  active: filters.hasImages == true,
-                  onTap: () => ref.read(searchFiltersProvider.notifier).toggleHasImages(),
                 ),
                 const SizedBox(width: 6),
                 _FilterChip(

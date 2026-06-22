@@ -9,8 +9,14 @@ class TagRepository {
 
   TagRepository({NoteRepository? noteRepo}) : _noteRepo = noteRepo ?? NoteRepository();
 
+  static String _escapeLike(String s) {
+    return s
+      .replaceAll('\\', '\\\\')
+      .replaceAll('%', '\\%')
+      .replaceAll('_', '\\_');
+  }
+
   Future<List<Tag>> getAll() async {
-    await rebuildCounts();
     final db = await _dbHelper.database;
     final maps = await db.query(
       TableTags.tableName,
@@ -41,9 +47,10 @@ class TagRepository {
     if (oldName == tag.name) return 0;
 
     // Replace old tag name with new name directly in notes' JSON tags
+    final escapedOldName = _escapeLike(oldName);
     await db.execute(
-      "UPDATE ${TableNotes.tableName} SET ${TableNotes.tags} = REPLACE(${TableNotes.tags}, ?, ?) WHERE ${TableNotes.tags} LIKE ?",
-      ['"$oldName"', '"${tag.name}"', '%"$oldName"%'],
+      "UPDATE ${TableNotes.tableName} SET ${TableNotes.tags} = REPLACE(${TableNotes.tags}, ?, ?) WHERE ${TableNotes.tags} LIKE ? ESCAPE '\\'",
+      ['"$oldName"', '"${tag.name}"', '%"$escapedOldName"%'],
     );
 
     // Rename the tag in tags table (usage count stays unchanged)
@@ -96,11 +103,12 @@ class TagRepository {
 
   Future<void> rebuildCounts() async {
     final db = await _dbHelper.database;
+    // INSTR не использует wildcard'ы % и _, поэтому безопасен для любых имён тегов
     await db.execute('''
       UPDATE ${TableTags.tableName}
       SET ${TableTags.usageCount} = (
         SELECT COUNT(*) FROM ${TableNotes.tableName}
-        WHERE ${TableNotes.tags} LIKE '%"' || ${TableTags.tableName}.${TableTags.name} || '"%'
+        WHERE INSTR(${TableNotes.tags}, '"' || ${TableTags.tableName}.${TableTags.name} || '"') > 0
       )
     ''');
   }

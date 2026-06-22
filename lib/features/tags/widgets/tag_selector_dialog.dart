@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../data/models/tag.dart';
-import '../providers/tag_provider.dart';
 
 class TagSelectorDialog extends StatefulWidget {
   final List<Tag> allTags;
   final List<String> initialSelected;
   final AppLocalizations l10n;
   final ValueChanged<List<String>> onApply;
+  final Future<void> Function(String name)? onCreateTag;
 
   const TagSelectorDialog({
     super.key,
@@ -16,6 +15,7 @@ class TagSelectorDialog extends StatefulWidget {
     required this.initialSelected,
     required this.l10n,
     required this.onApply,
+    this.onCreateTag,
   });
 
   @override
@@ -56,7 +56,9 @@ class _TagSelectorDialogState extends State<TagSelectorDialog> {
         _searchController.clear();
       });
     } else {
-      await ProviderScope.containerOf(context).read(tagListProvider.notifier).add(name);
+      if (widget.onCreateTag != null) {
+        await widget.onCreateTag!(name);
+      }
       if (!mounted) return;
       setState(() {
         _allTags.add(Tag(name: name, usageCount: 0));

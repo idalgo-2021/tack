@@ -14,9 +14,8 @@ class AppDefaults {
   static const bool autoSave = false;
   static const bool updateTimestampOnEdit = false;
   static const bool autoGeotag = false;
-  static const bool showFileNames = false;
   static const bool showTimestamp = true;
-  static const bool showFileThumbnails = false;
+  static const bool showFileThumbnails = true;
 
   // Данные
   static const ExportFormat exportFormat = ExportFormat.markdown;

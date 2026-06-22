@@ -7,6 +7,8 @@ class FileUtils {
   static const _audioDir = 'tack/audio';
   static const _filesDir = 'tack/files';
   static const _videosDir = 'tack/videos';
+  static const _cameraImagesDir = 'tack/camera/images';
+  static const _cameraVideosDir = 'tack/camera/videos';
 
   static Future<String> get _appDir async {
     final dir = await getApplicationDocumentsDirectory();
@@ -73,6 +75,38 @@ class FileUtils {
     return dest;
   }
 
+  static Future<String> get cameraImagesDir async {
+    final base = await _appDir;
+    final path = p.join(base, _cameraImagesDir);
+    await Directory(path).create(recursive: true);
+    return path;
+  }
+
+  static Future<String> get cameraVideosDir async {
+    final base = await _appDir;
+    final path = p.join(base, _cameraVideosDir);
+    await Directory(path).create(recursive: true);
+    return path;
+  }
+
+  static Future<String> copyToCameraImages(String sourcePath) async {
+    final dir = await cameraImagesDir;
+    final name = '${DateTime.now().millisecondsSinceEpoch}_${p.basename(sourcePath)}';
+    final dest = p.join(dir, name);
+    await File(sourcePath).copy(dest);
+    return dest;
+  }
+
+  static Future<String> copyToCameraVideos(String sourcePath) async {
+    final dir = await cameraVideosDir;
+    final name = '${DateTime.now().millisecondsSinceEpoch}_${p.basename(sourcePath)}';
+    final dest = p.join(dir, name);
+    await File(sourcePath).copy(dest);
+    return dest;
+  }
+
+  static bool isCameraFile(String path) => path.contains('/camera/');
+
   static Future<String> saveAudioFile(String destName, List<int> bytes) async {
     final dir = await audioDir;
     final dest = p.join(dir, destName);
@@ -84,6 +118,10 @@ class FileUtils {
     final file = File(path);
     if (await file.exists()) {
       await file.delete();
+    }
+    final thumb = File('${path}_thumb.jpg');
+    if (await thumb.exists()) {
+      await thumb.delete();
     }
   }
 

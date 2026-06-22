@@ -120,13 +120,10 @@ class AppLocalizationsKy extends AppLocalizations {
   String get allNotes => 'Бардык жазуулар';
 
   @override
-  String get photo => 'Сүрөт';
-
-  @override
   String get audio => 'Аудио';
 
   @override
-  String get video => 'Видео';
+  String get camera => 'Камера';
 
   @override
   String get attachedFiles => 'Тиркелген файлдар';
@@ -175,12 +172,6 @@ class AppLocalizationsKy extends AppLocalizations {
 
   @override
   String get autoGeotagDesc => 'Координаттарды автоматтык түрдө кошуу';
-
-  @override
-  String get showFileNames => 'Файл аталыштары';
-
-  @override
-  String get showFileNamesDesc => 'Жазуу картасында аталыштарды көрсөтүү';
 
   @override
   String get showTimestamp => 'Убакыт белгиси';
@@ -493,6 +484,12 @@ class AppLocalizationsKy extends AppLocalizations {
   String get exportNoNotes => 'No notes to export';
 
   @override
+  String get showFileThumbnails => 'File thumbnails';
+
+  @override
+  String get showFileThumbnailsDesc => 'Show files as grid with icons';
+
+  @override
   String exportError(Object error) {
     return 'Export error: $error';
   }
@@ -512,12 +509,6 @@ class AppLocalizationsKy extends AppLocalizations {
   String toDate(Object date) {
     return 'To: $date';
   }
-
-  @override
-  String get showFileThumbnails => 'File thumbnails';
-
-  @override
-  String get showFileThumbnailsDesc => 'Show files as grid with icons';
 
   @override
   String get recordingError => 'Recording failed. Please try again.';

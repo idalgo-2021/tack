@@ -55,6 +55,9 @@ class Export extends _$Export {
         for (final p in note.audioPaths) {
           if (await File(p).exists()) allPaths.add(p);
         }
+        for (final p in note.videoPaths) {
+          if (await File(p).exists()) allPaths.add(p);
+        }
         for (final p in note.filePaths) {
           if (await File(p).exists()) allPaths.add(p);
         }

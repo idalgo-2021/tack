@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/utils/date_formatter.dart';
+import '../../../core/utils/file_utils.dart';
 import '../../../data/models/note.dart';
 import '../../settings/providers/settings_provider.dart';
 
@@ -25,10 +26,14 @@ class NoteCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final showFilenames = ref.watch(showFileNamesProvider);
     final showTs = ref.watch(showTimestampProvider);
     final viewMode = ref.watch(viewModeProvider);
     final hasCoords = note.latitude != null && note.longitude != null;
+    final cameraImageCount = note.imagePaths.where(FileUtils.isCameraFile).length;
+    final cameraVideoCount = note.videoPaths.where(FileUtils.isCameraFile).length;
+    final fileCount = note.imagePaths.length - cameraImageCount
+        + note.videoPaths.length - cameraVideoCount
+        + note.filePaths.length;
 
     final card = Card(
       margin: viewMode == ViewMode.grid
@@ -71,35 +76,22 @@ class NoteCard extends ConsumerWidget {
                 ),
               if (note.text != null && note.text!.isNotEmpty)
                 _buildTextSection(note.text!, theme.textTheme.bodyLarge!, colorScheme, viewMode),
-              if (note.imagePaths.isNotEmpty || note.audioPaths.isNotEmpty || note.filePaths.isNotEmpty)
+              if (cameraImageCount > 0 || cameraVideoCount > 0 || note.audioPaths.isNotEmpty || fileCount > 0)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: Wrap(
                     spacing: 12,
                     runSpacing: 4,
                     children: [
-                      if (note.imagePaths.isNotEmpty)
-                        _MediaBadge(icon: Icons.image, count: note.imagePaths.length, colorScheme: colorScheme, theme: theme),
+                      if (cameraImageCount > 0)
+                        _MediaBadge(icon: Icons.photo_camera, count: cameraImageCount, colorScheme: colorScheme, theme: theme),
+                      if (cameraVideoCount > 0)
+                        _MediaBadge(icon: Icons.videocam, count: cameraVideoCount, colorScheme: colorScheme, theme: theme),
                       if (note.audioPaths.isNotEmpty)
                         _MediaBadge(icon: Icons.mic, count: note.audioPaths.length, colorScheme: colorScheme, theme: theme),
-                      if (note.videoPaths.isNotEmpty)
-                        _MediaBadge(icon: Icons.videocam, count: note.videoPaths.length, colorScheme: colorScheme, theme: theme),
-                      if (note.filePaths.isNotEmpty)
-                        _MediaBadge(icon: Icons.attach_file, count: note.filePaths.length, colorScheme: colorScheme, theme: theme),
+                      if (fileCount > 0)
+                        _MediaBadge(icon: Icons.attach_file, count: fileCount, colorScheme: colorScheme, theme: theme),
                     ],
-                  ),
-                ),
-              if (showFilenames && _allFiles(note).isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(top: 4),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: _allFiles(note).map((p) => Text(
-                      p.split('/').last,
-                      style: theme.textTheme.bodySmall?.copyWith(fontSize: 10, color: colorScheme.onSurfaceVariant),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    )).toList(),
                   ),
                 ),
               if (note.tags.isNotEmpty) ...[
@@ -226,8 +218,6 @@ class NoteCard extends ConsumerWidget {
     if (tags.length <= 5) return tags;
     return [...tags.take(5), tags.length - 5];
   }
-
-  List<String> _allFiles(Note note) => [...note.imagePaths, ...note.audioPaths, ...note.videoPaths, ...note.filePaths];
 }
 
 class _MediaBadge extends StatelessWidget {

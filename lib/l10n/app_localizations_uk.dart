@@ -120,13 +120,10 @@ class AppLocalizationsUk extends AppLocalizations {
   String get allNotes => 'Всі нотатки';
 
   @override
-  String get photo => 'Фото';
-
-  @override
   String get audio => 'Аудіо';
 
   @override
-  String get video => 'Відео';
+  String get camera => 'Камера';
 
   @override
   String get attachedFiles => 'Прикріплені файли';
@@ -175,12 +172,6 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get autoGeotagDesc => 'Автоматично додавати координати';
-
-  @override
-  String get showFileNames => 'Назви файлів';
-
-  @override
-  String get showFileNamesDesc => 'Показувати назви в картці нотатки';
 
   @override
   String get showTimestamp => 'Часова мітка';
@@ -491,6 +482,12 @@ class AppLocalizationsUk extends AppLocalizations {
   String get exportNoNotes => 'Немає нотаток для експорту';
 
   @override
+  String get showFileThumbnails => 'File thumbnails';
+
+  @override
+  String get showFileThumbnailsDesc => 'Show files as grid with icons';
+
+  @override
   String exportError(Object error) {
     return 'Помилка експорту: $error';
   }
@@ -510,13 +507,6 @@ class AppLocalizationsUk extends AppLocalizations {
   String toDate(Object date) {
     return 'До: $date';
   }
-
-  @override
-  String get showFileThumbnails => 'Мініатюри файлів';
-
-  @override
-  String get showFileThumbnailsDesc =>
-      'Відображати файли у вигляді сітки з іконками';
 
   @override
   String get recordingError => 'Помилка запису. Спробуйте ще раз.';

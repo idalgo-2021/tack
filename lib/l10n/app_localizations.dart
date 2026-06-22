@@ -336,23 +336,17 @@ abstract class AppLocalizations {
   /// **'All notes'**
   String get allNotes;
 
-  /// No description provided for @photo.
-  ///
-  /// In en, this message translates to:
-  /// **'Photo'**
-  String get photo;
-
   /// No description provided for @audio.
   ///
   /// In en, this message translates to:
   /// **'Audio'**
   String get audio;
 
-  /// No description provided for @video.
+  /// No description provided for @camera.
   ///
   /// In en, this message translates to:
-  /// **'Video'**
-  String get video;
+  /// **'Camera'**
+  String get camera;
 
   /// No description provided for @attachedFiles.
   ///
@@ -449,18 +443,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Automatically add coordinates'**
   String get autoGeotagDesc;
-
-  /// No description provided for @showFileNames.
-  ///
-  /// In en, this message translates to:
-  /// **'File names'**
-  String get showFileNames;
-
-  /// No description provided for @showFileNamesDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'Show file names in note card'**
-  String get showFileNamesDesc;
 
   /// No description provided for @showTimestamp.
   ///
@@ -1038,6 +1020,18 @@ abstract class AppLocalizations {
   /// **'No notes to export'**
   String get exportNoNotes;
 
+  /// No description provided for @showFileThumbnails.
+  ///
+  /// In en, this message translates to:
+  /// **'File thumbnails'**
+  String get showFileThumbnails;
+
+  /// No description provided for @showFileThumbnailsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Show files as grid with icons'**
+  String get showFileThumbnailsDesc;
+
   /// No description provided for @exportError.
   ///
   /// In en, this message translates to:
@@ -1067,18 +1061,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'To: {date}'**
   String toDate(Object date);
-
-  /// No description provided for @showFileThumbnails.
-  ///
-  /// In en, this message translates to:
-  /// **'File thumbnails'**
-  String get showFileThumbnails;
-
-  /// No description provided for @showFileThumbnailsDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'Show files as grid with icons'**
-  String get showFileThumbnailsDesc;
 
   /// No description provided for @recordingError.
   ///

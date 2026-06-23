@@ -356,33 +356,54 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
 
   Widget _buildGroupedView(List<Note> notes, ViewMode viewMode, GroupMode groupMode, ThemeData theme, BuildContext context, double maxCrossAxisExtent) {
     final groups = _groupNotes(notes, groupMode, context);
-    final slivers = <Widget>[];
+    final entries = groups.entries.toList();
 
-    for (final entry in groups.entries) {
-      slivers.add(SliverToBoxAdapter(
-        child: _buildSectionHeader(entry.key, theme),
-      ));
-
-      if (viewMode == ViewMode.list) {
+    if (viewMode == ViewMode.list) {
+      final slivers = <Widget>[];
+      for (final entry in entries) {
+        slivers.add(SliverToBoxAdapter(
+          child: _buildSectionHeader(entry.key, theme),
+        ));
         slivers.add(SliverList(
           delegate: SliverChildBuilderDelegate(
             (context, index) => _buildNoteItem(entry.value[index]),
             childCount: entry.value.length,
           ),
         ));
-      } else {
-        slivers.add(SliverMasonryGrid.extent(
-          maxCrossAxisExtent: maxCrossAxisExtent,
-          mainAxisSpacing: 8,
-          crossAxisSpacing: 8,
-          childCount: entry.value.length,
-          itemBuilder: (context, index) => _buildNoteItem(entry.value[index]),
-        ));
       }
+      return CustomScrollView(slivers: slivers);
     }
 
-    return CustomScrollView(
-      slivers: slivers,
+    // Grid mode: single ListView with headers + MasonryGridView per group
+    return ListView.builder(
+      padding: const EdgeInsets.all(8),
+      itemCount: entries.length * 2,
+      itemBuilder: (context, index) {
+        final groupIndex = index ~/ 2;
+        final isHeader = index.isEven;
+        final entry = entries[groupIndex];
+
+        if (isHeader) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (groupIndex > 0) const SizedBox(height: 16),
+              _buildSectionHeader(entry.key, theme),
+              const SizedBox(height: 8),
+            ],
+          );
+        }
+
+        return MasonryGridView.extent(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          maxCrossAxisExtent: maxCrossAxisExtent,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+          itemCount: entry.value.length,
+          itemBuilder: (context, index) => _buildNoteItem(entry.value[index]),
+        );
+      },
     );
   }
 

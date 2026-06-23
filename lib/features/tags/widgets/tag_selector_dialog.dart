@@ -28,6 +28,7 @@ class _TagSelectorDialogState extends State<TagSelectorDialog> {
   final _searchController = TextEditingController();
   final _createController = TextEditingController();
   final _createFocusNode = FocusNode();
+  final _scrollController = ScrollController();
   String _searchQuery = '';
 
   @override
@@ -42,6 +43,7 @@ class _TagSelectorDialogState extends State<TagSelectorDialog> {
     _searchController.dispose();
     _createController.dispose();
     _createFocusNode.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -154,8 +156,11 @@ class _TagSelectorDialogState extends State<TagSelectorDialog> {
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
                   ))
-                : ListView(
-                    children: filtered.map((tag) {
+                : Scrollbar(
+                    controller: _scrollController,
+                    child: ListView(
+                      controller: _scrollController,
+                      children: filtered.map((tag) {
                       final isSelected = _selected.contains(tag.name);
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 2),
@@ -182,7 +187,7 @@ class _TagSelectorDialogState extends State<TagSelectorDialog> {
                             ),
                             padding: const EdgeInsets.symmetric(
                               horizontal: 12,
-                              vertical: 10,
+                              vertical: 6,
                             ),
                             child: Row(
                               children: [
@@ -190,12 +195,12 @@ class _TagSelectorDialogState extends State<TagSelectorDialog> {
                                   isSelected
                                     ? Icons.check_circle
                                     : Icons.circle_outlined,
-                                  size: 20,
+                                  size: 18,
                                   color: isSelected
                                     ? theme.colorScheme.primary
                                     : theme.colorScheme.onSurfaceVariant,
                                 ),
-                                const SizedBox(width: 10),
+                                const SizedBox(width: 8),
                                 Text(
                                   '#${tag.name}',
                                   style: TextStyle(
@@ -217,6 +222,7 @@ class _TagSelectorDialogState extends State<TagSelectorDialog> {
                         ),
                       );
                     }).toList(),
+                    ),
                   ),
             ),
           ],

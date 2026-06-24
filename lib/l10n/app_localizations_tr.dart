@@ -510,4 +510,13 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get recordingError => 'Recording failed. Please try again.';
+
+  @override
+  String get openIn => 'Şurada aç...';
+
+  @override
+  String get shareFile => 'Paylaş';
+
+  @override
+  String get moreOptions => 'Daha fazla seçenek';
 }

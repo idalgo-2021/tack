@@ -507,4 +507,13 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get recordingError => 'Recording failed. Please try again.';
+
+  @override
+  String get openIn => 'で開く...';
+
+  @override
+  String get shareFile => '共有';
+
+  @override
+  String get moreOptions => 'その他のオプション';
 }

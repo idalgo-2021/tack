@@ -511,4 +511,13 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get recordingError => 'Ошибка записи. Повторите попытку.';
+
+  @override
+  String get openIn => 'Открыть в...';
+
+  @override
+  String get shareFile => 'Поделиться';
+
+  @override
+  String get moreOptions => 'Дополнительно';
 }

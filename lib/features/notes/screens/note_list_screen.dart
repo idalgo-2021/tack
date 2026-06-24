@@ -6,6 +6,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../data/models/note.dart';
+import '../../../core/constants/app_constants.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../core/utils/date_formatter.dart';
 import '../../../core/utils/export_helper.dart';
@@ -196,7 +197,7 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
     final theme = Theme.of(context);
 
     final screenWidth = MediaQuery.of(context).size.width;
-    final maxCrossAxisExtent = screenWidth <= 600
+    final maxCrossAxisExtent = screenWidth <= AppConstants.tabletBreakpoint
         ? 200.0
         : (screenWidth / 4.5).clamp(300.0, 600.0);
 

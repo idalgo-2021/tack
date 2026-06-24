@@ -511,4 +511,13 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get recordingError => 'Recording failed. Please try again.';
+
+  @override
+  String get openIn => 'Ашу...';
+
+  @override
+  String get shareFile => 'Бөлісу';
+
+  @override
+  String get moreOptions => 'Толығырақ опциялар';
 }

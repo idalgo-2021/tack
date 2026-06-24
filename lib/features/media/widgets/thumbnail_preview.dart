@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:video_thumbnail_gen/video_thumbnail_gen.dart';
 import '../../../core/utils/file_type_icons.dart';
+import '../../../core/widgets/file_context_menu.dart';
 
 const _maxPreviewSize = 50 * 1024;
 
@@ -149,28 +150,27 @@ class _ThumbnailPreviewContentState extends State<_ThumbnailPreviewContent> {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          if (_isLoading)
-            const Center(child: CircularProgressIndicator(color: Colors.white))
-          else if (isImageFile(_currentPath))
-            InteractiveViewer(
-              child: Center(
-                child: Image.file(
-                  File(_currentPath),
-                  fit: BoxFit.contain,
-                  errorBuilder: (_, _, _) => Icon(
-                    Icons.broken_image,
-                    size: 80,
-                    color: Colors.white54,
-                  ),
-                ),
+          GestureDetector(
+            onLongPress: () => _showContextMenu(context),
+            child: _buildPreviewContent(),
+          ),
+          Positioned(
+            top: topPadding + 8,
+            left: 8,
+            child: MenuAnchor(
+              builder: (context, controller, child) => IconButton(
+                icon: const Icon(Icons.more_vert, color: Colors.white),
+              onPressed: () {
+                if (controller.isOpen) {
+                  controller.close();
+                } else {
+                  controller.open();
+                }
+              },
               ),
-            )
-          else if (isVideoFile(_currentPath))
-            _videoPreview()
-          else if (isTextFile(_currentPath) && _textContent != null)
-            _textPreview()
-          else
-            _fallbackPreview(),
+              menuChildren: FileContextMenu.buildMenuItems(context, _currentPath),
+            ),
+          ),
           Positioned(
             top: topPadding + 8,
             right: 8,
@@ -182,6 +182,45 @@ class _ThumbnailPreviewContentState extends State<_ThumbnailPreviewContent> {
           if (widget.filePaths.length > 1) _buildNavigation(),
         ],
       ),
+    );
+  }
+
+  Widget _buildPreviewContent() {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator(color: Colors.white));
+    } else if (isImageFile(_currentPath)) {
+      return InteractiveViewer(
+        child: Center(
+          child: Image.file(
+            File(_currentPath),
+            fit: BoxFit.contain,
+            errorBuilder: (_, _, _) => const Icon(
+              Icons.broken_image,
+              size: 80,
+              color: Colors.white54,
+            ),
+          ),
+        ),
+      );
+    } else if (isVideoFile(_currentPath)) {
+      return _videoPreview();
+    } else if (isTextFile(_currentPath) && _textContent != null) {
+      return _textPreview();
+    } else {
+      return _fallbackPreview();
+    }
+  }
+
+  void _showContextMenu(BuildContext context) {
+    final renderBox = context.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+    final position = renderBox.localToGlobal(Offset.zero);
+    final size = renderBox.size;
+    final anchorRect = Rect.fromLTWH(position.dx, position.dy, size.width, size.height);
+    showMenu<String>(
+      context: context,
+      position: RelativeRect.fromRect(anchorRect, Offset.zero & MediaQuery.of(context).size),
+      items: FileContextMenu.buildMenuItems(context, _currentPath),
     );
   }
 

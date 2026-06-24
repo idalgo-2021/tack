@@ -1067,6 +1067,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Recording failed. Please try again.'**
   String get recordingError;
+
+  /// No description provided for @openIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in...'**
+  String get openIn;
+
+  /// No description provided for @shareFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get shareFile;
+
+  /// No description provided for @moreOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'More options'**
+  String get moreOptions;
 }
 
 class _AppLocalizationsDelegate

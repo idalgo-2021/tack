@@ -515,4 +515,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get recordingError => 'Recording failed. Please try again.';
+
+  @override
+  String get openIn => 'Ouvrir dans...';
+
+  @override
+  String get shareFile => 'Partager';
+
+  @override
+  String get moreOptions => 'Plus d\'options';
 }

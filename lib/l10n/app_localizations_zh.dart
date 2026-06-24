@@ -507,4 +507,13 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get recordingError => 'Recording failed. Please try again.';
+
+  @override
+  String get openIn => '用...打开';
+
+  @override
+  String get shareFile => '分享';
+
+  @override
+  String get moreOptions => '更多选项';
 }

@@ -157,5 +157,8 @@
   "exportFormatJson": "JSON",
   "fromDate": "From: {date}",
   "toDate": "To: {date}",
-  "recordingError": "Recording failed. Please try again."
+  "recordingError": "Recording failed. Please try again.",
+  "openIn": "Ашу...",
+  "shareFile": "Бөлісу",
+  "moreOptions": "Толығырақ опциялар"
 }

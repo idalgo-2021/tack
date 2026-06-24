@@ -510,4 +510,13 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get recordingError => 'Recording failed. Please try again.';
+
+  @override
+  String get openIn => 'Otwórz w...';
+
+  @override
+  String get shareFile => 'Udostępnij';
+
+  @override
+  String get moreOptions => 'Więcej opcji';
 }

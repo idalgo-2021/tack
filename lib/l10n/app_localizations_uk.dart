@@ -510,4 +510,13 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get recordingError => 'Помилка запису. Спробуйте ще раз.';
+
+  @override
+  String get openIn => 'Відкрити в...';
+
+  @override
+  String get shareFile => 'Поділитися';
+
+  @override
+  String get moreOptions => 'Додатково';
 }

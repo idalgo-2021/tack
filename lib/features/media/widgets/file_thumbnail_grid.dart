@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:video_thumbnail_gen/video_thumbnail_gen.dart';
+import '../../../core/constants/app_constants.dart';
 import '../../../core/utils/file_type_icons.dart';
+import '../../../core/widgets/file_context_menu.dart';
 import 'thumbnail_preview.dart';
 
 String _truncateFileName(String name, int maxBaseLength) {
@@ -35,32 +37,63 @@ class FileThumbnailGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: filePaths.map((path) => _buildTile(context, theme, path)).toList(),
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth > AppConstants.tabletBreakpoint;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final availableWidth = constraints.maxWidth;
+        final spacing = AppConstants.thumbnailSpacing;
+        final targetSize = isTablet
+            ? AppConstants.thumbnailTargetTablet
+            : AppConstants.thumbnailTargetPhone;
+
+        // Ideal column count based on target size
+        int cols = ((availableWidth + spacing) / (targetSize + spacing)).floor();
+
+        if (isTablet) {
+          cols = cols.clamp(
+            AppConstants.thumbnailMinColsTablet,
+            AppConstants.thumbnailMaxColsTablet,
+          );
+        } else {
+          if (cols > AppConstants.thumbnailMaxColsPhone) {
+            cols = AppConstants.thumbnailMaxColsPhone;
+          }
+          if (cols < 1) cols = 1;
+        }
+
+        // Evenly distribute available width across columns
+        final tileSize = (availableWidth - (cols - 1) * spacing) / cols;
+
+        return Wrap(
+          spacing: spacing,
+          runSpacing: spacing,
+          children: filePaths.map((path) => _buildTile(context, theme, path, tileSize)).toList(),
+        );
+      },
     );
   }
 
-  Widget _buildTile(BuildContext context, ThemeData theme, String path) {
+  Widget _buildTile(BuildContext context, ThemeData theme, String path, double tileSize) {
     final name = path.split('/').last;
-    const size = 100.0;
     final navPaths = previewPaths ?? filePaths;
 
     return GestureDetector(
       onTap: () => ThumbnailPreview.show(context, navPaths, initialIndex: navPaths.indexOf(path)),
+      onLongPress: () => _showContextMenu(context, path),
       child: SizedBox(
-        width: size,
+        width: tileSize,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: isImageFile(path)
-                  ? _imageThumbnail(path, size, theme)
+                  ? _imageThumbnail(context, path, tileSize, theme)
                   : isVideoFile(path)
-                      ? _VideoThumbnailTile(path: path, size: size, theme: theme, onDelete: onDelete)
-                      : _iconTile(path, size, theme),
+                      ? _VideoThumbnailTile(path: path, size: tileSize, theme: theme, onDelete: onDelete)
+                      : _iconTile(context, path, tileSize, theme),
             ),
             if (showLabels) ...[
               const SizedBox(height: 4),
@@ -77,7 +110,20 @@ class FileThumbnailGrid extends StatelessWidget {
     );
   }
 
-  Widget _imageThumbnail(String path, double size, ThemeData theme) {
+  void _showContextMenu(BuildContext context, String path) {
+    final renderBox = context.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+    final position = renderBox.localToGlobal(Offset.zero);
+    final size = renderBox.size;
+    final anchorRect = Rect.fromLTWH(position.dx, position.dy, size.width, size.height);
+    showMenu<String>(
+      context: context,
+      position: RelativeRect.fromRect(anchorRect, Offset.zero & MediaQuery.of(context).size),
+      items: FileContextMenu.buildMenuItems(context, path),
+    );
+  }
+
+  Widget _imageThumbnail(BuildContext context, String path, double size, ThemeData theme) {
     return Stack(
       children: [
         Image.file(
@@ -90,6 +136,28 @@ class FileThumbnailGrid extends StatelessWidget {
             height: size,
             color: theme.colorScheme.surfaceContainerHighest,
             child: Icon(Icons.broken_image, color: theme.colorScheme.onSurfaceVariant),
+          ),
+        ),
+        Positioned(
+          top: 4,
+          left: 4,
+          child: MenuAnchor(
+            builder: (context, controller, child) => IconButton(
+              icon: const Icon(Icons.more_vert, size: 20, color: Colors.white),
+              style: IconButton.styleFrom(
+                backgroundColor: Colors.black54,
+                padding: EdgeInsets.zero,
+                minimumSize: const Size(36, 36),
+              ),
+              onPressed: () {
+                if (controller.isOpen) {
+                  controller.close();
+                } else {
+                  controller.open();
+                }
+              },
+            ),
+            menuChildren: FileContextMenu.buildMenuItems(context, path),
           ),
         ),
         if (onDelete != null)
@@ -112,7 +180,7 @@ class FileThumbnailGrid extends StatelessWidget {
     );
   }
 
-  Widget _iconTile(String path, double size, ThemeData theme) {
+  Widget _iconTile(BuildContext context, String path, double size, ThemeData theme) {
     final ext = _ext(path).toUpperCase();
     final color = fileColor(path);
     return Container(
@@ -149,6 +217,28 @@ class FileThumbnailGrid extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+            ),
+          ),
+          Positioned(
+            top: 4,
+            left: 4,
+            child: MenuAnchor(
+              builder: (context, controller, child) => IconButton(
+                icon: const Icon(Icons.more_vert, size: 20, color: Colors.white),
+                style: IconButton.styleFrom(
+                  backgroundColor: Colors.black54,
+                  padding: EdgeInsets.zero,
+                  minimumSize: const Size(36, 36),
+                ),
+                onPressed: () {
+                  if (controller.isOpen) {
+                    controller.close();
+                  } else {
+                    controller.open();
+                  }
+                },
+              ),
+              menuChildren: FileContextMenu.buildMenuItems(context, path),
             ),
           ),
           if (onDelete != null)
@@ -261,6 +351,28 @@ class _VideoThumbnailTileState extends State<_VideoThumbnailTile> {
                 ),
               ),
             ),
+          Positioned(
+            top: 4,
+            left: 4,
+            child: MenuAnchor(
+              builder: (context, controller, child) => IconButton(
+                icon: const Icon(Icons.more_vert, size: 20, color: Colors.white),
+                style: IconButton.styleFrom(
+                  backgroundColor: Colors.black54,
+                  padding: EdgeInsets.zero,
+                  minimumSize: const Size(36, 36),
+                ),
+                onPressed: () {
+                  if (controller.isOpen) {
+                    controller.close();
+                  } else {
+                    controller.open();
+                  }
+                },
+              ),
+              menuChildren: FileContextMenu.buildMenuItems(context, widget.path),
+            ),
+          ),
           if (widget.onDelete != null)
             Positioned(
               top: 2,
@@ -296,6 +408,28 @@ class _VideoThumbnailTileState extends State<_VideoThumbnailTile> {
       child: Stack(
         children: [
           Center(child: Icon(iconData, size: 40, color: color)),
+          Positioned(
+            top: 4,
+            left: 4,
+            child: MenuAnchor(
+              builder: (context, controller, child) => IconButton(
+                icon: const Icon(Icons.more_vert, size: 20, color: Colors.white),
+                style: IconButton.styleFrom(
+                  backgroundColor: Colors.black54,
+                  padding: EdgeInsets.zero,
+                  minimumSize: const Size(36, 36),
+                ),
+                onPressed: () {
+                  if (controller.isOpen) {
+                    controller.close();
+                  } else {
+                    controller.open();
+                  }
+                },
+              ),
+              menuChildren: FileContextMenu.buildMenuItems(context, widget.path),
+            ),
+          ),
           if (widget.onDelete != null)
             Positioned(
               top: 2,

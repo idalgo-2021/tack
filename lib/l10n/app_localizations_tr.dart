@@ -519,4 +519,10 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get moreOptions => 'Daha fazla seçenek';
+
+  @override
+  String get shirt => 'Arka plan';
+
+  @override
+  String get noColor => 'Renksiz';
 }

@@ -23,6 +23,7 @@ import '../../media/providers/media_provider.dart';
 import '../../settings/providers/settings_provider.dart';
 import '../widgets/note_editor_base.dart';
 import '../widgets/note_action_buttons.dart';
+import '../widgets/note_color_picker.dart';
 
 class NoteDetailScreen extends ConsumerStatefulWidget {
   final int noteId;
@@ -75,6 +76,7 @@ class _NoteDetailScreenState extends NoteEditorState<NoteDetailScreen> {
     videoPaths = List.from(note.videoPaths);
     latitude = note.latitude;
     longitude = note.longitude;
+    noteColor = note.color;
     _loadedCreatedAt = note.createdAt;
     hasChanges = false;
     _initialized = true;
@@ -142,6 +144,19 @@ class _NoteDetailScreenState extends NoteEditorState<NoteDetailScreen> {
       await SharePlus.instance.share(
         ShareParams(files: allFiles),
       );
+    }
+  }
+
+  Future<void> _showColorPicker(Note note) async {
+    final newColor = await NoteColorPicker.show(context, currentColor: note.color);
+    if (!mounted) return;
+    setState(() {
+      noteColor = newColor;
+      hasChanges = true;
+    });
+    final autoSave = ref.read(autoSaveProvider);
+    if (autoSave) {
+      scheduleAutoSave();
     }
   }
 
@@ -240,6 +255,11 @@ class _NoteDetailScreenState extends NoteEditorState<NoteDetailScreen> {
                     },
                   ),
                 IconButton(
+                  icon: const Icon(Icons.palette),
+                  tooltip: l10n.shirt,
+                  onPressed: () => _showColorPicker(note),
+                ),
+                IconButton(
                   icon: const Icon(Icons.share),
                   onPressed: () => _shareNote(note),
                 ),
@@ -254,7 +274,9 @@ class _NoteDetailScreenState extends NoteEditorState<NoteDetailScreen> {
                 ),
               ],
             ),
-            body: GestureDetector(
+            body: Container(
+              color: noteColor != null ? Color(noteColor!) : null,
+              child: GestureDetector(
               onTap: () => focusNode.requestFocus(),
               behavior: HitTestBehavior.translucent,
               child: Column(
@@ -539,6 +561,7 @@ class _NoteDetailScreenState extends NoteEditorState<NoteDetailScreen> {
                 ),
               ],
               ),
+            ),
             ),
             bottomSheet: NoteActionButtons(
               hasLocation: hasLocation,

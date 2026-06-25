@@ -516,4 +516,10 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get moreOptions => 'その他のオプション';
+
+  @override
+  String get shirt => '背景色';
+
+  @override
+  String get noColor => '色なし';
 }

@@ -520,4 +520,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get moreOptions => 'Дополнительно';
+
+  @override
+  String get shirt => 'Фон';
+
+  @override
+  String get noColor => 'Без цвета';
 }

@@ -10,6 +10,7 @@ class TableNotes {
   static const createdAt = 'created_at';
   static const latitude = 'latitude';
   static const longitude = 'longitude';
+  static const color = 'color';
 }
 
 class TableTags {
@@ -57,6 +58,11 @@ class DatabaseSchema {
 
   static const createTagsNameIndex = '''
     CREATE INDEX idx_tags_name ON ${TableTags.tableName}(${TableTags.name})
+  ''';
+
+  static const addColorColumn = '''
+    ALTER TABLE ${TableNotes.tableName}
+    ADD COLUMN ${TableNotes.color} INTEGER
   ''';
 
   static const v1Queries = [

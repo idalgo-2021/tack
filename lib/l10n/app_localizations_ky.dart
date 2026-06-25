@@ -521,4 +521,10 @@ class AppLocalizationsKy extends AppLocalizations {
 
   @override
   String get moreOptions => 'Кошумча опциялар';
+
+  @override
+  String get shirt => 'Фон';
+
+  @override
+  String get noColor => 'Түссүз';
 }

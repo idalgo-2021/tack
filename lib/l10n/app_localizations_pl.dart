@@ -519,4 +519,10 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get moreOptions => 'Więcej opcji';
+
+  @override
+  String get shirt => 'Tło';
+
+  @override
+  String get noColor => 'Bez koloru';
 }

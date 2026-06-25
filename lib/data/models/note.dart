@@ -11,6 +11,7 @@ class Note {
   final DateTime createdAt;
   final double? latitude;
   final double? longitude;
+  final int? color;
 
   const Note({
     this.id,
@@ -23,6 +24,7 @@ class Note {
     required this.createdAt,
     this.latitude,
     this.longitude,
+    this.color,
   });
 
   Note copyWith({
@@ -36,6 +38,8 @@ class Note {
     DateTime? createdAt,
     double? latitude,
     double? longitude,
+    int? color,
+    bool clearColor = false,
     bool clearLocation = false,
   }) {
     return Note(
@@ -49,6 +53,7 @@ class Note {
       createdAt: createdAt ?? this.createdAt,
       latitude: clearLocation ? null : (latitude ?? this.latitude),
       longitude: clearLocation ? null : (longitude ?? this.longitude),
+      color: clearColor ? null : (color ?? this.color),
     );
   }
 
@@ -64,6 +69,7 @@ class Note {
       'created_at': createdAt.millisecondsSinceEpoch,
       'latitude': latitude,
       'longitude': longitude,
+      'color': color,
     };
   }
 
@@ -79,6 +85,7 @@ class Note {
       createdAt: DateTime.fromMillisecondsSinceEpoch(map['created_at'] as int),
       latitude: (map['latitude'] as num?)?.toDouble(),
       longitude: (map['longitude'] as num?)?.toDouble(),
+      color: map['color'] as int?,
     );
   }
 

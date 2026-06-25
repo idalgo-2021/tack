@@ -160,5 +160,7 @@
   "recordingError": "Recording failed. Please try again.",
   "openIn": "Şurada aç...",
   "shareFile": "Paylaş",
-  "moreOptions": "Daha fazla seçenek"
+  "moreOptions": "Daha fazla seçenek",
+  "shirt": "Arka plan",
+  "noColor": "Renksiz"
 }

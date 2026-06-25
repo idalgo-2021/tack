@@ -160,5 +160,7 @@
   "recordingError": "Recording failed. Please try again.",
   "openIn": "Open in...",
   "shareFile": "Share",
-  "moreOptions": "More options"
+  "moreOptions": "More options",
+  "shirt": "Shirt",
+  "noColor": "No color"
 }

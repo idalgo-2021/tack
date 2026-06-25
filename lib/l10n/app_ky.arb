@@ -160,5 +160,7 @@
   "recordingError": "Recording failed. Please try again.",
   "openIn": "Ачуу...",
   "shareFile": "Бөлүшүү",
-  "moreOptions": "Кошумча опциялар"
+  "moreOptions": "Кошумча опциялар",
+  "shirt": "Фон",
+  "noColor": "Түссүз"
 }

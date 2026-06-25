@@ -519,4 +519,10 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get moreOptions => 'Додатково';
+
+  @override
+  String get shirt => 'Фон';
+
+  @override
+  String get noColor => 'Без кольору';
 }

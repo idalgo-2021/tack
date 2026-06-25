@@ -35,11 +35,15 @@ class NoteCard extends ConsumerWidget {
         + note.videoPaths.length - cameraVideoCount
         + note.filePaths.length;
 
+    final noteColor = note.color != null ? Color(note.color!) : null;
+
     final card = Card(
       margin: viewMode == ViewMode.grid
           ? EdgeInsets.zero
           : const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      color: isSelected ? colorScheme.primaryContainer.withAlpha(100) : null,
+      color: isSelected
+          ? colorScheme.primaryContainer.withAlpha(100)
+          : noteColor,
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: onTap,

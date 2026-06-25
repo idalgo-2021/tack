@@ -35,6 +35,9 @@ class DatabaseHelper {
         if (oldVersion < 3) {
           await db.execute(DatabaseSchema.addVideoPathsColumn);
         }
+        if (oldVersion < 4) {
+          await db.execute(DatabaseSchema.addColorColumn);
+        }
       },
     );
   }

@@ -516,4 +516,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get moreOptions => '更多选项';
+
+  @override
+  String get shirt => '背景';
+
+  @override
+  String get noColor => '无颜色';
 }

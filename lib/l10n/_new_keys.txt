@@ -4,3 +4,5 @@
   "exportFormatJson": "JSON",
   "fromDate": "From: {date}",
   "toDate": "To: {date}"
+  "shirt": "Shirt",
+  "noColor": "No color"

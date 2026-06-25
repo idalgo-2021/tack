@@ -1085,6 +1085,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'More options'**
   String get moreOptions;
+
+  /// No description provided for @shirt.
+  ///
+  /// In en, this message translates to:
+  /// **'Shirt'**
+  String get shirt;
+
+  /// No description provided for @noColor.
+  ///
+  /// In en, this message translates to:
+  /// **'No color'**
+  String get noColor;
 }
 
 class _AppLocalizationsDelegate

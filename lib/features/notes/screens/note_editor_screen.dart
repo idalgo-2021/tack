@@ -47,6 +47,7 @@ class _NoteEditorScreenState extends NoteEditorState<NoteEditorScreen> {
     tagNames = List.from(_existingNote?.tags ?? []);
     latitude = _existingNote?.latitude;
     longitude = _existingNote?.longitude;
+    noteColor = _existingNote?.color;
 
     if (_existingNote == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) => focusNode.requestFocus());

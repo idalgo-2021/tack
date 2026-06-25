@@ -160,5 +160,7 @@
   "recordingError": "Recording failed. Please try again.",
   "openIn": "で開く...",
   "shareFile": "共有",
-  "moreOptions": "その他のオプション"
+  "moreOptions": "その他のオプション",
+  "shirt": "背景色",
+  "noColor": "色なし"
 }

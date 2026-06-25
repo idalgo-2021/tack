@@ -520,4 +520,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get moreOptions => 'More options';
+
+  @override
+  String get shirt => 'Shirt';
+
+  @override
+  String get noColor => 'No color';
 }

@@ -22,6 +22,7 @@ abstract class NoteEditorState<T extends ConsumerStatefulWidget> extends Consume
   List<String> tagNames = [];
   double? latitude;
   double? longitude;
+  int? noteColor;
   int? savedNoteId;
   Timer? saveTimer;
 
@@ -129,6 +130,7 @@ abstract class NoteEditorState<T extends ConsumerStatefulWidget> extends Consume
         createdAt: effectiveCreatedAt,
         latitude: latitude,
         longitude: longitude,
+        color: noteColor,
       );
 
       final repo = ref.read(noteRepositoryProvider);

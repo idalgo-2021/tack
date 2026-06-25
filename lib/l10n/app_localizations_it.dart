@@ -523,4 +523,10 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get moreOptions => 'Altre opzioni';
+
+  @override
+  String get shirt => 'Sfondo';
+
+  @override
+  String get noColor => 'Nessun colore';
 }

@@ -15,6 +15,7 @@ import '../../../core/widgets/centered_app_bar_title.dart';
 import '../../settings/providers/settings_provider.dart';
 import '../providers/note_list_provider.dart';
 import '../widgets/note_card.dart';
+import '../widgets/note_color_picker.dart';
 import '../screens/note_editor_screen.dart';
 import '../screens/note_detail_screen.dart';
 import '../../search/screens/search_screen.dart';
@@ -49,6 +50,20 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
       _selectedIds.clear();
       _selectionMode = false;
     });
+  }
+
+  Future<void> _showColorPickerForSelected() async {
+    final newColor = await NoteColorPicker.show(context, currentColor: null);
+    if (!mounted) return;
+    final repo = ref.read(noteRepositoryProvider);
+    for (final id in _selectedIds) {
+      final note = await repo.getById(id);
+      if (note != null) {
+        await repo.update(note.copyWith(color: newColor, clearColor: newColor == null));
+      }
+    }
+    ref.invalidate(noteListProvider);
+    _clearSelection();
   }
 
   Future<void> _deleteSelected() async {
@@ -248,6 +263,11 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
                 children: [
                   Text(l10n.selectedCount(_selectedIds.length)),
                   const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.palette),
+                    tooltip: l10n.shirt,
+                    onPressed: () => _showColorPickerForSelected(),
+                  ),
                   IconButton(
                     icon: const Icon(Icons.share),
                     onPressed: _shareSelected,

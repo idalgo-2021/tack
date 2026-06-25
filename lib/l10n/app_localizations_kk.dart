@@ -520,4 +520,10 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get moreOptions => 'Толығырақ опциялар';
+
+  @override
+  String get shirt => 'Фон';
+
+  @override
+  String get noColor => 'Түссіз';
 }

@@ -36,6 +36,7 @@ class NoteDetailScreen extends ConsumerStatefulWidget {
 
 class _NoteDetailScreenState extends NoteEditorState<NoteDetailScreen> {
   bool _initialized = false;
+  final Map<String, int> _fileSizeCache = {};
 
   @override
   int? get noteIdForSave => widget.noteId;
@@ -67,7 +68,7 @@ class _NoteDetailScreenState extends NoteEditorState<NoteDetailScreen> {
     handleFieldChanged();
   }
 
-  void _initFromNote(Note note) {
+  Future<void> _initFromNote(Note note) async {
     textController.text = note.text ?? '';
     tagNames = List.from(note.tags);
     imagePaths = List.from(note.imagePaths);
@@ -80,7 +81,32 @@ class _NoteDetailScreenState extends NoteEditorState<NoteDetailScreen> {
     _loadedCreatedAt = note.createdAt;
     hasChanges = false;
     _initialized = true;
+    await _preloadFileSizes();
   }
+
+  Future<void> _preloadFileSizes() async {
+    final allPaths = [
+      ...imagePaths,
+      ...videoPaths,
+      ...filePaths,
+    ];
+    final futures = allPaths.map((path) => _getFileSize(path));
+    final sizes = await Future.wait(futures);
+    _fileSizeCache.clear();
+    for (int i = 0; i < allPaths.length; i++) {
+      _fileSizeCache[allPaths[i]] = sizes[i];
+    }
+  }
+
+  Future<int> _getFileSize(String path) async {
+    try {
+      return await File(path).length();
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  int? _getCachedFileSize(String path) => _fileSizeCache[path];
 
   Future<void> _confirmDelete() async {
     final l10n = AppLocalizations.of(context);
@@ -110,11 +136,12 @@ class _NoteDetailScreenState extends NoteEditorState<NoteDetailScreen> {
     final l10n = AppLocalizations.of(context);
     final format = ref.read(exportFormatProvider);
     final zip = ref.read(zipExportProvider);
-    final timestamp = DateFormatter.formatFileDate(note.createdAt);
+    final locale = Localizations.localeOf(context).languageCode;
+    final timestamp = DateFormatter.formatFileDate(note.createdAt, locale);
     final allFiles = <XFile>[];
 
     if (format == ExportFormat.markdown) {
-      final content = ExportHelper.notesToMarkdown([note], l10n);
+      final content = ExportHelper.notesToMarkdown([note], l10n, locale);
       final file = File('${Directory.systemTemp.path}/tack_$timestamp.md');
       await file.writeAsString(content);
       allFiles.add(XFile(file.path));
@@ -170,6 +197,18 @@ class _NoteDetailScreenState extends NoteEditorState<NoteDetailScreen> {
       context: context,
       position: RelativeRect.fromRect(anchorRect, Offset.zero & MediaQuery.of(context).size),
       items: FileContextMenu.buildMenuItems(context, path),
+    );
+  }
+
+  Widget _buildFileSizeWidget(String path) {
+    final size = _getCachedFileSize(path);
+    if (size == null || size == 0) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: Text(
+        formatFileSize(size),
+        style: Theme.of(context).textTheme.bodySmall,
+      ),
     );
   }
 
@@ -302,7 +341,7 @@ class _NoteDetailScreenState extends NoteEditorState<NoteDetailScreen> {
                                   Icon(Icons.access_time, size: 14, color: theme.colorScheme.onSurfaceVariant),
                                   const SizedBox(width: 6),
                                   Text(
-                                    DateFormatter.formatAbsoluteWithWeekday(effectiveCreatedAt),
+                                    DateFormatter.formatAbsoluteWithWeekday(effectiveCreatedAt, Localizations.localeOf(context).languageCode),
                                     style: theme.textTheme.bodySmall?.copyWith(
                                       color: theme.colorScheme.onSurfaceVariant,
                                     ),
@@ -397,6 +436,7 @@ class _NoteDetailScreenState extends NoteEditorState<NoteDetailScreen> {
                                   imagePaths.remove(path);
                                   videoPaths.remove(path);
                                   hasChanges = true;
+                                  onFilePathsChanged();
                                 });
                                 handleFileRemoved(path);
                                 if (autoSave) scheduleAutoSave();
@@ -411,49 +451,39 @@ class _NoteDetailScreenState extends NoteEditorState<NoteDetailScreen> {
                                 title: Text(p.split('/').last, style: const TextStyle(fontSize: 13)),
                                 onTap: () => ThumbnailPreview.show(context, allPreviewPaths, initialIndex: allPreviewPaths.indexOf(p)),
                                 onLongPress: () => _showFileContextMenu(context, p),
-                                trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    FutureBuilder<int>(
-                                      future: File(p).length(),
-                                      builder: (_, snap) => snap.hasData
-                                          ? Padding(
-                                              padding: const EdgeInsets.only(right: 8),
-                                              child: Text(
-                                                formatFileSize(snap.data!),
-                                                style: theme.textTheme.bodySmall,
-                                              ),
-                                            )
-                                          : const SizedBox(),
-                                    ),
-                                    MenuAnchor(
-                                      builder: (context, controller, child) => IconButton(
-                                        icon: const Icon(Icons.more_vert, size: 20),
-                                        onPressed: () {
-                                          if (controller.isOpen) {
-                                            controller.close();
-                                          } else {
-                                            controller.open();
-                                          }
-                                        },
-                                        tooltip: l10n.moreOptions,
-                                      ),
-                                      menuChildren: FileContextMenu.buildMenuItems(context, p),
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(Icons.close, size: 18),
-                                      onPressed: () {
-                                        setState(() {
-                                          imagePaths.remove(p);
-                                          videoPaths.remove(p);
-                                          hasChanges = true;
-                                        });
-                                        handleFileRemoved(p);
-                                        if (autoSave) scheduleAutoSave();
-                                      },
-                                    ),
-                                  ],
-                                ),
+                            trailing: Row(
+                                   mainAxisSize: MainAxisSize.min,
+                                   children: [
+                                     _buildFileSizeWidget(p),
+                                     MenuAnchor(
+                                       builder: (context, controller, child) => IconButton(
+                                         icon: const Icon(Icons.more_vert, size: 20),
+                                         onPressed: () {
+                                           if (controller.isOpen) {
+                                             controller.close();
+                                           } else {
+                                             controller.open();
+                                           }
+                                         },
+                                         tooltip: l10n.moreOptions,
+                                       ),
+                                       menuChildren: FileContextMenu.buildMenuItems(context, p),
+                                     ),
+                                     IconButton(
+                                       icon: const Icon(Icons.close, size: 18),
+                                       onPressed: () {
+                                         setState(() {
+                                           imagePaths.remove(p);
+                                           videoPaths.remove(p);
+                                           hasChanges = true;
+                                           onFilePathsChanged();
+                                         });
+                                         handleFileRemoved(p);
+                                         if (autoSave) scheduleAutoSave();
+                                       },
+                                     ),
+                                   ],
+                                 ),
                               ),
                             )),
                         ],
@@ -468,6 +498,7 @@ class _NoteDetailScreenState extends NoteEditorState<NoteDetailScreen> {
                               setState(() {
                                 audioPaths.remove(path);
                                 hasChanges = true;
+                                onFilePathsChanged();
                               });
                               handleFileRemoved(path);
                               if (autoSave) scheduleAutoSave();
@@ -489,6 +520,7 @@ class _NoteDetailScreenState extends NoteEditorState<NoteDetailScreen> {
                                   videoPaths.remove(path);
                                   filePaths.remove(path);
                                   hasChanges = true;
+                                  onFilePathsChanged();
                                 });
                                 handleFileRemoved(path);
                                 if (autoSave) scheduleAutoSave();
@@ -508,49 +540,39 @@ class _NoteDetailScreenState extends NoteEditorState<NoteDetailScreen> {
                                 onTap: () => ThumbnailPreview.show(context, allPreviewPaths, initialIndex: allPreviewPaths.indexOf(p)),
                                 onLongPress: () => _showFileContextMenu(context, p),
                                 trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    FutureBuilder<int>(
-                                      future: File(p).length(),
-                                      builder: (_, snap) => snap.hasData
-                                          ? Padding(
-                                              padding: const EdgeInsets.only(right: 8),
-                                              child: Text(
-                                                formatFileSize(snap.data!),
-                                                style: theme.textTheme.bodySmall,
-                                              ),
-                                            )
-                                          : const SizedBox(),
-                                    ),
-                                    MenuAnchor(
-                                      builder: (context, controller, child) => IconButton(
-                                        icon: const Icon(Icons.more_vert, size: 20),
-                                        onPressed: () {
-                                          if (controller.isOpen) {
-                                            controller.close();
-                                          } else {
-                                            controller.open();
-                                          }
-                                        },
-                                        tooltip: l10n.moreOptions,
-                                      ),
-                                      menuChildren: FileContextMenu.buildMenuItems(context, p),
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(Icons.close, size: 18),
-                                      onPressed: () {
-                                        setState(() {
-                                          imagePaths.remove(p);
-                                          videoPaths.remove(p);
-                                          filePaths.remove(p);
-                                          hasChanges = true;
-                                        });
-                                        handleFileRemoved(p);
-                                        if (autoSave) scheduleAutoSave();
-                                      },
-                                    ),
-                                  ],
-                                ),
+                                   mainAxisSize: MainAxisSize.min,
+                                   children: [
+                                     _buildFileSizeWidget(p),
+                                     MenuAnchor(
+                                       builder: (context, controller, child) => IconButton(
+                                         icon: const Icon(Icons.more_vert, size: 20),
+                                         onPressed: () {
+                                           if (controller.isOpen) {
+                                             controller.close();
+                                           } else {
+                                             controller.open();
+                                           }
+                                         },
+                                         tooltip: l10n.moreOptions,
+                                       ),
+                                       menuChildren: FileContextMenu.buildMenuItems(context, p),
+                                     ),
+                                     IconButton(
+                                       icon: const Icon(Icons.close, size: 18),
+                                       onPressed: () {
+                                         setState(() {
+                                           imagePaths.remove(p);
+                                           videoPaths.remove(p);
+                                           filePaths.remove(p);
+                                           hasChanges = true;
+                                           onFilePathsChanged();
+                                         });
+                                         handleFileRemoved(p);
+                                         if (autoSave) scheduleAutoSave();
+                                       },
+                                     ),
+                                   ],
+                                 ),
                               ),
                             )),
                         ],
@@ -570,6 +592,7 @@ class _NoteDetailScreenState extends NoteEditorState<NoteDetailScreen> {
                   imagePaths.add(path);
                   newFilePaths.add(path);
                   hasChanges = true;
+                  onFilePathsChanged();
                 });
                 if (autoSave) scheduleAutoSave();
               },
@@ -578,6 +601,7 @@ class _NoteDetailScreenState extends NoteEditorState<NoteDetailScreen> {
                   videoPaths.add(path);
                   newFilePaths.add(path);
                   hasChanges = true;
+                  onFilePathsChanged();
                 });
                 if (autoSave) scheduleAutoSave();
               },
@@ -594,6 +618,7 @@ class _NoteDetailScreenState extends NoteEditorState<NoteDetailScreen> {
                   filePaths.add(path);
                   newFilePaths.add(path);
                   hasChanges = true;
+                  onFilePathsChanged();
                 });
                 if (autoSave) scheduleAutoSave();
               },

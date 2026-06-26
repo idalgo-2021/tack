@@ -1,3 +1,4 @@
+import 'package:sqflite/sqflite.dart';
 import '../database/database_helper.dart';
 import '../database/tables.dart';
 import '../models/tag.dart';
@@ -13,7 +14,8 @@ class TagRepository {
     return s
       .replaceAll('\\', '\\\\')
       .replaceAll('%', '\\%')
-      .replaceAll('_', '\\_');
+      .replaceAll('_', '\\_')
+      .replaceAll('"', '\\"');
   }
 
   Future<List<Tag>> getAll() async {
@@ -36,34 +38,46 @@ class TagRepository {
   Future<int> update(Tag tag) async {
     final db = await _dbHelper.database;
 
-    final oldMaps = await db.query(
-      TableTags.tableName,
-      where: '${TableTags.id} = ?',
-      whereArgs: [tag.id],
-    );
-    if (oldMaps.isEmpty) return 0;
-    final oldName = oldMaps.first[TableTags.name] as String;
+    return db.transaction<int>((txn) async {
+      final oldMaps = await txn.query(
+        TableTags.tableName,
+        where: '${TableTags.id} = ?',
+        whereArgs: [tag.id],
+      );
+      if (oldMaps.isEmpty) return 0;
+      final oldName = oldMaps.first[TableTags.name] as String;
 
-    if (oldName == tag.name) return 0;
+      if (oldName == tag.name) return 0;
 
-    // Replace old tag name with new name directly in notes' JSON tags
-    final escapedOldName = _escapeLike(oldName);
-    await db.execute(
-      "UPDATE ${TableNotes.tableName} SET ${TableNotes.tags} = REPLACE(${TableNotes.tags}, ?, ?) WHERE ${TableNotes.tags} LIKE ? ESCAPE '\\'",
-      ['"$oldName"', '"${tag.name}"', '%"$escapedOldName"%'],
-    );
+      // Replace old tag name with new name directly in notes' JSON tags
+      final escapedOldName = _escapeLike(oldName);
+      await txn.execute(
+        "UPDATE ${TableNotes.tableName} SET ${TableNotes.tags} = REPLACE(${TableNotes.tags}, ?, ?) WHERE ${TableNotes.tags} LIKE ? ESCAPE '\\'",
+        ['"$oldName"', '"${tag.name}"', '%"$escapedOldName"%'],
+      );
 
-    // Rename the tag in tags table (usage count stays unchanged)
-    await db.update(
-      TableTags.tableName,
-      {TableTags.name: tag.name},
-      where: '${TableTags.id} = ?',
-      whereArgs: [tag.id],
-    );
+      // Rename the tag in tags table (usage count stays unchanged)
+      await txn.update(
+        TableTags.tableName,
+        {TableTags.name: tag.name},
+        where: '${TableTags.id} = ?',
+        whereArgs: [tag.id],
+      );
 
-    await rebuildCounts();
+      await _rebuildCounts(txn);
 
-    return 1;
+      return 1;
+    });
+  }
+
+  Future<void> _rebuildCounts(Transaction txn) async {
+    await txn.execute('''
+      UPDATE ${TableTags.tableName}
+      SET ${TableTags.usageCount} = (
+        SELECT COUNT(*) FROM ${TableNotes.tableName}
+        WHERE INSTR(${TableNotes.tags}, '"' || ${TableTags.tableName}.${TableTags.name} || '"') > 0
+      )
+    ''');
   }
 
   Future<void> delete(int id) async {

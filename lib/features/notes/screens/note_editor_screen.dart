@@ -171,7 +171,7 @@ class _NoteEditorScreenState extends NoteEditorState<NoteEditorScreen> {
                             Icon(Icons.access_time, size: 14, color: theme.colorScheme.onSurfaceVariant),
                             const SizedBox(width: 6),
                             Text(
-                              DateFormatter.formatAbsoluteWithWeekday(effectiveCreatedAt),
+                              DateFormatter.formatAbsoluteWithWeekday(effectiveCreatedAt, Localizations.localeOf(context).languageCode),
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: theme.colorScheme.onSurfaceVariant,
                               ),
@@ -237,6 +237,7 @@ if (cameraPaths.isNotEmpty) ...[
                               imagePaths.remove(path);
                               videoPaths.remove(path);
                               hasChanges = true;
+                              onFilePathsChanged();
                             });
                             handleFileRemoved(path);
                             if (autoSave) scheduleAutoSave();
@@ -255,6 +256,7 @@ if (cameraPaths.isNotEmpty) ...[
                                   imagePaths.remove(p);
                                   videoPaths.remove(p);
                                   hasChanges = true;
+                                  onFilePathsChanged();
                                 });
                                 handleFileRemoved(p);
                                 if (autoSave) scheduleAutoSave();
@@ -274,6 +276,7 @@ if (cameraPaths.isNotEmpty) ...[
                           setState(() {
                             audioPaths.remove(audioPath);
                             hasChanges = true;
+                            onFilePathsChanged();
                           });
                           handleFileRemoved(audioPath);
                           if (autoSave) scheduleAutoSave();
@@ -281,7 +284,7 @@ if (cameraPaths.isNotEmpty) ...[
                       ))
 
                     ],
-if (allFilePaths.isNotEmpty) ...[
+                    if (allFilePaths.isNotEmpty) ...[
                       const SizedBox(height: 16),
                       Text(l10n.files, style: theme.textTheme.titleSmall),
                       const SizedBox(height: 8),
@@ -296,6 +299,7 @@ if (allFilePaths.isNotEmpty) ...[
                               videoPaths.remove(path);
                               filePaths.remove(path);
                               hasChanges = true;
+                              onFilePathsChanged();
                             });
                             handleFileRemoved(path);
                             if (autoSave) scheduleAutoSave();
@@ -319,6 +323,7 @@ if (allFilePaths.isNotEmpty) ...[
                                   videoPaths.remove(p);
                                   filePaths.remove(p);
                                   hasChanges = true;
+                                  onFilePathsChanged();
                                 });
                                 handleFileRemoved(p);
                                 if (autoSave) scheduleAutoSave();
@@ -341,6 +346,7 @@ if (allFilePaths.isNotEmpty) ...[
               imagePaths.add(path);
               newFilePaths.add(path);
               hasChanges = true;
+              onFilePathsChanged();
             });
           },
           onVideoAdded: (path) {
@@ -348,6 +354,7 @@ if (allFilePaths.isNotEmpty) ...[
               videoPaths.add(path);
               newFilePaths.add(path);
               hasChanges = true;
+              onFilePathsChanged();
             });
           },
           onAudioAdded: (path) {
@@ -362,6 +369,7 @@ if (allFilePaths.isNotEmpty) ...[
               filePaths.add(path);
               newFilePaths.add(path);
               hasChanges = true;
+              onFilePathsChanged();
             });
           },
           onLatitudeChanged: (lat) {

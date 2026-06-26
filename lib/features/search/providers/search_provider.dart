@@ -40,6 +40,15 @@ class SearchFilters {
       hasFiles: hasFiles ?? this.hasFiles,
     );
   }
+
+  bool get hasActiveFilters {
+    return query.isNotEmpty ||
+        dateFrom != null ||
+        dateTo != null ||
+        hasImages == true ||
+        hasAudio == true ||
+        hasFiles == true;
+  }
 }
 
 class _SearchSentinel {

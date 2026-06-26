@@ -54,8 +54,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     final allTagsAsync = ref.watch(tagListProvider);
     final theme = Theme.of(context);
 
-    final hasActiveFilters = filters.dateFrom != null || filters.dateTo != null ||
-        filters.hasAudio != null || filters.hasFiles != null;
+    final hasActiveFilters = filters.hasActiveFilters;
 
     return Scaffold(
       appBar: AppBar(

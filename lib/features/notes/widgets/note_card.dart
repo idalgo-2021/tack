@@ -70,11 +70,11 @@ class NoteCard extends ConsumerWidget {
                   padding: const EdgeInsets.only(bottom: 6),
                   child: viewMode == ViewMode.grid
                       ? Text(
-                          DateFormatter.formatAbsoluteWithWeekday(note.createdAt),
+                          DateFormatter.formatAbsoluteWithWeekday(note.createdAt, Localizations.localeOf(context).languageCode),
                           style: theme.textTheme.labelSmall?.copyWith(color: colorScheme.onSurfaceVariant),
                         )
                       : Text(
-                          DateFormatter.formatAbsoluteWithWeekday(note.createdAt),
+                          DateFormatter.formatAbsoluteWithWeekday(note.createdAt, Localizations.localeOf(context).languageCode),
                           style: theme.textTheme.labelSmall?.copyWith(color: colorScheme.onSurfaceVariant),
                         ),
                 ),

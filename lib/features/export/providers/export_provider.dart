@@ -39,10 +39,11 @@ class Export extends _$Export {
       }
 
       final format = ref.read(exportFormatProvider);
-      final timestamp = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
+      final locale = ref.read(appLocaleProvider);
+      final timestamp = DateFormat('yyyyMMdd_HHmmss', locale).format(DateTime.now());
       final ext = format == ExportFormat.markdown ? 'md' : 'json';
       final content = format == ExportFormat.markdown
-          ? ExportHelper.notesToMarkdown(notes, l10n)
+          ? ExportHelper.notesToMarkdown(notes, l10n, locale)
           : ExportHelper.notesToJson(notes);
       final contentFile = File('${Directory.systemTemp.path}/tack_$timestamp.$ext');
       await contentFile.writeAsString(content);

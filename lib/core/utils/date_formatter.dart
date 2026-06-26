@@ -3,12 +3,17 @@ import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 
 class DateFormatter {
-  static String formatAbsolute(DateTime date) {
-    return DateFormat('dd.MM.yyyy HH:mm').format(date);
+  static String _format(DateTime date, String pattern, [String? locale]) {
+    final format = DateFormat(pattern, locale);
+    return format.format(date);
   }
 
-  static String formatAbsoluteWithWeekday(DateTime date) {
-    return '${DateFormat('dd.MM.yyyy HH:mm').format(date)} (${DateFormat('E').format(date)})';
+  static String formatAbsolute(DateTime date, [String? locale]) {
+    return _format(date, 'dd.MM.yyyy HH:mm', locale);
+  }
+
+  static String formatAbsoluteWithWeekday(DateTime date, [String? locale]) {
+    return '${_format(date, 'dd.MM.yyyy HH:mm', locale)} (${_format(date, 'E', locale)})';
   }
 
   static String formatRelative(BuildContext context, DateTime date) {
@@ -21,11 +26,11 @@ class DateFormatter {
     if (diff.inDays < 1) return l10n.hoursAgo(diff.inHours);
     if (diff.inDays < 7) return l10n.daysAgo(diff.inDays);
 
-    return DateFormat('dd.MM.yyyy HH:mm').format(date);
+    return formatAbsolute(date, Localizations.localeOf(context).languageCode);
   }
 
-  static String formatFileDate(DateTime date) {
-    return DateFormat('yyyy-MM-dd_HHmmss').format(date);
+  static String formatFileDate(DateTime date, [String? locale]) {
+    return _format(date, 'yyyy-MM-dd_HHmmss', locale);
   }
 
   static String formatDMS(double lat, double lon) {
@@ -46,16 +51,16 @@ class DateFormatter {
     final diff = today.difference(day).inDays;
     if (diff == 0) return l10n.dateToday;
     if (diff == 1) return l10n.dateYesterday;
-    return DateFormat('d MMMM yyyy').format(date);
+    return _format(date, 'd MMMM yyyy', Localizations.localeOf(context).languageCode);
   }
 
   static String formatWeekGroup(BuildContext context, DateTime date) {
     final l10n = AppLocalizations.of(context);
-    final week = DateFormat('w').format(date);
+    final week = _format(date, 'w', Localizations.localeOf(context).languageCode);
     return l10n.dateWeekHeader(week, date.year.toString());
   }
 
   static String formatMonthGroup(BuildContext context, DateTime date) {
-    return DateFormat('LLLL yyyy').format(date);
+    return _format(date, 'LLLL yyyy', Localizations.localeOf(context).languageCode);
   }
 }

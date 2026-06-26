@@ -8,16 +8,16 @@ import '../../l10n/app_localizations.dart';
 import 'date_formatter.dart';
 
 class ExportHelper {
-  static String notesToMarkdown(List<Note> notes, AppLocalizations l10n) {
+  static String notesToMarkdown(List<Note> notes, AppLocalizations l10n, [String? locale]) {
     final md = StringBuffer();
     md.writeln('# ${l10n.exportTitle}');
-    md.writeln(l10n.exportDate(DateFormat('dd.MM.yyyy HH:mm').format(DateTime.now())));
+    md.writeln(l10n.exportDate(DateFormat('dd.MM.yyyy HH:mm', locale).format(DateTime.now())));
     md.writeln();
 
     for (final note in notes) {
       md.writeln('---');
       md.writeln();
-      md.writeln('## ${l10n.noteFrom(DateFormatter.formatAbsoluteWithWeekday(note.createdAt))}');
+      md.writeln('## ${l10n.noteFrom(DateFormatter.formatAbsoluteWithWeekday(note.createdAt, locale))}');
       if (note.latitude != null && note.longitude != null) {
         md.writeln('📍 ${DateFormatter.formatDMS(note.latitude!, note.longitude!)}');
       }

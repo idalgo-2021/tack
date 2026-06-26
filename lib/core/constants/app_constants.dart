@@ -12,4 +12,11 @@ class AppConstants {
   static const int thumbnailMinColsTablet = 4;
   static const int thumbnailMaxColsTablet = 8;
   static const double thumbnailSpacing = 8.0;
+
+  static const String imagesDir = 'tack/images';
+  static const String audioDir = 'tack/audio';
+  static const String filesDir = 'tack/files';
+  static const String videosDir = 'tack/videos';
+  static const String cameraImagesDir = 'tack/camera/images';
+  static const String cameraVideosDir = 'tack/camera/videos';
 }

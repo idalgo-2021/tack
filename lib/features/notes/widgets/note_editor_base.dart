@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../l10n/app_localizations.dart';
@@ -10,6 +11,11 @@ import '../../settings/providers/settings_provider.dart';
 import '../../tags/providers/tag_provider.dart';
 import '../../tags/widgets/tag_selector_dialog.dart';
 import '../providers/note_list_provider.dart';
+
+List<String> _sortByLastModified(List<String> paths) {
+  paths.sort((a, b) => File(b).lastModifiedSync().compareTo(File(a).lastModifiedSync()));
+  return paths;
+}
 
 abstract class NoteEditorState<T extends ConsumerStatefulWidget> extends ConsumerState<T> {
   late final TextEditingController textController;
@@ -29,6 +35,9 @@ abstract class NoteEditorState<T extends ConsumerStatefulWidget> extends Consume
   final Set<String> newFilePaths = {};
   final Set<String> deletedFilePaths = {};
 
+  List<String>? _cachedAllFilePaths;
+  bool _filePathsCacheValid = false;
+
   bool get hasLocation => latitude != null && longitude != null;
 
   List<String> get cameraPaths {
@@ -40,15 +49,39 @@ abstract class NoteEditorState<T extends ConsumerStatefulWidget> extends Consume
   }
 
   List<String> get allFilePaths {
-    final result = [
+    if (!_filePathsCacheValid) {
+      _rebuildFilePathsCache();
+    }
+    return _cachedAllFilePaths ?? _unsortedAllFilePaths;
+  }
+
+  List<String> get _unsortedAllFilePaths {
+    return [
       ...imagePaths.where((p) => !FileUtils.isCameraFile(p)),
       ...videoPaths.where((p) => !FileUtils.isCameraFile(p)),
       ...filePaths,
     ];
+  }
+
+  Future<void> _rebuildFilePathsCache() async {
+    final unsorted = _unsortedAllFilePaths;
+    if (unsorted.isEmpty) {
+      _cachedAllFilePaths = [];
+      _filePathsCacheValid = true;
+      return;
+    }
     try {
-      result.sort((a, b) => File(b).lastModifiedSync().compareTo(File(a).lastModifiedSync()));
-    } catch (_) {}
-    return result;
+      final sorted = await compute(_sortByLastModified, unsorted);
+      _cachedAllFilePaths = sorted;
+    } catch (_) {
+      _cachedAllFilePaths = unsorted;
+    }
+    _filePathsCacheValid = true;
+  }
+
+  void _invalidateFilePathsCache() {
+    _filePathsCacheValid = false;
+    _cachedAllFilePaths = null;
   }
 
   List<String> get allPreviewPaths => [...cameraPaths, ...allFilePaths];
@@ -109,6 +142,12 @@ abstract class NoteEditorState<T extends ConsumerStatefulWidget> extends Consume
     } else {
       deletedFilePaths.add(path);
     }
+    _invalidateFilePathsCache();
+  }
+
+  @protected
+  void onFilePathsChanged() {
+    _invalidateFilePathsCache();
   }
 
   Future<void> saveNote() async {

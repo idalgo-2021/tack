@@ -9,7 +9,8 @@ class NoteRepository {
     return s
       .replaceAll('\\', '\\\\')
       .replaceAll('%', '\\%')
-      .replaceAll('_', '\\_');
+      .replaceAll('_', '\\_')
+      .replaceAll('"', '\\"');
   }
 
   Future<int> insert(Note note) async {
@@ -125,27 +126,35 @@ class NoteRepository {
   }
 
   Future<void> _syncTags(List<String> tags) async {
+    if (tags.isEmpty) return;
     final db = await _dbHelper.database;
-    for (final tag in tags) {
-      final existing = await db.query(
+    await db.transaction((txn) async {
+      final placeholders = tags.map((_) => '?').join(',');
+      final existingMaps = await txn.query(
         TableTags.tableName,
-        where: '${TableTags.name} = ?',
-        whereArgs: [tag],
+        where: '${TableTags.name} IN ($placeholders)',
+        whereArgs: tags,
       );
-      if (existing.isEmpty) {
-        await db.insert(TableTags.tableName, {
-          TableTags.name: tag,
-          TableTags.usageCount: 1,
-        });
-      } else {
-        await db.update(
-          TableTags.tableName,
-          {TableTags.usageCount: (existing.first[TableTags.usageCount] as int) + 1},
-          where: '${TableTags.name} = ?',
-          whereArgs: [tag],
-        );
+      final existingTags = existingMaps.map((m) => m[TableTags.name] as String).toSet();
+
+      final batch = txn.batch();
+      for (final tag in tags) {
+        if (existingTags.contains(tag)) {
+          batch.update(
+            TableTags.tableName,
+            {TableTags.usageCount: 'usage_count + 1'},
+            where: '${TableTags.name} = ?',
+            whereArgs: [tag],
+          );
+        } else {
+          batch.insert(TableTags.tableName, {
+            TableTags.name: tag,
+            TableTags.usageCount: 1,
+          });
+        }
       }
-    }
+      await batch.commit(noResult: true);
+    });
   }
 
   Future<void> _syncTagsForUpdate(List<String> oldTags, List<String> newTags) async {
@@ -156,22 +165,27 @@ class NoteRepository {
   }
 
   Future<void> _decrementTags(List<String> tags) async {
+    if (tags.isEmpty) return;
     final db = await _dbHelper.database;
-    for (final tag in tags) {
-      final existing = await db.query(
+    await db.transaction((txn) async {
+      final placeholders = tags.map((_) => '?').join(',');
+      final existingMaps = await txn.query(
         TableTags.tableName,
-        where: '${TableTags.name} = ?',
-        whereArgs: [tag],
+        where: '${TableTags.name} IN ($placeholders)',
+        whereArgs: tags,
       );
-      if (existing.isNotEmpty) {
-        final count = (existing.first[TableTags.usageCount] as int) - 1;
-        await db.update(
+
+      final batch = txn.batch();
+      for (final map in existingMaps) {
+        final count = (map[TableTags.usageCount] as int) - 1;
+        batch.update(
           TableTags.tableName,
           {TableTags.usageCount: count < 0 ? 0 : count},
           where: '${TableTags.name} = ?',
-          whereArgs: [tag],
+          whereArgs: [map[TableTags.name]],
         );
       }
-    }
+      await batch.commit(noResult: true);
+    });
   }
 }

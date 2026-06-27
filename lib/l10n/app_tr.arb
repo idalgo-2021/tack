@@ -163,4 +163,7 @@
   "moreOptions": "Daha fazla seçenek",
   "shirt": "Arka plan",
   "noColor": "Renksiz"
+,
+  "selectAll": "Select All",
+  "deselectAll": "Deselect All"
 }

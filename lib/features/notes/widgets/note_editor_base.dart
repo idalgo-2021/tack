@@ -161,7 +161,7 @@ abstract class NoteEditorState<T extends ConsumerStatefulWidget> extends Consume
       final note = Note(
         id: id,
         text: textController.text.trim().isEmpty ? null : textController.text.trim(),
-        tags: tagNames,
+        tagNames: tagNames,
         imagePaths: imagePaths,
         audioPaths: audioPaths,
         filePaths: filePaths,
@@ -200,9 +200,7 @@ abstract class NoteEditorState<T extends ConsumerStatefulWidget> extends Consume
   }
 
   Future<void> showTagSelector() async {
-    ref.invalidate(tagListProvider);
-    final repo = ref.read(tagRepositoryProvider);
-    final allTags = await repo.getAll();
+    final allTags = await ref.read(tagListProvider.future);
     if (!mounted) return;
     showDialog(
       context: context,

@@ -162,5 +162,7 @@
   "shareFile": "Поделиться",
   "moreOptions": "Дополнительно",
   "shirt": "Фон",
-  "noColor": "Без цвета"
+  "noColor": "Без цвета",
+  "selectAll": "Выбрать все",
+  "deselectAll": "Снять выделение"
 }

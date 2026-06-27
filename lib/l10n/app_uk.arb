@@ -163,4 +163,7 @@
   "moreOptions": "Додатково",
   "shirt": "Фон",
   "noColor": "Без кольору"
+,
+  "selectAll": "Select All",
+  "deselectAll": "Deselect All"
 }

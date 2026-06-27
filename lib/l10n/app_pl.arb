@@ -163,4 +163,7 @@
   "moreOptions": "Więcej opcji",
   "shirt": "Tło",
   "noColor": "Bez koloru"
+,
+  "selectAll": "Select All",
+  "deselectAll": "Deselect All"
 }

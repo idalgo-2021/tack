@@ -1,3 +1,4 @@
+import 'package:sqflite/sqflite.dart';
 import '../database/database_helper.dart';
 import '../database/tables.dart';
 import '../models/note.dart';
@@ -5,60 +6,53 @@ import '../models/note.dart';
 class NoteRepository {
   final DatabaseHelper _dbHelper = DatabaseHelper.instance;
 
-  static String _escapeLike(String s) {
-    return s
-      .replaceAll('\\', '\\\\')
-      .replaceAll('%', '\\%')
-      .replaceAll('_', '\\_')
-      .replaceAll('"', '\\"');
-  }
-
   Future<int> insert(Note note) async {
     final db = await _dbHelper.database;
-    final id = await db.insert(TableNotes.tableName, note.toMap());
-    await _syncTags(note.tags);
-    return id;
+    return db.transaction<int>((txn) async {
+      final id = await txn.insert(TableNotes.tableName, note.toMap());
+      await _syncTags(txn, id, note.tagNames);
+      return id;
+    });
   }
 
   Future<int> update(Note note) async {
     final db = await _dbHelper.database;
-    final oldNote = await getById(note.id!);
-    final result = await db.update(
-      TableNotes.tableName,
-      note.toMap(),
-      where: '${TableNotes.id} = ?',
-      whereArgs: [note.id],
-    );
-    if (oldNote != null) {
-      await _syncTagsForUpdate(oldNote.tags, note.tags);
-    } else {
-      await _syncTags(note.tags);
-    }
-    return result;
+    return db.transaction<int>((txn) async {
+      final result = await txn.update(
+        TableNotes.tableName,
+        note.toMap(),
+        where: '${TableNotes.id} = ?',
+        whereArgs: [note.id],
+      );
+      await txn.delete(
+        TableNoteTags.tableName,
+        where: '${TableNoteTags.noteId} = ?',
+        whereArgs: [note.id],
+      );
+      await _syncTags(txn, note.id!, note.tagNames);
+      return result;
+    });
   }
 
   Future<int> delete(int id) async {
     final db = await _dbHelper.database;
-    final note = await getById(id);
-    final result = await db.delete(
+    return db.delete(
       TableNotes.tableName,
       where: '${TableNotes.id} = ?',
       whereArgs: [id],
     );
-    if (note != null) {
-      await _decrementTags(note.tags);
-    }
-    return result;
   }
 
   Future<Note?> getById(int id) async {
     final db = await _dbHelper.database;
-    final maps = await db.query(
-      TableNotes.tableName,
-      where: '${TableNotes.id} = ?',
-      whereArgs: [id],
-      limit: 1,
-    );
+    final maps = await db.rawQuery('''
+      SELECT n.*, GROUP_CONCAT(t.name) AS tag_names
+      FROM ${TableNotes.tableName} n
+      LEFT JOIN ${TableNoteTags.tableName} nt ON n.${TableNotes.id} = nt.${TableNoteTags.noteId}
+      LEFT JOIN ${TableTags.tableName} t ON nt.${TableNoteTags.tagId} = t.${TableTags.id}
+      WHERE n.${TableNotes.id} = ?
+      GROUP BY n.${TableNotes.id}
+    ''', [id]);
     if (maps.isEmpty) return null;
     return Note.fromMap(maps.first);
   }
@@ -80,44 +74,54 @@ class NoteRepository {
     final whereArgs = <dynamic>[];
 
     if (searchQuery != null && searchQuery.isNotEmpty) {
-      where.add('${TableNotes.text} LIKE ?');
+      where.add('n.${TableNotes.text} LIKE ?');
       whereArgs.add('%$searchQuery%');
     }
 
     if (tagFilter != null && tagFilter.isNotEmpty) {
-      where.add('${TableNotes.tags} LIKE ? ESCAPE \'\\\'');
-      whereArgs.add('%"${_escapeLike(tagFilter)}"%');
+      where.add('''n.${TableNotes.id} IN (
+        SELECT nt2.${TableNoteTags.noteId}
+        FROM ${TableNoteTags.tableName} nt2
+        JOIN ${TableTags.tableName} t2 ON nt2.${TableNoteTags.tagId} = t2.${TableTags.id}
+        WHERE t2.${TableTags.name} = ?
+      )''');
+      whereArgs.add(tagFilter);
     }
 
     if (dateFrom != null) {
-      where.add('${TableNotes.createdAt} >= ?');
+      where.add('n.${TableNotes.createdAt} >= ?');
       whereArgs.add(dateFrom.millisecondsSinceEpoch);
     }
 
     if (dateTo != null) {
-      where.add('${TableNotes.createdAt} <= ?');
+      where.add('n.${TableNotes.createdAt} <= ?');
       whereArgs.add(dateTo.millisecondsSinceEpoch);
     }
 
     if (hasImages == true) {
-      where.add('${TableNotes.imagePaths} != \'[]\'');
+      where.add('n.${TableNotes.imagePaths} != \'[]\'');
     }
     if (hasAudio == true) {
-      where.add('${TableNotes.audioPaths} != \'[]\'');
+      where.add('n.${TableNotes.audioPaths} != \'[]\'');
     }
     if (hasFiles == true) {
-      where.add('${TableNotes.filePaths} != \'[]\'');
+      where.add('n.${TableNotes.filePaths} != \'[]\'');
     }
     if (hasVideos == true) {
-      where.add('${TableNotes.videoPaths} != \'[]\'');
+      where.add('n.${TableNotes.videoPaths} != \'[]\'');
     }
 
-    final maps = await db.query(
-      TableNotes.tableName,
-      where: where.isNotEmpty ? where.join(' AND ') : null,
-      whereArgs: whereArgs.isNotEmpty ? whereArgs : null,
-      orderBy: '$sortBy ${ascending ? 'ASC' : 'DESC'}',
-    );
+    final sql = '''
+      SELECT n.*, GROUP_CONCAT(t.name) AS tag_names
+      FROM ${TableNotes.tableName} n
+      LEFT JOIN ${TableNoteTags.tableName} nt ON n.${TableNotes.id} = nt.${TableNoteTags.noteId}
+      LEFT JOIN ${TableTags.tableName} t ON nt.${TableNoteTags.tagId} = t.${TableTags.id}
+      ${where.isNotEmpty ? 'WHERE ${where.join(' AND ')}' : ''}
+      GROUP BY n.${TableNotes.id}
+      ORDER BY n.$sortBy ${ascending ? 'ASC' : 'DESC'}
+    ''';
+
+    final maps = await db.rawQuery(sql, whereArgs);
     return maps.map((m) => Note.fromMap(m)).toList();
   }
 
@@ -125,67 +129,26 @@ class NoteRepository {
     return getAll(tagFilter: tag, sortBy: sortBy, ascending: ascending);
   }
 
-  Future<void> _syncTags(List<String> tags) async {
-    if (tags.isEmpty) return;
-    final db = await _dbHelper.database;
-    await db.transaction((txn) async {
-      final placeholders = tags.map((_) => '?').join(',');
-      final existingMaps = await txn.query(
-        TableTags.tableName,
-        where: '${TableTags.name} IN ($placeholders)',
-        whereArgs: tags,
-      );
-      final existingTags = existingMaps.map((m) => m[TableTags.name] as String).toSet();
+  Future<void> _syncTags(Transaction txn, int noteId, List<String> tagNames) async {
+    if (tagNames.isEmpty) return;
 
-      final batch = txn.batch();
-      for (final tag in tags) {
-        if (existingTags.contains(tag)) {
-          batch.update(
-            TableTags.tableName,
-            {TableTags.usageCount: 'usage_count + 1'},
-            where: '${TableTags.name} = ?',
-            whereArgs: [tag],
-          );
-        } else {
-          batch.insert(TableTags.tableName, {
-            TableTags.name: tag,
-            TableTags.usageCount: 1,
-          });
-        }
-      }
-      await batch.commit(noResult: true);
-    });
-  }
+    final placeholders = tagNames.map((_) => '?').join(',');
+    final existingMaps = await txn.query(
+      TableTags.tableName,
+      where: '${TableTags.name} IN ($placeholders)',
+      whereArgs: tagNames,
+    );
+    final existing = {for (final m in existingMaps) m[TableTags.name] as String: m[TableTags.id] as int};
 
-  Future<void> _syncTagsForUpdate(List<String> oldTags, List<String> newTags) async {
-    final removed = oldTags.where((t) => !newTags.contains(t)).toList();
-    final added = newTags.where((t) => !oldTags.contains(t)).toList();
-    if (removed.isNotEmpty) await _decrementTags(removed);
-    if (added.isNotEmpty) await _syncTags(added);
-  }
-
-  Future<void> _decrementTags(List<String> tags) async {
-    if (tags.isEmpty) return;
-    final db = await _dbHelper.database;
-    await db.transaction((txn) async {
-      final placeholders = tags.map((_) => '?').join(',');
-      final existingMaps = await txn.query(
-        TableTags.tableName,
-        where: '${TableTags.name} IN ($placeholders)',
-        whereArgs: tags,
-      );
-
-      final batch = txn.batch();
-      for (final map in existingMaps) {
-        final count = (map[TableTags.usageCount] as int) - 1;
-        batch.update(
-          TableTags.tableName,
-          {TableTags.usageCount: count < 0 ? 0 : count},
-          where: '${TableTags.name} = ?',
-          whereArgs: [map[TableTags.name]],
-        );
-      }
-      await batch.commit(noResult: true);
-    });
+    for (final name in tagNames) {
+      final tagId = existing[name] ?? await txn.insert(TableTags.tableName, {
+        TableTags.name: name,
+        TableTags.usageCount: 0,
+      });
+      await txn.insert(TableNoteTags.tableName, {
+        TableNoteTags.noteId: noteId,
+        TableNoteTags.tagId: tagId,
+      });
+    }
   }
 }

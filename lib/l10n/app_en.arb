@@ -162,5 +162,7 @@
   "shareFile": "Share",
   "moreOptions": "More options",
   "shirt": "Shirt",
-  "noColor": "No color"
+  "noColor": "No color",
+  "selectAll": "Select All",
+  "deselectAll": "Deselect All"
 }

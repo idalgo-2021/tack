@@ -163,4 +163,7 @@
   "moreOptions": "Толығырақ опциялар",
   "shirt": "Фон",
   "noColor": "Түссіз"
+,
+  "selectAll": "Select All",
+  "deselectAll": "Deselect All"
 }

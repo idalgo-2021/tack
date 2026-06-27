@@ -98,9 +98,9 @@ class NoteCard extends ConsumerWidget {
                     ],
                   ),
                 ),
-              if (note.tags.isNotEmpty) ...[
+              if (note.tagNames.isNotEmpty) ...[
                 const SizedBox(height: 8),
-                _buildTags(note.tags, viewMode, colorScheme),
+                _buildTags(note.tagNames, viewMode, colorScheme),
               ],
               const SizedBox(height: 8),
               Row(

@@ -70,7 +70,7 @@ class _NoteDetailScreenState extends NoteEditorState<NoteDetailScreen> {
 
   Future<void> _initFromNote(Note note) async {
     textController.text = note.text ?? '';
-    tagNames = List.from(note.tags);
+    tagNames = List.from(note.tagNames);
     imagePaths = List.from(note.imagePaths);
     audioPaths = List.from(note.audioPaths);
     filePaths = List.from(note.filePaths);

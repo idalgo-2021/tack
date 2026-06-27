@@ -525,4 +525,10 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get noColor => 'Без кольору';
+
+  @override
+  String get selectAll => 'Select All';
+
+  @override
+  String get deselectAll => 'Deselect All';
 }

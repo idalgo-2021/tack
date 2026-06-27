@@ -11,6 +11,6 @@ final noteRepositoryProvider = Provider<NoteRepository>((_) {
   return NoteRepository();
 });
 
-final tagRepositoryProvider = Provider<TagRepository>((ref) {
-  return TagRepository(noteRepo: ref.watch(noteRepositoryProvider));
+final tagRepositoryProvider = Provider<TagRepository>((_) {
+  return TagRepository();
 });

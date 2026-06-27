@@ -52,6 +52,29 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
     });
   }
 
+  void _toggleSelectAll() {
+    final notesAsync = ref.read(noteListProvider(searchQuery: null, tagFilter: _tagFilter));
+    notesAsync.whenData((notes) {
+      final allIds = notes.where((n) => n.id != null).map((n) => n.id!).toSet();
+      setState(() {
+        if (_selectedIds.length == allIds.length && _selectedIds.containsAll(allIds)) {
+          _selectedIds.clear();
+          _selectionMode = false;
+        } else {
+          _selectedIds.addAll(allIds);
+          _selectionMode = true;
+        }
+      });
+    });
+  }
+
+  bool get _areAllVisibleNotesSelected {
+    final notes = ref.read(noteListProvider(searchQuery: null, tagFilter: _tagFilter)).value ?? [];
+    if (notes.isEmpty) return false;
+    final allIds = notes.where((n) => n.id != null).map((n) => n.id!).toSet();
+    return _selectedIds.length == allIds.length && _selectedIds.containsAll(allIds);
+  }
+
   Future<void> _showColorPickerForSelected() async {
     final newColor = await NoteColorPicker.show(context, currentColor: null);
     if (!mounted) return;
@@ -228,11 +251,17 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
                     : Text(l10n.notes),
               ),
         actions: [
-          if (_selectionMode)
+          if (_selectionMode) ...[
+            IconButton(
+              icon: Icon(_areAllVisibleNotesSelected ? Icons.check_box : Icons.check_box_outline_blank),
+              tooltip: _areAllVisibleNotesSelected ? l10n.deselectAll : l10n.selectAll,
+              onPressed: _toggleSelectAll,
+            ),
             IconButton(
               icon: const Icon(Icons.close),
               onPressed: _clearSelection,
             ),
+          ],
           if (!_selectionMode) ...[
             if (_tagFilter != null)
               IconButton(

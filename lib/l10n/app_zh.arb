@@ -163,4 +163,7 @@
   "moreOptions": "更多选项",
   "shirt": "背景",
   "noColor": "无颜色"
+,
+  "selectAll": "Select All",
+  "deselectAll": "Deselect All"
 }

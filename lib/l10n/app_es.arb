@@ -163,4 +163,7 @@
   "moreOptions": "Más opciones",
   "shirt": "Fondo",
   "noColor": "Sin color"
+,
+  "selectAll": "Select All",
+  "deselectAll": "Deselect All"
 }

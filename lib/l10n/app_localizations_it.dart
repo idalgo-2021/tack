@@ -529,4 +529,10 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get noColor => 'Nessun colore';
+
+  @override
+  String get selectAll => 'Select All';
+
+  @override
+  String get deselectAll => 'Deselect All';
 }

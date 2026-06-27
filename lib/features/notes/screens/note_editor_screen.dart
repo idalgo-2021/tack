@@ -44,7 +44,7 @@ class _NoteEditorScreenState extends NoteEditorState<NoteEditorScreen> {
     audioPaths = List.from(_existingNote?.audioPaths ?? []);
     filePaths = List.from(_existingNote?.filePaths ?? []);
     videoPaths = List.from(_existingNote?.videoPaths ?? []);
-    tagNames = List.from(_existingNote?.tags ?? []);
+    tagNames = List.from(_existingNote?.tagNames ?? []);
     latitude = _existingNote?.latitude;
     longitude = _existingNote?.longitude;
     noteColor = _existingNote?.color;

@@ -525,4 +525,10 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get noColor => 'Renksiz';
+
+  @override
+  String get selectAll => 'Select All';
+
+  @override
+  String get deselectAll => 'Deselect All';
 }

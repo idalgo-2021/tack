@@ -163,4 +163,7 @@
   "moreOptions": "その他のオプション",
   "shirt": "背景色",
   "noColor": "色なし"
+,
+  "selectAll": "Select All",
+  "deselectAll": "Deselect All"
 }

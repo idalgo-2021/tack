@@ -1097,6 +1097,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No color'**
   String get noColor;
+
+  /// No description provided for @selectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Select All'**
+  String get selectAll;
+
+  /// No description provided for @deselectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Deselect All'**
+  String get deselectAll;
 }
 
 class _AppLocalizationsDelegate

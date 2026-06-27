@@ -526,4 +526,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get noColor => 'Без цвета';
+
+  @override
+  String get selectAll => 'Выбрать все';
+
+  @override
+  String get deselectAll => 'Снять выделение';
 }

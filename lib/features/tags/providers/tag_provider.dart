@@ -9,7 +9,7 @@ part 'tag_provider.g.dart';
 class TagList extends _$TagList {
   @override
   Future<List<Tag>> build() async {
-    final repo = ref.watch(tagRepositoryProvider);
+    final repo = ref.read(tagRepositoryProvider);
     return repo.getAll();
   }
 

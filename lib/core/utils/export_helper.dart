@@ -21,8 +21,8 @@ class ExportHelper {
       if (note.latitude != null && note.longitude != null) {
         md.writeln('📍 ${DateFormatter.formatDMS(note.latitude!, note.longitude!)}');
       }
-      if (note.tags.isNotEmpty) {
-        md.writeln('🏷 ${note.tags.map((t) => '#$t').join(' ')}');
+      if (note.tagNames.isNotEmpty) {
+        md.writeln('🏷 ${note.tagNames.map((t) => '#$t').join(' ')}');
       }
       md.writeln();
       if (note.text != null && note.text!.isNotEmpty) {
@@ -62,7 +62,7 @@ class ExportHelper {
           'latitude': note.latitude,
         if (note.latitude != null && note.longitude != null)
           'longitude': note.longitude,
-        'tags': note.tags,
+        'tags': note.tagNames,
         'text': note.text,
         'files': noteFiles.map((p) => p.split('/').last).toList(),
       };

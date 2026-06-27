@@ -25,8 +25,6 @@ class DatabaseHelper {
         for (final query in DatabaseSchema.v1Queries) {
           await db.execute(query);
         }
-        await db.execute(DatabaseSchema.addFilePathsColumn);
-        await db.execute(DatabaseSchema.addVideoPathsColumn);
       },
       onUpgrade: (db, oldVersion, newVersion) async {
         if (oldVersion < 2) {
@@ -37,6 +35,11 @@ class DatabaseHelper {
         }
         if (oldVersion < 4) {
           await db.execute(DatabaseSchema.addColorColumn);
+        }
+        if (oldVersion < 5) {
+          await db.execute(DatabaseSchema.createNoteTagsTable);
+          await db.execute(DatabaseSchema.createNoteTagsTagIndex);
+          await db.execute(DatabaseSchema.createNoteTagsNoteIndex);
         }
       },
     );

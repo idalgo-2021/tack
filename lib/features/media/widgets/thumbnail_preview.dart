@@ -189,11 +189,14 @@ class _ThumbnailPreviewContentState extends State<_ThumbnailPreviewContent> {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator(color: Colors.white));
     } else if (isImageFile(_currentPath)) {
+      final mq = MediaQuery.of(context);
+      final cacheWidth = (mq.size.width * mq.devicePixelRatio).round();
       return InteractiveViewer(
         child: Center(
           child: Image.file(
             File(_currentPath),
             fit: BoxFit.contain,
+            cacheWidth: cacheWidth,
             errorBuilder: (_, _, _) => const Icon(
               Icons.broken_image,
               size: 80,
@@ -289,12 +292,19 @@ class _ThumbnailPreviewContentState extends State<_ThumbnailPreviewContent> {
       fit: StackFit.expand,
       children: [
         if (_thumbPath != null)
-          Center(
-            child: Image.file(
-              File(_thumbPath!),
-              fit: BoxFit.contain,
-              errorBuilder: (_, _, _) => _videoPlaceholder(),
-            ),
+          Builder(
+            builder: (context) {
+              final mq = MediaQuery.of(context);
+              final cacheWidth = (mq.size.width * mq.devicePixelRatio).round();
+              return Center(
+                child: Image.file(
+                  File(_thumbPath!),
+                  fit: BoxFit.contain,
+                  cacheWidth: cacheWidth,
+                  errorBuilder: (_, _, _) => _videoPlaceholder(),
+                ),
+              );
+            },
           )
         else
           _videoPlaceholder(),

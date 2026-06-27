@@ -124,6 +124,8 @@ class FileThumbnailGrid extends StatelessWidget {
   }
 
   Widget _imageThumbnail(BuildContext context, String path, double size, ThemeData theme) {
+    final int cacheSize = (size * MediaQuery.of(context).devicePixelRatio).round();
+    
     return Stack(
       children: [
         Image.file(
@@ -131,6 +133,7 @@ class FileThumbnailGrid extends StatelessWidget {
           width: size,
           height: size,
           fit: BoxFit.cover,
+          cacheWidth: cacheSize,
           errorBuilder: (_, _, _) => Container(
             width: size,
             height: size,
@@ -326,6 +329,7 @@ class _VideoThumbnailTileState extends State<_VideoThumbnailTile> {
   @override
   Widget build(BuildContext context) {
     if (_thumbPath != null) {
+      final int cacheSize = (widget.size * MediaQuery.of(context).devicePixelRatio).round();
       return Stack(
         children: [
           Image.file(
@@ -333,6 +337,7 @@ class _VideoThumbnailTileState extends State<_VideoThumbnailTile> {
             width: widget.size,
             height: widget.size,
             fit: BoxFit.cover,
+            cacheWidth: cacheSize,
             errorBuilder: (_, _, _) => _iconFallback(),
           ),
           if (_durationMs != null)

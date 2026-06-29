@@ -23,6 +23,7 @@ import '../../settings/providers/settings_provider.dart';
 import '../widgets/note_editor_base.dart';
 import '../widgets/note_action_buttons.dart';
 import '../widgets/note_color_picker.dart';
+import '../widgets/note_text_field.dart';
 
 class NoteDetailScreen extends ConsumerStatefulWidget {
   final int noteId;
@@ -404,21 +405,11 @@ class _NoteDetailScreenState extends NoteEditorState<NoteDetailScreen> {
                           ),
                         ],
                         const SizedBox(height: 16),
-                        TextField(
+                        NoteTextField(
                           controller: textController,
                           focusNode: focusNode,
-                          style: theme.textTheme.bodyLarge,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            contentPadding: EdgeInsets.zero,
-                            isCollapsed: true,
-                            hintText: textController.text.isEmpty ? l10n.startWriting : null,
-                            hintStyle: theme.textTheme.bodyLarge?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                          maxLines: null,
-                          keyboardType: TextInputType.multiline,
+                          hintText: l10n.startWriting,
+                          textStyle: theme.textTheme.bodyLarge,
                         ),
                         if (cameraPaths.isNotEmpty) ...[
                           const SizedBox(height: 16),

@@ -759,19 +759,19 @@ abstract class AppLocalizations {
   /// No description provided for @minutesAgo.
   ///
   /// In en, this message translates to:
-  /// **'{minutes} min ago'**
+  /// **'{minutes} min'**
   String minutesAgo(Object minutes);
 
   /// No description provided for @hoursAgo.
   ///
   /// In en, this message translates to:
-  /// **'{hours} h ago'**
+  /// **'{hours} h'**
   String hoursAgo(Object hours);
 
   /// No description provided for @daysAgo.
   ///
   /// In en, this message translates to:
-  /// **'{days} d ago'**
+  /// **'{days} d'**
   String daysAgo(Object days);
 
   /// No description provided for @deleteSelected.
@@ -1109,6 +1109,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Deselect All'**
   String get deselectAll;
+
+  /// No description provided for @pin.
+  ///
+  /// In en, this message translates to:
+  /// **'Pin'**
+  String get pin;
+
+  /// No description provided for @unpin.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpin'**
+  String get unpin;
+
+  /// No description provided for @pinned.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinned'**
+  String get pinned;
 }
 
 class _AppLocalizationsDelegate

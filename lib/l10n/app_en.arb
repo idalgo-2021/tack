@@ -106,9 +106,9 @@
   "dateYesterday": "Yesterday",
   "dateWeekHeader": "Week {week}, {year}",
   "justNow": "Just now",
-  "minutesAgo": "{minutes} min ago",
-  "hoursAgo": "{hours} h ago",
-  "daysAgo": "{days} d ago",
+  "minutesAgo": "{minutes} min",
+  "hoursAgo": "{hours} h",
+  "daysAgo": "{days} d",
   "deleteSelected": "Delete {count} notes?",
   "clearFilter": "Clear filter",
   "selectedCount": "Selected: {count}",
@@ -164,5 +164,8 @@
   "shirt": "Shirt",
   "noColor": "No color",
   "selectAll": "Select All",
-  "deselectAll": "Deselect All"
+  "deselectAll": "Deselect All",
+  "pin": "Pin",
+  "unpin": "Unpin",
+  "pinned": "Pinned"
 }

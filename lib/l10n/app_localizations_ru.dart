@@ -334,17 +334,17 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String minutesAgo(Object minutes) {
-    return '$minutes мин. назад';
+    return '$minutes мин';
   }
 
   @override
   String hoursAgo(Object hours) {
-    return '$hours ч. назад';
+    return '$hours ч';
   }
 
   @override
   String daysAgo(Object days) {
-    return '$days дн. назад';
+    return '$days д';
   }
 
   @override
@@ -532,4 +532,13 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deselectAll => 'Снять выделение';
+
+  @override
+  String get pin => 'Закрепить';
+
+  @override
+  String get unpin => 'Открепить';
+
+  @override
+  String get pinned => 'Закреплено';
 }

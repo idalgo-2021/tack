@@ -332,17 +332,17 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String minutesAgo(Object minutes) {
-    return '$minutes分前';
+    return '$minutes分';
   }
 
   @override
   String hoursAgo(Object hours) {
-    return '$hours時間前';
+    return '$hours時間';
   }
 
   @override
   String daysAgo(Object days) {
-    return '$days日前';
+    return '$days日';
   }
 
   @override
@@ -528,4 +528,13 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get deselectAll => 'Deselect All';
+
+  @override
+  String get pin => 'Pin';
+
+  @override
+  String get unpin => 'Unpin';
+
+  @override
+  String get pinned => 'Pinned';
 }

@@ -10,6 +10,8 @@ class TableNotes {
   static const latitude = 'latitude';
   static const longitude = 'longitude';
   static const color = 'color';
+  static const isPinned = 'is_pinned';
+  static const updatedAt = 'updated_at';
 }
 
 class TableTags {

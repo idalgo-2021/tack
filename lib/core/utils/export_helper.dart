@@ -18,6 +18,7 @@ class ExportHelper {
       md.writeln('---');
       md.writeln();
       md.writeln('## ${l10n.noteFrom(DateFormatter.formatAbsoluteWithWeekday(note.createdAt, locale))}');
+      md.writeln('*Updated: ${DateFormatter.formatAbsoluteWithWeekday(note.updatedAt, locale)}*');
       if (note.latitude != null && note.longitude != null) {
         md.writeln('📍 ${DateFormatter.formatDMS(note.latitude!, note.longitude!)}');
       }
@@ -58,6 +59,7 @@ class ExportHelper {
       return {
         'id': note.id,
         'created_at': DateFormat('yyyy-MM-ddTHH:mm:ss').format(note.createdAt),
+        'updated_at': DateFormat('yyyy-MM-ddTHH:mm:ss').format(note.updatedAt),
         if (note.latitude != null && note.longitude != null)
           'latitude': note.latitude,
         if (note.latitude != null && note.longitude != null)

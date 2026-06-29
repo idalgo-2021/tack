@@ -106,9 +106,9 @@
   "dateYesterday": "Вчора",
   "dateWeekHeader": "Тиждень {week}, {year}",
   "justNow": "Щойно",
-  "minutesAgo": "{minutes} хв. тому",
-  "hoursAgo": "{hours} год. тому",
-  "daysAgo": "{days} дн. тому",
+  "minutesAgo": "{minutes} хв",
+  "hoursAgo": "{hours} год",
+  "daysAgo": "{days} д",
   "deleteSelected": "Видалити {count} нотаток?",
   "clearFilter": "Скинути фільтр",
   "selectedCount": "Вибрано: {count}",
@@ -165,5 +165,8 @@
   "noColor": "Без кольору"
 ,
   "selectAll": "Select All",
-  "deselectAll": "Deselect All"
+  "deselectAll": "Deselect All",
+  "pin": "Закріпити",
+  "unpin": "Відкріпити",
+  "pinned": "Закріплено"
 }

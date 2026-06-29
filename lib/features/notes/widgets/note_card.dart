@@ -42,93 +42,128 @@ class NoteCard extends ConsumerWidget {
           ? EdgeInsets.zero
           : const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       color: isSelected
-          ? colorScheme.primaryContainer.withAlpha(100)
+          ? (noteColor != null
+              ? Color.lerp(noteColor, Colors.black, 0.25)!
+              : colorScheme.primaryContainer.withAlpha(100))
           : noteColor,
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: onTap,
         onLongPress: onLongPress,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (showSelectionCheck)
-                Row(
-                  children: [
-                    Icon(
-                      isSelected ? Icons.check_circle : Icons.radio_button_unchecked,
-                      color: isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant,
-                      size: 22,
-                    ),
-                    const SizedBox(width: 8),
-                  ],
-                ),
-              if (showTs)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 6),
-                  child: viewMode == ViewMode.grid
-                      ? Text(
-                          DateFormatter.formatAbsoluteWithWeekday(note.createdAt, Localizations.localeOf(context).languageCode),
-                          style: theme.textTheme.labelSmall?.copyWith(color: colorScheme.onSurfaceVariant),
-                        )
-                      : Text(
-                          DateFormatter.formatAbsoluteWithWeekday(note.createdAt, Localizations.localeOf(context).languageCode),
-                          style: theme.textTheme.labelSmall?.copyWith(color: colorScheme.onSurfaceVariant),
-                        ),
-                ),
-              if (note.text != null && note.text!.isNotEmpty)
-                _buildTextSection(note.text!, theme.textTheme.bodyLarge!, colorScheme, viewMode),
-              if (cameraImageCount > 0 || cameraVideoCount > 0 || note.audioPaths.isNotEmpty || fileCount > 0)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Wrap(
-                    spacing: 12,
-                    runSpacing: 4,
-                    children: [
-                      if (cameraImageCount > 0)
-                        _MediaBadge(icon: Icons.photo_camera, count: cameraImageCount, colorScheme: colorScheme, theme: theme),
-                      if (cameraVideoCount > 0)
-                        _MediaBadge(icon: Icons.videocam, count: cameraVideoCount, colorScheme: colorScheme, theme: theme),
-                      if (note.audioPaths.isNotEmpty)
-                        _MediaBadge(icon: Icons.mic, count: note.audioPaths.length, colorScheme: colorScheme, theme: theme),
-                      if (fileCount > 0)
-                        _MediaBadge(icon: Icons.attach_file, count: fileCount, colorScheme: colorScheme, theme: theme),
-                    ],
-                  ),
-                ),
-              if (note.tagNames.isNotEmpty) ...[
-                const SizedBox(height: 8),
-                _buildTags(note.tagNames, viewMode, colorScheme),
-              ],
-              const SizedBox(height: 8),
-              Row(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (note.isPinned)
+              Container(height: 4, color: colorScheme.primary),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Stack(
+                clipBehavior: Clip.none,
                 children: [
-                  Icon(Icons.access_time, size: 14, color: colorScheme.onSurfaceVariant),
-                  const SizedBox(width: 4),
-                    Text(
-                      DateFormatter.formatRelative(context, note.createdAt),
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  if (hasCoords) ...[
-                    const SizedBox(width: 8),
-                    Icon(Icons.location_on, size: 14, color: colorScheme.onSurfaceVariant),
-                    if (viewMode == ViewMode.list) ...[
-                      const SizedBox(width: 4),
-                      Text(
-                        DateFormatter.formatDMS(note.latitude!, note.longitude!),
-                        style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
-                        overflow: TextOverflow.ellipsis,
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(bottom: showTs ? 6 : 0),
+                        child: showTs
+                            ? (viewMode == ViewMode.grid
+                                ? Text(
+                                    DateFormatter.formatAbsoluteWithWeekday(note.updatedAt, Localizations.localeOf(context).languageCode),
+                                    style: theme.textTheme.labelSmall?.copyWith(color: colorScheme.onSurfaceVariant),
+                                  )
+                                : Text(
+                                    DateFormatter.formatAbsoluteWithWeekday(note.updatedAt, Localizations.localeOf(context).languageCode),
+                                    style: theme.textTheme.labelSmall?.copyWith(color: colorScheme.onSurfaceVariant),
+                                  ))
+                            : const SizedBox.shrink(),
+                      ),
+                      if (note.text != null && note.text!.isNotEmpty)
+                        _buildTextSection(note.text!, theme.textTheme.bodyLarge!, colorScheme, viewMode),
+                      if (cameraImageCount > 0 || cameraVideoCount > 0 || note.audioPaths.isNotEmpty || fileCount > 0)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Wrap(
+                            spacing: 12,
+                            runSpacing: 4,
+                            children: [
+                              if (cameraImageCount > 0)
+                                _MediaBadge(icon: Icons.photo_camera, count: cameraImageCount, colorScheme: colorScheme, theme: theme),
+                              if (cameraVideoCount > 0)
+                                _MediaBadge(icon: Icons.videocam, count: cameraVideoCount, colorScheme: colorScheme, theme: theme),
+                              if (note.audioPaths.isNotEmpty)
+                                _MediaBadge(icon: Icons.mic, count: note.audioPaths.length, colorScheme: colorScheme, theme: theme),
+                              if (fileCount > 0)
+                                _MediaBadge(icon: Icons.attach_file, count: fileCount, colorScheme: colorScheme, theme: theme),
+                            ],
+                          ),
+                        ),
+                      if (note.tagNames.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        _buildTags(note.tagNames, viewMode, colorScheme),
+                      ],
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Icon(Icons.access_time, size: 14, color: colorScheme.onSurfaceVariant),
+                          const SizedBox(width: 4),
+                            Text(
+                              DateFormatter.formatRelative(context, note.updatedAt),
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                          if (hasCoords) ...[
+                            const SizedBox(width: 8),
+                            Icon(Icons.location_on, size: 14, color: colorScheme.onSurfaceVariant),
+                            if (viewMode == ViewMode.list) ...[
+                              const SizedBox(width: 4),
+                              Text(
+                                DateFormatter.formatDMS(note.latitude!, note.longitude!),
+                                style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ],
+                        ],
                       ),
                     ],
-                  ],
+                  ),
+              if (showSelectionCheck)
+                switch (viewMode) {
+                  ViewMode.grid => Positioned(
+                    right: -7,
+                    bottom: -7,
+                    child: Icon(
+                      isSelected ? Icons.check_circle : Icons.radio_button_unchecked,
+                      color: isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant,
+                      size: 26,
+                    ),
+                  ),
+                  ViewMode.list => Positioned(
+                    right: 6,
+                    top: 0,
+                    bottom: 0,
+                    child: Center(
+                      child: Icon(
+                        isSelected ? Icons.check_circle : Icons.radio_button_unchecked,
+                        color: isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant,
+                        size: 26,
+                      ),
+                    ),
+                  ),
+                },
+              if (note.isPinned)
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: Icon(Icons.push_pin, size: 20, color: colorScheme.primary),
+                ),
                 ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

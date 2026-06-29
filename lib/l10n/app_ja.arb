@@ -106,9 +106,9 @@
   "dateYesterday": "昨日",
   "dateWeekHeader": "{week}週目, {year}",
   "justNow": "たった今",
-  "minutesAgo": "{minutes}分前",
-  "hoursAgo": "{hours}時間前",
-  "daysAgo": "{days}日前",
+  "minutesAgo": "{minutes}分",
+  "hoursAgo": "{hours}時間",
+  "daysAgo": "{days}日",
   "deleteSelected": "{count}件のノートを削除しますか？",
   "clearFilter": "フィルターをクリア",
   "selectedCount": "選択中: {count}",
@@ -165,5 +165,8 @@
   "noColor": "色なし"
 ,
   "selectAll": "Select All",
-  "deselectAll": "Deselect All"
+  "deselectAll": "Deselect All",
+  "pin": "Pin",
+  "unpin": "Unpin",
+  "pinned": "Pinned"
 }

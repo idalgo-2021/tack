@@ -24,9 +24,7 @@ class DateFormatter {
     if (diff.inMinutes < 1) return l10n.justNow;
     if (diff.inHours < 1) return l10n.minutesAgo(diff.inMinutes);
     if (diff.inDays < 1) return l10n.hoursAgo(diff.inHours);
-    if (diff.inDays < 7) return l10n.daysAgo(diff.inDays);
-
-    return formatAbsolute(date, Localizations.localeOf(context).languageCode);
+    return l10n.daysAgo(diff.inDays);
   }
 
   static String formatFileDate(DateTime date, [String? locale]) {

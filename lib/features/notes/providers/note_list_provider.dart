@@ -21,7 +21,7 @@ class NoteList extends _$NoteList {
     return repo.getAll(
       searchQuery: searchQuery,
       tagFilter: tagFilter,
-      sortBy: 'created_at',
+      sortBy: 'updated_at',
       ascending: _sortAscending(sortMode),
     );
   }

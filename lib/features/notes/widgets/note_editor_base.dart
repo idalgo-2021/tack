@@ -29,6 +29,8 @@ abstract class NoteEditorState<T extends ConsumerStatefulWidget> extends Consume
   double? latitude;
   double? longitude;
   int? noteColor;
+  bool isPinned = false;
+  DateTime updatedAt = DateTime.now();
   int? savedNoteId;
   Timer? saveTimer;
 
@@ -150,7 +152,7 @@ abstract class NoteEditorState<T extends ConsumerStatefulWidget> extends Consume
     _invalidateFilePathsCache();
   }
 
-  Future<void> saveNote() async {
+  Future<void> saveNote({bool updateTimestamp = true}) async {
     if (!hasChanges && noteIdForSave != null) return;
     if (isEmptyNote) {
       if (mounted) setState(() => hasChanges = false);
@@ -167,9 +169,13 @@ abstract class NoteEditorState<T extends ConsumerStatefulWidget> extends Consume
         filePaths: filePaths,
         videoPaths: videoPaths,
         createdAt: effectiveCreatedAt,
+        updatedAt: id == null
+            ? DateTime.now()
+            : (updateTimestamp && ref.read(updateTimestampOnEditProvider) ? DateTime.now() : updatedAt),
         latitude: latitude,
         longitude: longitude,
         color: noteColor,
+        isPinned: isPinned,
       );
 
       final repo = ref.read(noteRepositoryProvider);

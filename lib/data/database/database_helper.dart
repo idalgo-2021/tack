@@ -41,6 +41,13 @@ class DatabaseHelper {
           await db.execute(DatabaseSchema.createNoteTagsTagIndex);
           await db.execute(DatabaseSchema.createNoteTagsNoteIndex);
         }
+        if (oldVersion < 6) {
+          await db.execute('ALTER TABLE ${TableNotes.tableName} ADD COLUMN ${TableNotes.isPinned} INTEGER DEFAULT 0');
+        }
+        if (oldVersion < 7) {
+          await db.execute('ALTER TABLE ${TableNotes.tableName} ADD COLUMN ${TableNotes.updatedAt} INTEGER');
+          await db.execute('UPDATE ${TableNotes.tableName} SET ${TableNotes.updatedAt} = ${TableNotes.createdAt} WHERE ${TableNotes.updatedAt} IS NULL');
+        }
       },
     );
   }

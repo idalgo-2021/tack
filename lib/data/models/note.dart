@@ -9,9 +9,11 @@ class Note {
   final List<String> videoPaths;
   final List<String> tagNames;
   final DateTime createdAt;
+  final DateTime updatedAt;
   final double? latitude;
   final double? longitude;
   final int? color;
+  final bool isPinned;
 
   const Note({
     this.id,
@@ -22,9 +24,11 @@ class Note {
     this.videoPaths = const [],
     this.tagNames = const [],
     required this.createdAt,
+    required this.updatedAt,
     this.latitude,
     this.longitude,
     this.color,
+    this.isPinned = false,
   });
 
   Note copyWith({
@@ -36,9 +40,11 @@ class Note {
     List<String>? videoPaths,
     List<String>? tagNames,
     DateTime? createdAt,
+    DateTime? updatedAt,
     double? latitude,
     double? longitude,
     int? color,
+    bool? isPinned,
     bool clearColor = false,
     bool clearLocation = false,
   }) {
@@ -51,9 +57,11 @@ class Note {
       videoPaths: videoPaths ?? this.videoPaths,
       tagNames: tagNames ?? this.tagNames,
       createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
       latitude: clearLocation ? null : (latitude ?? this.latitude),
       longitude: clearLocation ? null : (longitude ?? this.longitude),
       color: clearColor ? null : (color ?? this.color),
+      isPinned: isPinned ?? this.isPinned,
     );
   }
 
@@ -66,9 +74,11 @@ class Note {
       'file_paths': jsonEncode(filePaths),
       'video_paths': jsonEncode(videoPaths),
       'created_at': createdAt.millisecondsSinceEpoch,
+      'updated_at': updatedAt.millisecondsSinceEpoch,
       'latitude': latitude,
       'longitude': longitude,
       'color': color,
+      'is_pinned': isPinned ? 1 : 0,
     };
   }
 
@@ -82,9 +92,11 @@ class Note {
       videoPaths: _parseJsonList(map['video_paths'] as String?),
       tagNames: _parseTagNames(map['tag_names'] as String?),
       createdAt: DateTime.fromMillisecondsSinceEpoch(map['created_at'] as int),
+      updatedAt: DateTime.fromMillisecondsSinceEpoch(map['updated_at'] as int),
       latitude: (map['latitude'] as num?)?.toDouble(),
       longitude: (map['longitude'] as num?)?.toDouble(),
       color: map['color'] as int?,
+      isPinned: (map['is_pinned'] as int?) == 1,
     );
   }
 

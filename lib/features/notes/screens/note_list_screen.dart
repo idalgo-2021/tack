@@ -32,23 +32,49 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
   String? _tagFilter;
   final Set<int> _selectedIds = {};
   bool _selectionMode = false;
+  bool _selectionAtTop = false;
 
   void _toggleSelection(int noteId) {
+    final wasEmpty = _selectedIds.isEmpty && !_selectionMode;
     setState(() {
       if (_selectedIds.contains(noteId)) {
         _selectedIds.remove(noteId);
-        if (_selectedIds.isEmpty) _selectionMode = false;
+        if (_selectedIds.isEmpty) {
+          _selectionMode = false;
+          _selectionAtTop = false;
+        }
       } else {
         _selectedIds.add(noteId);
         _selectionMode = true;
       }
     });
+    if (wasEmpty) {
+      final notes = ref.read(noteListProvider(searchQuery: null, tagFilter: _tagFilter)).value;
+      if (notes != null && notes.isNotEmpty) {
+        final idx = notes.indexWhere((n) => n.id == noteId);
+        if (idx >= 0) {
+          final viewMode = ref.read(viewModeProvider);
+          final screenWidth = MediaQuery.of(context).size.width;
+          final maxCrossAxisExtent = screenWidth <= AppConstants.tabletBreakpoint
+              ? 200.0
+              : (screenWidth / 4.5).clamp(300.0, 600.0);
+          final threshold = switch (viewMode) {
+            ViewMode.grid => (screenWidth / maxCrossAxisExtent).ceil(),
+            ViewMode.list => 1,
+          };
+          if (idx < threshold) {
+            setState(() => _selectionAtTop = true);
+          }
+        }
+      }
+    }
   }
 
   void _clearSelection() {
     setState(() {
       _selectedIds.clear();
       _selectionMode = false;
+      _selectionAtTop = false;
     });
   }
 
@@ -73,6 +99,16 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
     if (notes.isEmpty) return false;
     final allIds = notes.where((n) => n.id != null).map((n) => n.id!).toSet();
     return _selectedIds.length == allIds.length && _selectedIds.containsAll(allIds);
+  }
+
+  Future<void> _pinSelected() async {
+    if (_selectedIds.isEmpty) return;
+    final repo = ref.read(noteRepositoryProvider);
+    for (final id in _selectedIds) {
+      await repo.togglePin(id);
+    }
+    ref.invalidate(noteListProvider);
+    _clearSelection();
   }
 
   Future<void> _showColorPickerForSelected() async {
@@ -243,13 +279,11 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
     return Scaffold(
           appBar: AppBar(
         centerTitle: false,
-        title: _selectionMode
-            ? Text(l10n.selectedCount(_selectedIds.length))
-            : CenteredAppBarTitle(
-                title: _tagFilter != null
-                    ? Text('#$_tagFilter')
-                    : Text(l10n.notes),
-              ),
+        title: CenteredAppBarTitle(
+            title: _tagFilter != null
+                ? Text('#$_tagFilter')
+                : Text(l10n.notes),
+          ),
         actions: [
           if (_selectionMode) ...[
             IconButton(
@@ -283,34 +317,22 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
           ],
         ],
       ),
-      body: Column(
+      body: Stack(
         children: [
-          if (_selectionMode && _selectedIds.isNotEmpty)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              color: theme.colorScheme.primaryContainer,
-              child: Row(
-                children: [
-                  Text(l10n.selectedCount(_selectedIds.length)),
-                  const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.palette),
-                    tooltip: l10n.shirt,
-                    onPressed: () => _showColorPickerForSelected(),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.share),
-                    onPressed: _shareSelected,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.delete_outline),
-                    onPressed: _deleteSelected,
-                  ),
-                ],
-              ),
-            ),
-          Expanded(
-            child: notesAsync.when(
+          Positioned.fill(
+            child: NotificationListener<ScrollUpdateNotification>(
+              onNotification: (notification) {
+                if (_selectionMode) {
+                  final atTop = notification.metrics.pixels < 60;
+                  if (atTop != _selectionAtTop) {
+                    setState(() => _selectionAtTop = atTop);
+                  }
+                }
+                return false;
+              },
+              child: Padding(
+                padding: EdgeInsets.only(top: _selectionAtTop ? 56.0 : 0),
+                child: notesAsync.when(
               data: (notes) {
                 if (notes.isEmpty) {
                   return Center(
@@ -360,6 +382,42 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
               error: (error, _) => Center(child: Text('${l10n.error}: $error')),
             ),
           ),
+          ),
+          ),
+          if (_selectionMode && _selectedIds.isNotEmpty)
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                color: theme.colorScheme.primaryContainer,
+                child: Row(
+                  children: [
+                    Text(l10n.selectedCount(_selectedIds.length)),
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(Icons.push_pin),
+                      tooltip: l10n.pin,
+                      onPressed: _pinSelected,
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.palette),
+                      tooltip: l10n.shirt,
+                      onPressed: () => _showColorPickerForSelected(),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.share),
+                      onPressed: _shareSelected,
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete_outline),
+                      onPressed: _deleteSelected,
+                    ),
+                  ],
+                ),
+              ),
+            ),
         ],
       ),
       floatingActionButton: _selectionMode
@@ -406,11 +464,21 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
   }
 
   Widget _buildGroupedView(List<Note> notes, ViewMode viewMode, GroupMode groupMode, ThemeData theme, BuildContext context, double maxCrossAxisExtent) {
-    final groups = _groupNotes(notes, groupMode, context);
+    final pinned = notes.where((n) => n.isPinned).toList();
+    final unpinned = notes.where((n) => !n.isPinned).toList();
+    final groups = _groupNotes(unpinned, groupMode, context);
     final entries = groups.entries.toList();
 
     if (viewMode == ViewMode.list) {
       final slivers = <Widget>[];
+      if (pinned.isNotEmpty) {
+        slivers.add(SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) => _buildNoteItem(pinned[index]),
+            childCount: pinned.length,
+          ),
+        ));
+      }
       for (final entry in entries) {
         slivers.add(SliverToBoxAdapter(
           child: _buildSectionHeader(entry.key, theme),
@@ -428,17 +496,35 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
     // Grid mode: single ListView with headers + MasonryGridView per group
     return ListView.builder(
       padding: const EdgeInsets.all(8),
-      itemCount: entries.length * 2,
+      itemCount: (pinned.isNotEmpty ? 1 : 0) + entries.length * 2,
       itemBuilder: (context, index) {
-        final groupIndex = index ~/ 2;
-        final isHeader = index.isEven;
+        if (pinned.isNotEmpty && index == 0) {
+          return Column(
+            children: [
+              MasonryGridView.extent(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                maxCrossAxisExtent: maxCrossAxisExtent,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 8,
+                itemCount: pinned.length,
+                itemBuilder: (context, i) => _buildNoteItem(pinned[i]),
+              ),
+              if (entries.isNotEmpty) const SizedBox(height: 8),
+            ],
+          );
+        }
+
+        final adjustedIndex = pinned.isNotEmpty ? index - 1 : index;
+        final groupIndex = adjustedIndex ~/ 2;
+        final isHeader = adjustedIndex.isEven;
         final entry = entries[groupIndex];
 
         if (isHeader) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (groupIndex > 0) const SizedBox(height: 16),
+              if (groupIndex > 0 || pinned.isNotEmpty) const SizedBox(height: 16),
               _buildSectionHeader(entry.key, theme),
               const SizedBox(height: 8),
             ],
@@ -452,7 +538,7 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
           crossAxisSpacing: 8,
           mainAxisSpacing: 8,
           itemCount: entry.value.length,
-          itemBuilder: (context, index) => _buildNoteItem(entry.value[index]),
+          itemBuilder: (context, i) => _buildNoteItem(entry.value[i]),
         );
       },
     );

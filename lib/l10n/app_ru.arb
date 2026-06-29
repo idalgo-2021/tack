@@ -106,9 +106,9 @@
   "dateYesterday": "Вчера",
   "dateWeekHeader": "Неделя {week}, {year}",
   "justNow": "Только что",
-  "minutesAgo": "{minutes} мин. назад",
-  "hoursAgo": "{hours} ч. назад",
-  "daysAgo": "{days} дн. назад",
+  "minutesAgo": "{minutes} мин",
+  "hoursAgo": "{hours} ч",
+  "daysAgo": "{days} д",
   "deleteSelected": "Удалить {count} заметок?",
   "clearFilter": "Сбросить фильтр",
   "selectedCount": "Выбрано: {count}",
@@ -164,5 +164,8 @@
   "shirt": "Фон",
   "noColor": "Без цвета",
   "selectAll": "Выбрать все",
-  "deselectAll": "Снять выделение"
+  "deselectAll": "Снять выделение",
+  "pin": "Закрепить",
+  "unpin": "Открепить",
+  "pinned": "Закреплено"
 }

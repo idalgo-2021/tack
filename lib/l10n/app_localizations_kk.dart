@@ -335,17 +335,17 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String minutesAgo(Object minutes) {
-    return '$minutes мин бұрын';
+    return '$minutes мин';
   }
 
   @override
   String hoursAgo(Object hours) {
-    return '$hours сағ бұрын';
+    return '$hours сағ';
   }
 
   @override
   String daysAgo(Object days) {
-    return '$days күн бұрын';
+    return '$days күн';
   }
 
   @override
@@ -532,4 +532,13 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get deselectAll => 'Deselect All';
+
+  @override
+  String get pin => 'Бекіту';
+
+  @override
+  String get unpin => 'Бекітуді алу';
+
+  @override
+  String get pinned => 'Бекітілген';
 }

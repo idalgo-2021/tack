@@ -106,9 +106,9 @@
   "dateYesterday": "Dün",
   "dateWeekHeader": "{week}. hafta, {year}",
   "justNow": "Az önce",
-  "minutesAgo": "{minutes} dk önce",
-  "hoursAgo": "{hours} sa önce",
-  "daysAgo": "{days} gün önce",
+  "minutesAgo": "{minutes} dk",
+  "hoursAgo": "{hours} sa",
+  "daysAgo": "{days} g",
   "deleteSelected": "{count} not silinsin mi?",
   "clearFilter": "Filtreyi temizle",
   "selectedCount": "Seçilen: {count}",
@@ -165,5 +165,8 @@
   "noColor": "Renksiz"
 ,
   "selectAll": "Select All",
-  "deselectAll": "Deselect All"
+  "deselectAll": "Deselect All",
+  "pin": "Sabitle",
+  "unpin": "Sabitlemeyi kaldır",
+  "pinned": "Sabitlendi"
 }

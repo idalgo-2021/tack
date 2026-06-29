@@ -106,9 +106,9 @@
   "dateYesterday": "Gestern",
   "dateWeekHeader": "Woche {week}, {year}",
   "justNow": "Gerade eben",
-  "minutesAgo": "vor {minutes} Min",
-  "hoursAgo": "vor {hours} Std",
-  "daysAgo": "vor {days} Tagen",
+  "minutesAgo": "{minutes} Min",
+  "hoursAgo": "{hours} Std",
+  "daysAgo": "{days} T",
   "deleteSelected": "{count} Notizen löschen?",
   "clearFilter": "Filter zurücksetzen",
   "selectedCount": "Ausgewählt: {count}",
@@ -165,5 +165,8 @@
   "noColor": "Keine Farbe"
 ,
   "selectAll": "Select All",
-  "deselectAll": "Deselect All"
+  "deselectAll": "Deselect All",
+  "pin": "Anheften",
+  "unpin": "Lösen",
+  "pinned": "Angeheftet"
 }

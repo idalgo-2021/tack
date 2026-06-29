@@ -334,17 +334,17 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String minutesAgo(Object minutes) {
-    return '$minutes min temu';
+    return '$minutes min';
   }
 
   @override
   String hoursAgo(Object hours) {
-    return '$hours godz temu';
+    return '$hours godz';
   }
 
   @override
   String daysAgo(Object days) {
-    return '$days dni temu';
+    return '$days d';
   }
 
   @override
@@ -531,4 +531,13 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deselectAll => 'Deselect All';
+
+  @override
+  String get pin => 'Przypnij';
+
+  @override
+  String get unpin => 'Odepnij';
+
+  @override
+  String get pinned => 'Przypięte';
 }

@@ -66,7 +66,7 @@ class NoteRepository {
     bool? hasAudio,
     bool? hasFiles,
     bool? hasVideos,
-    String sortBy = 'created_at',
+    String sortBy = 'updated_at',
     bool ascending = false,
   }) async {
     final db = await _dbHelper.database;
@@ -118,15 +118,24 @@ class NoteRepository {
       LEFT JOIN ${TableTags.tableName} t ON nt.${TableNoteTags.tagId} = t.${TableTags.id}
       ${where.isNotEmpty ? 'WHERE ${where.join(' AND ')}' : ''}
       GROUP BY n.${TableNotes.id}
-      ORDER BY n.$sortBy ${ascending ? 'ASC' : 'DESC'}
+      ORDER BY n.${TableNotes.isPinned} DESC, n.$sortBy ${ascending ? 'ASC' : 'DESC'}
     ''';
 
     final maps = await db.rawQuery(sql, whereArgs);
     return maps.map((m) => Note.fromMap(m)).toList();
   }
 
-  Future<List<Note>> getByTag(String tag, {String sortBy = 'created_at', bool ascending = false}) async {
+  Future<List<Note>> getByTag(String tag, {String sortBy = 'updated_at', bool ascending = false}) async {
     return getAll(tagFilter: tag, sortBy: sortBy, ascending: ascending);
+  }
+
+  Future<void> togglePin(int id) async {
+    final db = await _dbHelper.database;
+    await db.rawUpdate('''
+      UPDATE ${TableNotes.tableName}
+      SET ${TableNotes.isPinned} = NOT ${TableNotes.isPinned}
+      WHERE ${TableNotes.id} = ?
+    ''', [id]);
   }
 
   Future<void> _syncTags(Transaction txn, int noteId, List<String> tagNames) async {

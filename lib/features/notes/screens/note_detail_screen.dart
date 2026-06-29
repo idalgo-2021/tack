@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../../l10n/app_localizations.dart';
@@ -78,6 +77,8 @@ class _NoteDetailScreenState extends NoteEditorState<NoteDetailScreen> {
     latitude = note.latitude;
     longitude = note.longitude;
     noteColor = note.color;
+    isPinned = note.isPinned;
+    updatedAt = note.updatedAt;
     _loadedCreatedAt = note.createdAt;
     hasChanges = false;
     _initialized = true;
@@ -181,10 +182,7 @@ class _NoteDetailScreenState extends NoteEditorState<NoteDetailScreen> {
       noteColor = newColor;
       hasChanges = true;
     });
-    final autoSave = ref.read(autoSaveProvider);
-    if (autoSave) {
-      scheduleAutoSave();
-    }
+    await saveNote(updateTimestamp: false);
   }
 
   void _showFileContextMenu(BuildContext context, String path) {
@@ -281,18 +279,18 @@ class _NoteDetailScreenState extends NoteEditorState<NoteDetailScreen> {
           },
           child: Scaffold(
             appBar: AppBar(
-              title: Text(l10n.editNote),
+              title: const Text(''),
               actions: [
-                if (note.text != null && note.text!.isNotEmpty)
-                  IconButton(
-                    icon: const Icon(Icons.copy),
-                    onPressed: () {
-                      Clipboard.setData(ClipboardData(text: textController.text));
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(l10n.textCopied)),
-                      );
-                    },
-                  ),
+                IconButton(
+                  icon: Icon(note.isPinned ? Icons.push_pin : Icons.push_pin_outlined),
+                  tooltip: note.isPinned ? l10n.unpin : l10n.pin,
+                  onPressed: () async {
+                    final repo = ref.read(noteRepositoryProvider);
+                    await repo.togglePin(note.id!);
+                    ref.invalidate(noteDetailProvider(widget.noteId));
+                    ref.invalidate(noteListProvider);
+                  },
+                ),
                 IconButton(
                   icon: const Icon(Icons.palette),
                   tooltip: l10n.shirt,
@@ -341,7 +339,7 @@ class _NoteDetailScreenState extends NoteEditorState<NoteDetailScreen> {
                                   Icon(Icons.access_time, size: 14, color: theme.colorScheme.onSurfaceVariant),
                                   const SizedBox(width: 6),
                                   Text(
-                                    DateFormatter.formatAbsoluteWithWeekday(effectiveCreatedAt, Localizations.localeOf(context).languageCode),
+                                    DateFormatter.formatAbsoluteWithWeekday(note.updatedAt, Localizations.localeOf(context).languageCode),
                                     style: theme.textTheme.bodySmall?.copyWith(
                                       color: theme.colorScheme.onSurfaceVariant,
                                     ),

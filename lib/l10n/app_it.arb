@@ -106,9 +106,9 @@
   "dateYesterday": "Ieri",
   "dateWeekHeader": "Settimana {week}, {year}",
   "justNow": "Proprio ora",
-  "minutesAgo": "{minutes} min fa",
-  "hoursAgo": "{hours} h fa",
-  "daysAgo": "{days} g fa",
+  "minutesAgo": "{minutes} min",
+  "hoursAgo": "{hours} h",
+  "daysAgo": "{days} g",
   "deleteSelected": "Eliminare {count} note?",
   "clearFilter": "Cancella filtro",
   "selectedCount": "Selezionate: {count}",
@@ -165,5 +165,8 @@
   "noColor": "Nessun colore"
 ,
   "selectAll": "Select All",
-  "deselectAll": "Deselect All"
+  "deselectAll": "Deselect All",
+  "pin": "Appunta",
+  "unpin": "Rimuovi",
+  "pinned": "Appuntato"
 }

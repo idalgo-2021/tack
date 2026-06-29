@@ -106,9 +106,9 @@
   "dateYesterday": "Кеше",
   "dateWeekHeader": "{week} апта, {year}",
   "justNow": "Дәл қазір",
-  "minutesAgo": "{minutes} мин бұрын",
-  "hoursAgo": "{hours} сағ бұрын",
-  "daysAgo": "{days} күн бұрын",
+  "minutesAgo": "{minutes} мин",
+  "hoursAgo": "{hours} сағ",
+  "daysAgo": "{days} күн",
   "deleteSelected": "{count} жазбаны жою?",
   "clearFilter": "Сүзгіні тазалау",
   "selectedCount": "Таңдалды: {count}",
@@ -165,5 +165,8 @@
   "noColor": "Түссіз"
 ,
   "selectAll": "Select All",
-  "deselectAll": "Deselect All"
+  "deselectAll": "Deselect All",
+  "pin": "Бекіту",
+  "unpin": "Бекітуді алу",
+  "pinned": "Бекітілген"
 }

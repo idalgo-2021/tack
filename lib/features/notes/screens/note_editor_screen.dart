@@ -48,6 +48,8 @@ class _NoteEditorScreenState extends NoteEditorState<NoteEditorScreen> {
     latitude = _existingNote?.latitude;
     longitude = _existingNote?.longitude;
     noteColor = _existingNote?.color;
+    isPinned = _existingNote?.isPinned ?? false;
+    updatedAt = _existingNote?.updatedAt ?? DateTime.now();
 
     if (_existingNote == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) => focusNode.requestFocus());
@@ -171,7 +173,7 @@ class _NoteEditorScreenState extends NoteEditorState<NoteEditorScreen> {
                             Icon(Icons.access_time, size: 14, color: theme.colorScheme.onSurfaceVariant),
                             const SizedBox(width: 6),
                             Text(
-                              DateFormatter.formatAbsoluteWithWeekday(effectiveCreatedAt, Localizations.localeOf(context).languageCode),
+                              DateFormatter.formatAbsoluteWithWeekday(updatedAt, Localizations.localeOf(context).languageCode),
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: theme.colorScheme.onSurfaceVariant,
                               ),

@@ -106,9 +106,9 @@
   "dateYesterday": "昨天",
   "dateWeekHeader": "第{week}周, {year}",
   "justNow": "刚刚",
-  "minutesAgo": "{minutes}分钟前",
-  "hoursAgo": "{hours}小时前",
-  "daysAgo": "{days}天前",
+  "minutesAgo": "{minutes}分钟",
+  "hoursAgo": "{hours}小时",
+  "daysAgo": "{days}天",
   "deleteSelected": "删除{count}条笔记？",
   "clearFilter": "清除筛选",
   "selectedCount": "已选: {count}",
@@ -165,5 +165,8 @@
   "noColor": "无颜色"
 ,
   "selectAll": "Select All",
-  "deselectAll": "Deselect All"
+  "deselectAll": "Deselect All",
+  "pin": "Pin",
+  "unpin": "Unpin",
+  "pinned": "Pinned"
 }

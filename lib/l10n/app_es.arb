@@ -106,9 +106,9 @@
   "dateYesterday": "Ayer",
   "dateWeekHeader": "Semana {week}, {year}",
   "justNow": "Ahora mismo",
-  "minutesAgo": "hace {minutes} min",
-  "hoursAgo": "hace {hours} h",
-  "daysAgo": "hace {days} d",
+  "minutesAgo": "{minutes} min",
+  "hoursAgo": "{hours} h",
+  "daysAgo": "{days} d",
   "deleteSelected": "¿Eliminar {count} notas?",
   "clearFilter": "Limpiar filtro",
   "selectedCount": "Seleccionadas: {count}",
@@ -165,5 +165,8 @@
   "noColor": "Sin color"
 ,
   "selectAll": "Select All",
-  "deselectAll": "Deselect All"
+  "deselectAll": "Deselect All",
+  "pin": "Fijar",
+  "unpin": "Desfijar",
+  "pinned": "Fijado"
 }

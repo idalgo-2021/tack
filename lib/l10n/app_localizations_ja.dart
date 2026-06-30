@@ -119,10 +119,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get allNotes => 'すべてのノート';
 
   @override
-  String get photo => '写真';
+  String get audio => '音声';
 
   @override
-  String get audio => '音声';
+  String get camera => 'カメラ';
 
   @override
   String get attachedFiles => '添付ファイル';
@@ -132,6 +132,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get recordAudio => '音声を録音';
+
+  @override
+  String get recordVideo => 'ビデオを録画';
 
   @override
   String get appearance => '外観';
@@ -164,22 +167,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get autoSaveDesc => '終了時に自動保存';
 
   @override
-  String get compressImages => '画像を圧縮';
-
-  @override
-  String get compressImagesDesc => '追加時に写真サイズを縮小';
-
-  @override
   String get autoGeotag => '自動ジオタグ';
 
   @override
   String get autoGeotagDesc => '座標を自動的に追加';
-
-  @override
-  String get showFileNames => 'ファイル名';
-
-  @override
-  String get showFileNamesDesc => 'ノートカードに名前を表示';
 
   @override
   String get showTimestamp => 'タイムスタンプ';
@@ -215,7 +206,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get viewModeList => 'リスト';
 
   @override
-  String get viewModeGrid => 'グリッド（2列）';
+  String get viewModeGrid => 'グリッド';
 
   @override
   String get fontSizeSmall => '小';
@@ -341,17 +332,17 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String minutesAgo(Object minutes) {
-    return '$minutes分前';
+    return '$minutes分';
   }
 
   @override
   String hoursAgo(Object hours) {
-    return '$hours時間前';
+    return '$hours時間';
   }
 
   @override
   String daysAgo(Object days) {
-    return '$days日前';
+    return '$days日';
   }
 
   @override
@@ -488,6 +479,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get exportNoNotes => 'No notes to export';
 
   @override
+  String get showFileThumbnails => 'File thumbnails';
+
+  @override
+  String get showFileThumbnailsDesc => 'Show files as grid with icons';
+
+  @override
   String exportError(Object error) {
     return 'Export error: $error';
   }
@@ -509,11 +506,35 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get showFileThumbnails => 'File thumbnails';
-
-  @override
-  String get showFileThumbnailsDesc => 'Show files as grid with icons';
-
-  @override
   String get recordingError => 'Recording failed. Please try again.';
+
+  @override
+  String get openIn => 'で開く...';
+
+  @override
+  String get shareFile => '共有';
+
+  @override
+  String get moreOptions => 'その他のオプション';
+
+  @override
+  String get shirt => '背景色';
+
+  @override
+  String get noColor => '色なし';
+
+  @override
+  String get selectAll => 'Select All';
+
+  @override
+  String get deselectAll => 'Deselect All';
+
+  @override
+  String get pin => 'Pin';
+
+  @override
+  String get unpin => 'Unpin';
+
+  @override
+  String get pinned => 'Pinned';
 }

@@ -29,12 +29,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     final autoSaveValue = ref.watch(autoSaveProvider);
     final localeValue = ref.watch(appLocaleProvider);
-    final compressImagesValue = ref.watch(compressImagesProvider);
     final autoGeotagValue = ref.watch(autoGeotagProvider);
     final viewModeValue = ref.watch(viewModeProvider);
-    final showFileNamesValue = ref.watch(showFileNamesProvider);
     final showTimestampValue = ref.watch(showTimestampProvider);
     final showFileThumbnailsValue = ref.watch(showFileThumbnailsProvider);
+
     final fontSizeValue = ref.watch(fontSizeProvider);
     final groupModeValue = ref.watch(groupModeProvider);
     final sortModeValue = ref.watch(sortModeProvider);
@@ -111,13 +110,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             onChanged: (v) => ref.read(settingsProvider.notifier).setAutoSave(v),
           ),
           SwitchListTile(
-            secondary: const Icon(Icons.compress),
-            title: Text(l10n.compressImages),
-            subtitle: Text(l10n.compressImagesDesc),
-            value: compressImagesValue,
-            onChanged: (v) => ref.read(settingsProvider.notifier).setCompressImages(v),
-          ),
-          SwitchListTile(
             secondary: const Icon(Icons.location_on),
             title: Text(l10n.autoGeotag),
             subtitle: Text(l10n.autoGeotagDesc),
@@ -125,11 +117,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             onChanged: (v) => _toggleAutoGeotag(v, ref, l10n),
           ),
           SwitchListTile(
-            secondary: const Icon(Icons.description),
-            title: Text(l10n.showFileNames),
-            subtitle: Text(l10n.showFileNamesDesc),
-            value: showFileNamesValue,
-            onChanged: (v) => ref.read(settingsProvider.notifier).setShowFileNames(v),
+            secondary: const Icon(Icons.access_time),
+            title: Text(l10n.showTimestamp),
+            subtitle: Text(l10n.showTimestampDesc),
+            value: showTimestampValue,
+            onChanged: (v) => ref.read(settingsProvider.notifier).setShowTimestamp(v),
           ),
           SwitchListTile(
             secondary: const Icon(Icons.grid_on),
@@ -137,13 +129,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             subtitle: Text(l10n.showFileThumbnailsDesc),
             value: showFileThumbnailsValue,
             onChanged: (v) => ref.read(settingsProvider.notifier).setShowFileThumbnails(v),
-          ),
-          SwitchListTile(
-            secondary: const Icon(Icons.access_time),
-            title: Text(l10n.showTimestamp),
-            subtitle: Text(l10n.showTimestampDesc),
-            value: showTimestampValue,
-            onChanged: (v) => ref.read(settingsProvider.notifier).setShowTimestamp(v),
           ),
           SwitchListTile(
             secondary: const Icon(Icons.update),

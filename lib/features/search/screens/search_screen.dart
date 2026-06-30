@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../data/models/tag.dart';
 import '../providers/search_provider.dart';
 import '../../notes/widgets/note_card.dart';
 import '../../notes/screens/note_detail_screen.dart';
@@ -53,8 +54,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     final allTagsAsync = ref.watch(tagListProvider);
     final theme = Theme.of(context);
 
-    final hasActiveFilters = filters.dateFrom != null || filters.dateTo != null ||
-        filters.hasImages != null || filters.hasAudio != null || filters.hasFiles != null;
+    final hasActiveFilters = filters.hasActiveFilters;
 
     return Scaffold(
       appBar: AppBar(
@@ -94,13 +94,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   active: filters.dateFrom != null || filters.dateTo != null,
                   onTap: _pickDateRange,
                   onClear: () => ref.read(searchFiltersProvider.notifier).clearDates(),
-                ),
-                const SizedBox(width: 6),
-                _FilterChip(
-                  label: l10n.photo,
-                  icon: Icons.image,
-                  active: filters.hasImages == true,
-                  onTap: () => ref.read(searchFiltersProvider.notifier).toggleHasImages(),
                 ),
                 const SizedBox(width: 6),
                 _FilterChip(
@@ -187,7 +180,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     return '';
   }
 
-  Widget _buildTagSuggestions(AsyncValue<List> allTagsAsync, ThemeData theme, AppLocalizations l10n) {
+  Widget _buildTagSuggestions(AsyncValue<List<Tag>> allTagsAsync, ThemeData theme, AppLocalizations l10n) {
     return allTagsAsync.when(
       data: (tags) {
         if (tags.isEmpty) {

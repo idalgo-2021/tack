@@ -1,5 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' as p;
+import '../../core/constants/app_constants.dart';
 import 'tables.dart';
 
 class DatabaseHelper {
@@ -19,16 +20,33 @@ class DatabaseHelper {
     final path = p.join(dbPath, 'tack.db');
     return openDatabase(
       path,
-      version: 2,
+      version: AppConstants.dbVersion,
       onCreate: (db, version) async {
         for (final query in DatabaseSchema.v1Queries) {
           await db.execute(query);
         }
-        await db.execute(DatabaseSchema.addFilePathsColumn);
       },
       onUpgrade: (db, oldVersion, newVersion) async {
         if (oldVersion < 2) {
           await db.execute(DatabaseSchema.addFilePathsColumn);
+        }
+        if (oldVersion < 3) {
+          await db.execute(DatabaseSchema.addVideoPathsColumn);
+        }
+        if (oldVersion < 4) {
+          await db.execute(DatabaseSchema.addColorColumn);
+        }
+        if (oldVersion < 5) {
+          await db.execute(DatabaseSchema.createNoteTagsTable);
+          await db.execute(DatabaseSchema.createNoteTagsTagIndex);
+          await db.execute(DatabaseSchema.createNoteTagsNoteIndex);
+        }
+        if (oldVersion < 6) {
+          await db.execute('ALTER TABLE ${TableNotes.tableName} ADD COLUMN ${TableNotes.isPinned} INTEGER DEFAULT 0');
+        }
+        if (oldVersion < 7) {
+          await db.execute('ALTER TABLE ${TableNotes.tableName} ADD COLUMN ${TableNotes.updatedAt} INTEGER');
+          await db.execute('UPDATE ${TableNotes.tableName} SET ${TableNotes.updatedAt} = ${TableNotes.createdAt} WHERE ${TableNotes.updatedAt} IS NULL');
         }
       },
     );

@@ -1,6 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../data/models/note.dart';
-import '../../../data/repositories/note_repository.dart';
+import '../../../core/providers/repository_providers.dart';
 
 part 'search_provider.g.dart';
 
@@ -21,25 +21,38 @@ class SearchFilters {
     this.hasFiles,
   });
 
+  static const _sentinel = _SearchSentinel();
+
   SearchFilters copyWith({
     String? query,
-    DateTime? dateFrom,
-    DateTime? dateTo,
+    Object? dateFrom = _sentinel,
+    Object? dateTo = _sentinel,
     bool? hasImages,
     bool? hasAudio,
     bool? hasFiles,
-    bool clearDateFrom = false,
-    bool clearDateTo = false,
   }) {
     return SearchFilters(
       query: query ?? this.query,
-      dateFrom: clearDateFrom ? null : (dateFrom ?? this.dateFrom),
-      dateTo: clearDateTo ? null : (dateTo ?? this.dateTo),
+      dateFrom: identical(dateFrom, _sentinel) ? this.dateFrom : dateFrom as DateTime?,
+      dateTo: identical(dateTo, _sentinel) ? this.dateTo : dateTo as DateTime?,
       hasImages: hasImages ?? this.hasImages,
       hasAudio: hasAudio ?? this.hasAudio,
       hasFiles: hasFiles ?? this.hasFiles,
     );
   }
+
+  bool get hasActiveFilters {
+    return query.isNotEmpty ||
+        dateFrom != null ||
+        dateTo != null ||
+        hasImages == true ||
+        hasAudio == true ||
+        hasFiles == true;
+  }
+}
+
+class _SearchSentinel {
+  const _SearchSentinel();
 }
 
 @riverpod
@@ -47,7 +60,7 @@ class SearchResults extends _$SearchResults {
   @override
   Future<List<Note>> build(SearchFilters filters) async {
     final query = filters.query;
-    final repo = NoteRepository();
+    final repo = ref.watch(noteRepositoryProvider);
 
     if (query.isEmpty && filters.dateFrom == null && filters.dateTo == null &&
         filters.hasImages == null && filters.hasAudio == null && filters.hasFiles == null) {
@@ -87,6 +100,6 @@ class SearchFiltersNotifier extends _$SearchFiltersNotifier {
   void toggleHasImages() => state = state.copyWith(hasImages: state.hasImages == true ? null : true);
   void toggleHasAudio() => state = state.copyWith(hasAudio: state.hasAudio == true ? null : true);
   void toggleHasFiles() => state = state.copyWith(hasFiles: state.hasFiles == true ? null : true);
-  void clearDates() => state = state.copyWith(clearDateFrom: true, clearDateTo: true);
+  void clearDates() => state = state.copyWith(dateFrom: null, dateTo: null);
   void clearAll() => state = const SearchFilters();
 }

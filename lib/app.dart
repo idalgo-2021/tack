@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'l10n/app_localizations.dart';
 import 'core/theme/app_theme.dart';
 import 'features/settings/providers/settings_provider.dart';
@@ -29,25 +28,23 @@ class TackApp extends ConsumerWidget {
     final fontSize = ref.watch(fontSizeProvider);
     final seed = _seedColors[colorScheme] ?? _seedColors[AppColorScheme.sage]!;
 
-    Intl.defaultLocale = locale;
-
     final ThemeData theme;
     final ThemeData? darkTheme;
-    final bool useDark;
+    final ThemeMode resolvedThemeMode;
 
     switch (themeMode) {
-      case ThemeModeOption.dark:
-        theme = AppTheme.dark(seed);
-        darkTheme = null;
-        useDark = false;
-      case ThemeModeOption.highContrast:
-        theme = AppTheme.highContrast();
-        darkTheme = null;
-        useDark = false;
       case ThemeModeOption.light:
         theme = AppTheme.light(seed);
         darkTheme = AppTheme.dark(seed);
-        useDark = false;
+        resolvedThemeMode = ThemeMode.light;
+      case ThemeModeOption.dark:
+        theme = AppTheme.light(seed);
+        darkTheme = AppTheme.dark(seed);
+        resolvedThemeMode = ThemeMode.dark;
+      case ThemeModeOption.highContrast:
+        theme = AppTheme.highContrast();
+        darkTheme = AppTheme.highContrast();
+        resolvedThemeMode = ThemeMode.dark;
     }
 
     final scale = switch (fontSize) {
@@ -65,7 +62,7 @@ class TackApp extends ConsumerWidget {
         debugShowCheckedModeBanner: false,
         theme: theme,
         darkTheme: darkTheme,
-        themeMode: useDark ? ThemeMode.dark : null,
+        themeMode: resolvedThemeMode,
         locale: Locale(locale),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,

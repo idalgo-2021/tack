@@ -121,10 +121,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get allNotes => 'Toutes les notes';
 
   @override
-  String get photo => 'Photo';
+  String get audio => 'Audio';
 
   @override
-  String get audio => 'Audio';
+  String get camera => 'Caméra';
 
   @override
   String get attachedFiles => 'Fichiers joints';
@@ -134,6 +134,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get recordAudio => 'Enregistrer un audio';
+
+  @override
+  String get recordVideo => 'Enregistrer une vidéo';
 
   @override
   String get appearance => 'Apparence';
@@ -166,23 +169,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get autoSaveDesc => 'Sauvegarder automatiquement en quittant';
 
   @override
-  String get compressImages => 'Compresser les images';
-
-  @override
-  String get compressImagesDesc =>
-      'Réduire la taille des photos lors de l\'ajout';
-
-  @override
   String get autoGeotag => 'Géo-tag automatique';
 
   @override
   String get autoGeotagDesc => 'Ajouter automatiquement les coordonnées';
-
-  @override
-  String get showFileNames => 'Noms de fichiers';
-
-  @override
-  String get showFileNamesDesc => 'Afficher les noms dans la carte de note';
 
   @override
   String get showTimestamp => 'Horodatage';
@@ -222,7 +212,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get viewModeList => 'Liste';
 
   @override
-  String get viewModeGrid => 'Grille (2 colonnes)';
+  String get viewModeGrid => 'Grille';
 
   @override
   String get fontSizeSmall => 'Petit';
@@ -348,17 +338,17 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String minutesAgo(Object minutes) {
-    return 'il y a $minutes min';
+    return '$minutes min';
   }
 
   @override
   String hoursAgo(Object hours) {
-    return 'il y a $hours h';
+    return '$hours h';
   }
 
   @override
   String daysAgo(Object days) {
-    return 'il y a $days j';
+    return '$days j';
   }
 
   @override
@@ -497,6 +487,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get exportNoNotes => 'No notes to export';
 
   @override
+  String get showFileThumbnails => 'File thumbnails';
+
+  @override
+  String get showFileThumbnailsDesc => 'Show files as grid with icons';
+
+  @override
   String exportError(Object error) {
     return 'Export error: $error';
   }
@@ -518,11 +514,35 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get showFileThumbnails => 'File thumbnails';
-
-  @override
-  String get showFileThumbnailsDesc => 'Show files as grid with icons';
-
-  @override
   String get recordingError => 'Recording failed. Please try again.';
+
+  @override
+  String get openIn => 'Ouvrir dans...';
+
+  @override
+  String get shareFile => 'Partager';
+
+  @override
+  String get moreOptions => 'Plus d\'options';
+
+  @override
+  String get shirt => 'Fond';
+
+  @override
+  String get noColor => 'Aucune couleur';
+
+  @override
+  String get selectAll => 'Select All';
+
+  @override
+  String get deselectAll => 'Deselect All';
+
+  @override
+  String get pin => 'Épingler';
+
+  @override
+  String get unpin => 'Détacher';
+
+  @override
+  String get pinned => 'Épinglé';
 }

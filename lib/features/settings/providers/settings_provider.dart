@@ -21,11 +21,9 @@ class Settings extends _$Settings {
 
   Future<void> setLocale(String locale) async { await _set('locale', locale); }
   Future<void> setAutoSave(bool enabled) async { await _set('auto_save', enabled); }
-  Future<void> setCompressImages(bool compress) async { await _set('compress_images', compress); }
   Future<void> setUpdateTimestampOnEdit(bool enabled) async { await _set('update_timestamp_on_edit', enabled); }
   Future<void> setAutoGeotag(bool enabled) async { await _set('auto_geotag', enabled); }
   Future<void> setViewMode(ViewMode mode) async { await _set('view_mode', mode.name); }
-  Future<void> setShowFileNames(bool show) async { await _set('show_file_names', show); }
   Future<void> setShowTimestamp(bool show) async { await _set('show_timestamp', show); }
   Future<void> setShowFileThumbnails(bool enabled) async { await _set('show_file_thumbnails', enabled); }
   Future<void> setFontSize(FontSize size) async { await _set('font_size', size.name); }
@@ -74,9 +72,6 @@ String appLocale(Ref ref) => _prefString(ref, 'locale', AppDefaults.locale);
 bool autoSave(Ref ref) => _prefBool(ref, 'auto_save', AppDefaults.autoSave);
 
 @riverpod
-bool compressImages(Ref ref) => _prefBool(ref, 'compress_images', AppDefaults.compressImages);
-
-@riverpod
 bool updateTimestampOnEdit(Ref ref) => _prefBool(ref, 'update_timestamp_on_edit', AppDefaults.updateTimestampOnEdit);
 
 @riverpod
@@ -84,10 +79,6 @@ bool autoGeotag(Ref ref) => _prefBool(ref, 'auto_geotag', AppDefaults.autoGeotag
 
 @riverpod
 ViewMode viewMode(Ref ref) => _prefEnum(ref, 'view_mode', ViewMode.values, AppDefaults.viewMode);
-
-@riverpod
-bool showFileNames(Ref ref) => _prefBool(ref, 'show_file_names', AppDefaults.showFileNames);
-
 @riverpod
 bool showTimestamp(Ref ref) => _prefBool(ref, 'show_timestamp', AppDefaults.showTimestamp);
 

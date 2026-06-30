@@ -120,10 +120,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get allNotes => 'Все заметки';
 
   @override
-  String get photo => 'Фото';
+  String get audio => 'Аудио';
 
   @override
-  String get audio => 'Аудио';
+  String get camera => 'Камера';
 
   @override
   String get attachedFiles => 'Прикреплённые файлы';
@@ -133,6 +133,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get recordAudio => 'Записать аудио';
+
+  @override
+  String get recordVideo => 'Записать видео';
 
   @override
   String get appearance => 'Внешний вид';
@@ -165,22 +168,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get autoSaveDesc => 'Автоматически сохранять при выходе';
 
   @override
-  String get compressImages => 'Сжимать изображения';
-
-  @override
-  String get compressImagesDesc => 'Уменьшать размер фото при добавлении';
-
-  @override
   String get autoGeotag => 'Авто-геоштамп';
 
   @override
   String get autoGeotagDesc => 'Автоматически добавлять координаты';
-
-  @override
-  String get showFileNames => 'Имена файлов';
-
-  @override
-  String get showFileNamesDesc => 'Показывать названия в карточке заметки';
 
   @override
   String get showTimestamp => 'Таймштамп';
@@ -217,7 +208,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get viewModeList => 'Список';
 
   @override
-  String get viewModeGrid => 'Плитки (2 колонки)';
+  String get viewModeGrid => 'Плитки';
 
   @override
   String get fontSizeSmall => 'Мелкий';
@@ -343,17 +334,17 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String minutesAgo(Object minutes) {
-    return '$minutes мин. назад';
+    return '$minutes мин';
   }
 
   @override
   String hoursAgo(Object hours) {
-    return '$hours ч. назад';
+    return '$hours ч';
   }
 
   @override
   String daysAgo(Object days) {
-    return '$days дн. назад';
+    return '$days д';
   }
 
   @override
@@ -491,6 +482,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get exportNoNotes => 'Нет заметок для экспорта';
 
   @override
+  String get showFileThumbnails => 'Миниатюры файлов';
+
+  @override
+  String get showFileThumbnailsDesc =>
+      'Отображать файлы в виде сетки с иконками';
+
+  @override
   String exportError(Object error) {
     return 'Ошибка экспорта: $error';
   }
@@ -512,12 +510,35 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get showFileThumbnails => 'Миниатюры файлов';
-
-  @override
-  String get showFileThumbnailsDesc =>
-      'Отображать файлы в виде сетки с иконками';
-
-  @override
   String get recordingError => 'Ошибка записи. Повторите попытку.';
+
+  @override
+  String get openIn => 'Открыть в...';
+
+  @override
+  String get shareFile => 'Поделиться';
+
+  @override
+  String get moreOptions => 'Дополнительно';
+
+  @override
+  String get shirt => 'Фон';
+
+  @override
+  String get noColor => 'Без цвета';
+
+  @override
+  String get selectAll => 'Выбрать все';
+
+  @override
+  String get deselectAll => 'Снять выделение';
+
+  @override
+  String get pin => 'Закрепить';
+
+  @override
+  String get unpin => 'Открепить';
+
+  @override
+  String get pinned => 'Закреплено';
 }

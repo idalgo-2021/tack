@@ -120,10 +120,10 @@ class AppLocalizationsKk extends AppLocalizations {
   String get allNotes => 'Барлық жазбалар';
 
   @override
-  String get photo => 'Фото';
+  String get audio => 'Аудио';
 
   @override
-  String get audio => 'Аудио';
+  String get camera => 'Камера';
 
   @override
   String get attachedFiles => 'Тіркелген файлдар';
@@ -133,6 +133,9 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get recordAudio => 'Аудио жазу';
+
+  @override
+  String get recordVideo => 'Бейне жазу';
 
   @override
   String get appearance => 'Сыртқы түрі';
@@ -165,22 +168,10 @@ class AppLocalizationsKk extends AppLocalizations {
   String get autoSaveDesc => 'Шыққанда автоматты түрде сақтау';
 
   @override
-  String get compressImages => 'Суреттерді қысу';
-
-  @override
-  String get compressImagesDesc => 'Қосқанда фото өлшемін азайту';
-
-  @override
   String get autoGeotag => 'Авто-геотег';
 
   @override
   String get autoGeotagDesc => 'Координаттарды автоматты түрде қосу';
-
-  @override
-  String get showFileNames => 'Файл атаулары';
-
-  @override
-  String get showFileNamesDesc => 'Жазба картасында атауларды көрсету';
 
   @override
   String get showTimestamp => 'Уақыт белгісі';
@@ -218,7 +209,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get viewModeList => 'Тізім';
 
   @override
-  String get viewModeGrid => 'Тор (2 баған)';
+  String get viewModeGrid => 'Тор';
 
   @override
   String get fontSizeSmall => 'Кіші';
@@ -344,17 +335,17 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String minutesAgo(Object minutes) {
-    return '$minutes мин бұрын';
+    return '$minutes мин';
   }
 
   @override
   String hoursAgo(Object hours) {
-    return '$hours сағ бұрын';
+    return '$hours сағ';
   }
 
   @override
   String daysAgo(Object days) {
-    return '$days күн бұрын';
+    return '$days күн';
   }
 
   @override
@@ -492,6 +483,12 @@ class AppLocalizationsKk extends AppLocalizations {
   String get exportNoNotes => 'No notes to export';
 
   @override
+  String get showFileThumbnails => 'File thumbnails';
+
+  @override
+  String get showFileThumbnailsDesc => 'Show files as grid with icons';
+
+  @override
   String exportError(Object error) {
     return 'Export error: $error';
   }
@@ -513,11 +510,35 @@ class AppLocalizationsKk extends AppLocalizations {
   }
 
   @override
-  String get showFileThumbnails => 'File thumbnails';
-
-  @override
-  String get showFileThumbnailsDesc => 'Show files as grid with icons';
-
-  @override
   String get recordingError => 'Recording failed. Please try again.';
+
+  @override
+  String get openIn => 'Ашу...';
+
+  @override
+  String get shareFile => 'Бөлісу';
+
+  @override
+  String get moreOptions => 'Толығырақ опциялар';
+
+  @override
+  String get shirt => 'Фон';
+
+  @override
+  String get noColor => 'Түссіз';
+
+  @override
+  String get selectAll => 'Select All';
+
+  @override
+  String get deselectAll => 'Deselect All';
+
+  @override
+  String get pin => 'Бекіту';
+
+  @override
+  String get unpin => 'Бекітуді алу';
+
+  @override
+  String get pinned => 'Бекітілген';
 }

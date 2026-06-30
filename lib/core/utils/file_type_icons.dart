@@ -27,6 +27,8 @@ final _typeMap = <String, (IconData, Color)>{
 };
 
 const _imageExtensions = {'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'};
+const _videoExtensions = {'mp4', 'avi', 'mkv', 'mov', 'webm', '3gp', 'm4v'};
+const _textExtensions = {'txt', 'md', 'json', 'xml', 'csv', 'yaml', 'yml', 'log', 'env', 'cfg', 'ini', 'sh', 'bat'};
 
 String _ext(String path) {
   final i = path.lastIndexOf('.');
@@ -35,6 +37,28 @@ String _ext(String path) {
 
 bool isImageFile(String path) => _imageExtensions.contains(_ext(path));
 
+bool isVideoFile(String path) => _videoExtensions.contains(_ext(path));
+
+bool isTextFile(String path) => _textExtensions.contains(_ext(path));
+
 IconData fileIcon(String path) => _typeMap[_ext(path)]?.$1 ?? Icons.insert_drive_file;
 
 Color fileColor(String path) => _typeMap[_ext(path)]?.$2 ?? const Color(0xFF9E9E9E);
+
+String formatDurationMs(int ms) {
+  final totalSeconds = ms ~/ 1000;
+  final hours = totalSeconds ~/ 3600;
+  final minutes = (totalSeconds % 3600) ~/ 60;
+  final seconds = totalSeconds % 60;
+  if (hours > 0) {
+    return '$hours:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+  return '$minutes:${seconds.toString().padLeft(2, '0')}';
+}
+
+String formatFileSize(int bytes) {
+  if (bytes < 1024) return '$bytes B';
+  if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+  if (bytes < 1024 * 1024 * 1024) return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+  return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
+}

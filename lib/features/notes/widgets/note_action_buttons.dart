@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../../l10n/app_localizations.dart';
@@ -10,6 +9,7 @@ import '../../media/providers/media_provider.dart';
 class NoteActionButtons extends ConsumerStatefulWidget {
   final bool hasLocation;
   final ValueChanged<String> onImageAdded;
+  final ValueChanged<String> onVideoAdded;
   final ValueChanged<String> onAudioAdded;
   final ValueChanged<String> onFileAdded;
   final ValueChanged<double> onLatitudeChanged;
@@ -20,6 +20,7 @@ class NoteActionButtons extends ConsumerStatefulWidget {
     super.key,
     required this.hasLocation,
     required this.onImageAdded,
+    required this.onVideoAdded,
     required this.onAudioAdded,
     required this.onFileAdded,
     required this.onLatitudeChanged,
@@ -32,9 +33,9 @@ class NoteActionButtons extends ConsumerStatefulWidget {
 }
 
 class _NoteActionButtonsState extends ConsumerState<NoteActionButtons> {
-  Future<void> _pickImage() async {
+  Future<void> _pickMedia() async {
     final l10n = AppLocalizations.of(context);
-    final source = await showModalBottomSheet<ImageSource>(
+    final action = await showModalBottomSheet<String>(
       context: context,
       builder: (ctx) => SafeArea(
         child: Column(
@@ -43,25 +44,43 @@ class _NoteActionButtonsState extends ConsumerState<NoteActionButtons> {
             ListTile(
               leading: const Icon(Icons.camera_alt),
               title: Text(l10n.makePhoto),
-              onTap: () => Navigator.pop(ctx, ImageSource.camera),
+              onTap: () => Navigator.pop(ctx, 'photo'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.videocam),
+              title: Text(l10n.recordVideo),
+              onTap: () => Navigator.pop(ctx, 'video'),
             ),
             ListTile(
               leading: const Icon(Icons.photo_library),
               title: Text(l10n.chooseFromGallery),
-              onTap: () => Navigator.pop(ctx, ImageSource.gallery),
+              onTap: () => Navigator.pop(ctx, 'gallery'),
             ),
           ],
         ),
       ),
     );
-    if (source == null) return;
+    if (action == null) return;
 
     final notifier = ref.read(imagePickingProvider.notifier);
-    final path = source == ImageSource.camera
-        ? await notifier.takePhoto()
-        : await notifier.pickFromGallery();
-    if (path != null) {
-      widget.onImageAdded(path);
+    switch (action) {
+      case 'photo':
+        final path = await notifier.takePhoto();
+        if (path != null) widget.onImageAdded(path);
+      case 'video':
+        final path = await notifier.recordVideo();
+        if (path != null) widget.onVideoAdded(path);
+      case 'gallery':
+        final path = await notifier.pickMedia();
+        if (path != null) {
+          final ext = path.split('.').last.toLowerCase();
+          const videoExts = {'mp4', 'avi', 'mkv', 'mov', 'webm', '3gp', 'm4v'};
+          if (videoExts.contains(ext)) {
+            widget.onVideoAdded(path);
+          } else {
+            widget.onImageAdded(path);
+          }
+        }
     }
   }
 
@@ -117,7 +136,13 @@ class _NoteActionButtonsState extends ConsumerState<NoteActionButtons> {
       );
       widget.onLatitudeChanged(position.latitude);
       widget.onLongitudeChanged(position.longitude);
-    } catch (_) {}
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context).locationPermissionDenied)),
+        );
+      }
+    }
   }
 
   @override
@@ -142,7 +167,7 @@ class _NoteActionButtonsState extends ConsumerState<NoteActionButtons> {
                 foregroundColor: theme.colorScheme.onSecondaryContainer,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              onPressed: _pickImage,
+              onPressed: _pickMedia,
               icon: const Icon(Icons.photo_camera),
             ),
             IconButton(

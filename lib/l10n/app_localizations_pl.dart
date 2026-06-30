@@ -120,10 +120,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get allNotes => 'Wszystkie notatki';
 
   @override
-  String get photo => 'Zdjęcie';
+  String get audio => 'Audio';
 
   @override
-  String get audio => 'Audio';
+  String get camera => 'Aparat';
 
   @override
   String get attachedFiles => 'Załączone pliki';
@@ -133,6 +133,9 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get recordAudio => 'Nagraj audio';
+
+  @override
+  String get recordVideo => 'Nagraj wideo';
 
   @override
   String get appearance => 'Wygląd';
@@ -165,22 +168,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get autoSaveDesc => 'Automatycznie zapisuj przy wyjściu';
 
   @override
-  String get compressImages => 'Kompresuj obrazy';
-
-  @override
-  String get compressImagesDesc => 'Zmniejsz rozmiar zdjęć przy dodawaniu';
-
-  @override
   String get autoGeotag => 'Auto-geotag';
 
   @override
   String get autoGeotagDesc => 'Automatycznie dodawaj współrzędne';
-
-  @override
-  String get showFileNames => 'Nazwy plików';
-
-  @override
-  String get showFileNamesDesc => 'Pokaż nazwy w karcie notatki';
 
   @override
   String get showTimestamp => 'Znacznik czasu';
@@ -217,7 +208,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get viewModeList => 'Lista';
 
   @override
-  String get viewModeGrid => 'Siatka (2 kolumny)';
+  String get viewModeGrid => 'Siatka';
 
   @override
   String get fontSizeSmall => 'Mały';
@@ -343,17 +334,17 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String minutesAgo(Object minutes) {
-    return '$minutes min temu';
+    return '$minutes min';
   }
 
   @override
   String hoursAgo(Object hours) {
-    return '$hours godz temu';
+    return '$hours godz';
   }
 
   @override
   String daysAgo(Object days) {
-    return '$days dni temu';
+    return '$days d';
   }
 
   @override
@@ -491,6 +482,12 @@ class AppLocalizationsPl extends AppLocalizations {
   String get exportNoNotes => 'No notes to export';
 
   @override
+  String get showFileThumbnails => 'File thumbnails';
+
+  @override
+  String get showFileThumbnailsDesc => 'Show files as grid with icons';
+
+  @override
   String exportError(Object error) {
     return 'Export error: $error';
   }
@@ -512,11 +509,35 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get showFileThumbnails => 'File thumbnails';
-
-  @override
-  String get showFileThumbnailsDesc => 'Show files as grid with icons';
-
-  @override
   String get recordingError => 'Recording failed. Please try again.';
+
+  @override
+  String get openIn => 'Otwórz w...';
+
+  @override
+  String get shareFile => 'Udostępnij';
+
+  @override
+  String get moreOptions => 'Więcej opcji';
+
+  @override
+  String get shirt => 'Tło';
+
+  @override
+  String get noColor => 'Bez koloru';
+
+  @override
+  String get selectAll => 'Select All';
+
+  @override
+  String get deselectAll => 'Deselect All';
+
+  @override
+  String get pin => 'Przypnij';
+
+  @override
+  String get unpin => 'Odepnij';
+
+  @override
+  String get pinned => 'Przypięte';
 }

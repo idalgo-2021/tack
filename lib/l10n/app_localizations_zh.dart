@@ -119,10 +119,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get allNotes => '所有笔记';
 
   @override
-  String get photo => '照片';
+  String get audio => '音频';
 
   @override
-  String get audio => '音频';
+  String get camera => '相机';
 
   @override
   String get attachedFiles => '附件';
@@ -132,6 +132,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get recordAudio => '录制音频';
+
+  @override
+  String get recordVideo => '录制视频';
 
   @override
   String get appearance => '外观';
@@ -164,22 +167,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get autoSaveDesc => '退出时自动保存';
 
   @override
-  String get compressImages => '压缩图片';
-
-  @override
-  String get compressImagesDesc => '添加时减小照片大小';
-
-  @override
   String get autoGeotag => '自动地理标签';
 
   @override
   String get autoGeotagDesc => '自动添加坐标';
-
-  @override
-  String get showFileNames => '文件名';
-
-  @override
-  String get showFileNamesDesc => '在笔记卡片中显示名称';
 
   @override
   String get showTimestamp => '时间戳';
@@ -215,7 +206,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get viewModeList => '列表';
 
   @override
-  String get viewModeGrid => '网格（2列）';
+  String get viewModeGrid => '网格';
 
   @override
   String get fontSizeSmall => '小';
@@ -341,17 +332,17 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String minutesAgo(Object minutes) {
-    return '$minutes分钟前';
+    return '$minutes分钟';
   }
 
   @override
   String hoursAgo(Object hours) {
-    return '$hours小时前';
+    return '$hours小时';
   }
 
   @override
   String daysAgo(Object days) {
-    return '$days天前';
+    return '$days天';
   }
 
   @override
@@ -488,6 +479,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get exportNoNotes => 'No notes to export';
 
   @override
+  String get showFileThumbnails => 'File thumbnails';
+
+  @override
+  String get showFileThumbnailsDesc => 'Show files as grid with icons';
+
+  @override
   String exportError(Object error) {
     return 'Export error: $error';
   }
@@ -509,11 +506,35 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get showFileThumbnails => 'File thumbnails';
-
-  @override
-  String get showFileThumbnailsDesc => 'Show files as grid with icons';
-
-  @override
   String get recordingError => 'Recording failed. Please try again.';
+
+  @override
+  String get openIn => '用...打开';
+
+  @override
+  String get shareFile => '分享';
+
+  @override
+  String get moreOptions => '更多选项';
+
+  @override
+  String get shirt => '背景';
+
+  @override
+  String get noColor => '无颜色';
+
+  @override
+  String get selectAll => 'Select All';
+
+  @override
+  String get deselectAll => 'Deselect All';
+
+  @override
+  String get pin => 'Pin';
+
+  @override
+  String get unpin => 'Unpin';
+
+  @override
+  String get pinned => 'Pinned';
 }

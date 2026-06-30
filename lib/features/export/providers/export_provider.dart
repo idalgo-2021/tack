@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../../../data/repositories/note_repository.dart';
+import '../../../core/providers/repository_providers.dart';
 import '../../../core/utils/export_helper.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../settings/providers/settings_provider.dart';
@@ -30,7 +30,7 @@ class Export extends _$Export {
     state = const ExportState(isExporting: true);
 
     try {
-      final repo = NoteRepository();
+      final repo = ref.read(noteRepositoryProvider);
       final notes = await repo.getAll();
 
       if (notes.isEmpty) {
@@ -39,10 +39,11 @@ class Export extends _$Export {
       }
 
       final format = ref.read(exportFormatProvider);
-      final timestamp = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
+      final locale = ref.read(appLocaleProvider);
+      final timestamp = DateFormat('yyyyMMdd_HHmmss', locale).format(DateTime.now());
       final ext = format == ExportFormat.markdown ? 'md' : 'json';
       final content = format == ExportFormat.markdown
-          ? ExportHelper.notesToMarkdown(notes, l10n)
+          ? ExportHelper.notesToMarkdown(notes, l10n, locale)
           : ExportHelper.notesToJson(notes);
       final contentFile = File('${Directory.systemTemp.path}/tack_$timestamp.$ext');
       await contentFile.writeAsString(content);
@@ -53,6 +54,9 @@ class Export extends _$Export {
           if (await File(p).exists()) allPaths.add(p);
         }
         for (final p in note.audioPaths) {
+          if (await File(p).exists()) allPaths.add(p);
+        }
+        for (final p in note.videoPaths) {
           if (await File(p).exists()) allPaths.add(p);
         }
         for (final p in note.filePaths) {

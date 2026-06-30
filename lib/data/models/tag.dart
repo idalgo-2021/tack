@@ -33,7 +33,7 @@ class Tag {
     return Tag(
       id: map['id'] as int?,
       name: map['name'] as String,
-      usageCount: (map['usage_count'] as num?)?.toInt() ?? 0,
+      usageCount: (map['usage_count'] is num ? map['usage_count'] as num : int.tryParse(map['usage_count']?.toString() ?? '0'))?.toInt() ?? 0,
     );
   }
 }

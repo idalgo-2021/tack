@@ -120,10 +120,10 @@ class AppLocalizationsUk extends AppLocalizations {
   String get allNotes => 'Всі нотатки';
 
   @override
-  String get photo => 'Фото';
+  String get audio => 'Аудіо';
 
   @override
-  String get audio => 'Аудіо';
+  String get camera => 'Камера';
 
   @override
   String get attachedFiles => 'Прикріплені файли';
@@ -133,6 +133,9 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get recordAudio => 'Записати аудіо';
+
+  @override
+  String get recordVideo => 'Записати відео';
 
   @override
   String get appearance => 'Зовнішній вигляд';
@@ -165,22 +168,10 @@ class AppLocalizationsUk extends AppLocalizations {
   String get autoSaveDesc => 'Автоматично зберігати при виході';
 
   @override
-  String get compressImages => 'Стискати зображення';
-
-  @override
-  String get compressImagesDesc => 'Зменшувати розмір фото при додаванні';
-
-  @override
   String get autoGeotag => 'Авто-геотег';
 
   @override
   String get autoGeotagDesc => 'Автоматично додавати координати';
-
-  @override
-  String get showFileNames => 'Назви файлів';
-
-  @override
-  String get showFileNamesDesc => 'Показувати назви в картці нотатки';
 
   @override
   String get showTimestamp => 'Часова мітка';
@@ -217,7 +208,7 @@ class AppLocalizationsUk extends AppLocalizations {
   String get viewModeList => 'Список';
 
   @override
-  String get viewModeGrid => 'Плитки (2 колонки)';
+  String get viewModeGrid => 'Плитки';
 
   @override
   String get fontSizeSmall => 'Дрібний';
@@ -343,17 +334,17 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String minutesAgo(Object minutes) {
-    return '$minutes хв. тому';
+    return '$minutes хв';
   }
 
   @override
   String hoursAgo(Object hours) {
-    return '$hours год. тому';
+    return '$hours год';
   }
 
   @override
   String daysAgo(Object days) {
-    return '$days дн. тому';
+    return '$days д';
   }
 
   @override
@@ -491,6 +482,12 @@ class AppLocalizationsUk extends AppLocalizations {
   String get exportNoNotes => 'Немає нотаток для експорту';
 
   @override
+  String get showFileThumbnails => 'File thumbnails';
+
+  @override
+  String get showFileThumbnailsDesc => 'Show files as grid with icons';
+
+  @override
   String exportError(Object error) {
     return 'Помилка експорту: $error';
   }
@@ -512,12 +509,35 @@ class AppLocalizationsUk extends AppLocalizations {
   }
 
   @override
-  String get showFileThumbnails => 'Мініатюри файлів';
-
-  @override
-  String get showFileThumbnailsDesc =>
-      'Відображати файли у вигляді сітки з іконками';
-
-  @override
   String get recordingError => 'Помилка запису. Спробуйте ще раз.';
+
+  @override
+  String get openIn => 'Відкрити в...';
+
+  @override
+  String get shareFile => 'Поділитися';
+
+  @override
+  String get moreOptions => 'Додатково';
+
+  @override
+  String get shirt => 'Фон';
+
+  @override
+  String get noColor => 'Без кольору';
+
+  @override
+  String get selectAll => 'Select All';
+
+  @override
+  String get deselectAll => 'Deselect All';
+
+  @override
+  String get pin => 'Закріпити';
+
+  @override
+  String get unpin => 'Відкріпити';
+
+  @override
+  String get pinned => 'Закріплено';
 }

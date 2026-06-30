@@ -120,10 +120,10 @@ class AppLocalizationsKy extends AppLocalizations {
   String get allNotes => 'Бардык жазуулар';
 
   @override
-  String get photo => 'Сүрөт';
+  String get audio => 'Аудио';
 
   @override
-  String get audio => 'Аудио';
+  String get camera => 'Камера';
 
   @override
   String get attachedFiles => 'Тиркелген файлдар';
@@ -133,6 +133,9 @@ class AppLocalizationsKy extends AppLocalizations {
 
   @override
   String get recordAudio => 'Аудио жаздыруу';
+
+  @override
+  String get recordVideo => 'Видео жаздыру';
 
   @override
   String get appearance => 'Сырткы көрүнүш';
@@ -165,22 +168,10 @@ class AppLocalizationsKy extends AppLocalizations {
   String get autoSaveDesc => 'Чыкканда автоматтык түрдө сактоо';
 
   @override
-  String get compressImages => 'Сүрөттөрдү кысуу';
-
-  @override
-  String get compressImagesDesc => 'Кошкондо сүрөт өлчөмүн азайтуу';
-
-  @override
   String get autoGeotag => 'Авто-геотег';
 
   @override
   String get autoGeotagDesc => 'Координаттарды автоматтык түрдө кошуу';
-
-  @override
-  String get showFileNames => 'Файл аталыштары';
-
-  @override
-  String get showFileNamesDesc => 'Жазуу картасында аталыштарды көрсөтүү';
 
   @override
   String get showTimestamp => 'Убакыт белгиси';
@@ -219,7 +210,7 @@ class AppLocalizationsKy extends AppLocalizations {
   String get viewModeList => 'Тизме';
 
   @override
-  String get viewModeGrid => 'Тор (2 мамыча)';
+  String get viewModeGrid => 'Тор';
 
   @override
   String get fontSizeSmall => 'Кичине';
@@ -345,17 +336,17 @@ class AppLocalizationsKy extends AppLocalizations {
 
   @override
   String minutesAgo(Object minutes) {
-    return '$minutes мүн мурун';
+    return '$minutes мүн';
   }
 
   @override
   String hoursAgo(Object hours) {
-    return '$hours саат мурун';
+    return '$hours саат';
   }
 
   @override
   String daysAgo(Object days) {
-    return '$days күн мурун';
+    return '$days күн';
   }
 
   @override
@@ -493,6 +484,12 @@ class AppLocalizationsKy extends AppLocalizations {
   String get exportNoNotes => 'No notes to export';
 
   @override
+  String get showFileThumbnails => 'File thumbnails';
+
+  @override
+  String get showFileThumbnailsDesc => 'Show files as grid with icons';
+
+  @override
   String exportError(Object error) {
     return 'Export error: $error';
   }
@@ -514,11 +511,35 @@ class AppLocalizationsKy extends AppLocalizations {
   }
 
   @override
-  String get showFileThumbnails => 'File thumbnails';
-
-  @override
-  String get showFileThumbnailsDesc => 'Show files as grid with icons';
-
-  @override
   String get recordingError => 'Recording failed. Please try again.';
+
+  @override
+  String get openIn => 'Ачуу...';
+
+  @override
+  String get shareFile => 'Бөлүшүү';
+
+  @override
+  String get moreOptions => 'Кошумча опциялар';
+
+  @override
+  String get shirt => 'Фон';
+
+  @override
+  String get noColor => 'Түссүз';
+
+  @override
+  String get selectAll => 'Select All';
+
+  @override
+  String get deselectAll => 'Deselect All';
+
+  @override
+  String get pin => 'Бекитүү';
+
+  @override
+  String get unpin => 'Бекитүүнү алуу';
+
+  @override
+  String get pinned => 'Бекитилген';
 }

@@ -8,21 +8,22 @@ import '../../l10n/app_localizations.dart';
 import 'date_formatter.dart';
 
 class ExportHelper {
-  static String notesToMarkdown(List<Note> notes, AppLocalizations l10n) {
+  static String notesToMarkdown(List<Note> notes, AppLocalizations l10n, [String? locale]) {
     final md = StringBuffer();
     md.writeln('# ${l10n.exportTitle}');
-    md.writeln(l10n.exportDate(DateFormat('dd.MM.yyyy HH:mm').format(DateTime.now())));
+    md.writeln(l10n.exportDate(DateFormat('dd.MM.yyyy HH:mm', locale).format(DateTime.now())));
     md.writeln();
 
     for (final note in notes) {
       md.writeln('---');
       md.writeln();
-      md.writeln('## ${l10n.noteFrom(DateFormatter.formatAbsoluteWithWeekday(note.createdAt))}');
+      md.writeln('## ${l10n.noteFrom(DateFormatter.formatAbsoluteWithWeekday(note.createdAt, locale))}');
+      md.writeln('*Updated: ${DateFormatter.formatAbsoluteWithWeekday(note.updatedAt, locale)}*');
       if (note.latitude != null && note.longitude != null) {
         md.writeln('📍 ${DateFormatter.formatDMS(note.latitude!, note.longitude!)}');
       }
-      if (note.tags.isNotEmpty) {
-        md.writeln('🏷 ${note.tags.map((t) => '#$t').join(' ')}');
+      if (note.tagNames.isNotEmpty) {
+        md.writeln('🏷 ${note.tagNames.map((t) => '#$t').join(' ')}');
       }
       md.writeln();
       if (note.text != null && note.text!.isNotEmpty) {
@@ -32,6 +33,7 @@ class ExportHelper {
       final noteFiles = [
         ...note.imagePaths,
         ...note.audioPaths,
+        ...note.videoPaths,
         ...note.filePaths,
       ];
       if (noteFiles.isNotEmpty) {
@@ -51,16 +53,18 @@ class ExportHelper {
       final noteFiles = [
         ...note.imagePaths,
         ...note.audioPaths,
+        ...note.videoPaths,
         ...note.filePaths,
       ];
       return {
         'id': note.id,
         'created_at': DateFormat('yyyy-MM-ddTHH:mm:ss').format(note.createdAt),
+        'updated_at': DateFormat('yyyy-MM-ddTHH:mm:ss').format(note.updatedAt),
         if (note.latitude != null && note.longitude != null)
           'latitude': note.latitude,
         if (note.latitude != null && note.longitude != null)
           'longitude': note.longitude,
-        'tags': note.tags,
+        'tags': note.tagNames,
         'text': note.text,
         'files': noteFiles.map((p) => p.split('/').last).toList(),
       };

@@ -336,17 +336,17 @@ abstract class AppLocalizations {
   /// **'All notes'**
   String get allNotes;
 
-  /// No description provided for @photo.
-  ///
-  /// In en, this message translates to:
-  /// **'Photo'**
-  String get photo;
-
   /// No description provided for @audio.
   ///
   /// In en, this message translates to:
   /// **'Audio'**
   String get audio;
+
+  /// No description provided for @camera.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera'**
+  String get camera;
 
   /// No description provided for @attachedFiles.
   ///
@@ -365,6 +365,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Record audio'**
   String get recordAudio;
+
+  /// No description provided for @recordVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Record video'**
+  String get recordVideo;
 
   /// No description provided for @appearance.
   ///
@@ -426,18 +432,6 @@ abstract class AppLocalizations {
   /// **'Automatically save on exit'**
   String get autoSaveDesc;
 
-  /// No description provided for @compressImages.
-  ///
-  /// In en, this message translates to:
-  /// **'Compress images'**
-  String get compressImages;
-
-  /// No description provided for @compressImagesDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'Reduce photo size when adding'**
-  String get compressImagesDesc;
-
   /// No description provided for @autoGeotag.
   ///
   /// In en, this message translates to:
@@ -449,18 +443,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Automatically add coordinates'**
   String get autoGeotagDesc;
-
-  /// No description provided for @showFileNames.
-  ///
-  /// In en, this message translates to:
-  /// **'File names'**
-  String get showFileNames;
-
-  /// No description provided for @showFileNamesDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'Show file names in note card'**
-  String get showFileNamesDesc;
 
   /// No description provided for @showTimestamp.
   ///
@@ -531,7 +513,7 @@ abstract class AppLocalizations {
   /// No description provided for @viewModeGrid.
   ///
   /// In en, this message translates to:
-  /// **'Grid (2 columns)'**
+  /// **'Grid'**
   String get viewModeGrid;
 
   /// No description provided for @fontSizeSmall.
@@ -777,19 +759,19 @@ abstract class AppLocalizations {
   /// No description provided for @minutesAgo.
   ///
   /// In en, this message translates to:
-  /// **'{minutes} min ago'**
+  /// **'{minutes} min'**
   String minutesAgo(Object minutes);
 
   /// No description provided for @hoursAgo.
   ///
   /// In en, this message translates to:
-  /// **'{hours} h ago'**
+  /// **'{hours} h'**
   String hoursAgo(Object hours);
 
   /// No description provided for @daysAgo.
   ///
   /// In en, this message translates to:
-  /// **'{days} d ago'**
+  /// **'{days} d'**
   String daysAgo(Object days);
 
   /// No description provided for @deleteSelected.
@@ -1038,6 +1020,18 @@ abstract class AppLocalizations {
   /// **'No notes to export'**
   String get exportNoNotes;
 
+  /// No description provided for @showFileThumbnails.
+  ///
+  /// In en, this message translates to:
+  /// **'File thumbnails'**
+  String get showFileThumbnails;
+
+  /// No description provided for @showFileThumbnailsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Show files as grid with icons'**
+  String get showFileThumbnailsDesc;
+
   /// No description provided for @exportError.
   ///
   /// In en, this message translates to:
@@ -1068,23 +1062,71 @@ abstract class AppLocalizations {
   /// **'To: {date}'**
   String toDate(Object date);
 
-  /// No description provided for @showFileThumbnails.
-  ///
-  /// In en, this message translates to:
-  /// **'File thumbnails'**
-  String get showFileThumbnails;
-
-  /// No description provided for @showFileThumbnailsDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'Show files as grid with icons'**
-  String get showFileThumbnailsDesc;
-
   /// No description provided for @recordingError.
   ///
   /// In en, this message translates to:
   /// **'Recording failed. Please try again.'**
   String get recordingError;
+
+  /// No description provided for @openIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in...'**
+  String get openIn;
+
+  /// No description provided for @shareFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get shareFile;
+
+  /// No description provided for @moreOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'More options'**
+  String get moreOptions;
+
+  /// No description provided for @shirt.
+  ///
+  /// In en, this message translates to:
+  /// **'Shirt'**
+  String get shirt;
+
+  /// No description provided for @noColor.
+  ///
+  /// In en, this message translates to:
+  /// **'No color'**
+  String get noColor;
+
+  /// No description provided for @selectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Select All'**
+  String get selectAll;
+
+  /// No description provided for @deselectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Deselect All'**
+  String get deselectAll;
+
+  /// No description provided for @pin.
+  ///
+  /// In en, this message translates to:
+  /// **'Pin'**
+  String get pin;
+
+  /// No description provided for @unpin.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpin'**
+  String get unpin;
+
+  /// No description provided for @pinned.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinned'**
+  String get pinned;
 }
 
 class _AppLocalizationsDelegate

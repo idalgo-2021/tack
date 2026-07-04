@@ -1,10 +1,14 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/utils/file_utils.dart';
+import '../../../core/utils/keyboard_utils.dart';
 import '../../../data/models/note.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../settings/providers/settings_provider.dart';
@@ -18,8 +22,9 @@ List<String> _sortByLastModified(List<String> paths) {
 }
 
 abstract class NoteEditorState<T extends ConsumerStatefulWidget> extends ConsumerState<T> {
-  late final TextEditingController textController;
+  late QuillController quillController;
   late final FocusNode focusNode;
+  bool showFormattingToolbar = false;
   bool hasChanges = false;
   List<String> imagePaths = [];
   List<String> audioPaths = [];
@@ -32,6 +37,7 @@ abstract class NoteEditorState<T extends ConsumerStatefulWidget> extends Consume
   bool isPinned = false;
   DateTime updatedAt = DateTime.now();
   int? savedNoteId;
+  bool _hasSavedOnce = false;
   Timer? saveTimer;
 
   final Set<String> newFilePaths = {};
@@ -89,7 +95,7 @@ abstract class NoteEditorState<T extends ConsumerStatefulWidget> extends Consume
   List<String> get allPreviewPaths => [...cameraPaths, ...allFilePaths];
 
   bool get isEmptyNote =>
-      textController.text.trim().isEmpty &&
+      quillController.document.toPlainText().trim().isEmpty &&
       tagNames.isEmpty &&
       imagePaths.isEmpty &&
       audioPaths.isEmpty &&
@@ -106,19 +112,48 @@ abstract class NoteEditorState<T extends ConsumerStatefulWidget> extends Consume
   @protected
   void onNoteSaved(int? noteId) {}
 
+  void toggleFormattingToolbar() {
+    setState(() {
+      showFormattingToolbar = !showFormattingToolbar;
+      quillController.readOnly = showFormattingToolbar;
+    });
+    if (showFormattingToolbar) {
+      SystemChannels.textInput.invokeMethod<dynamic>('TextInput.hide');
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    textController = TextEditingController();
+    quillController = QuillController(
+      document: Document(),
+      selection: const TextSelection.collapsed(offset: 0),
+    );
     focusNode = FocusNode();
-    textController.addListener(handleFieldChanged);
+    quillController.addListener(handleFieldChanged);
+    KeyboardUtils.configureTabletKeyboard();
+    focusNode.addListener(() {
+      if (focusNode.hasFocus) KeyboardUtils.configureTabletKeyboard();
+    });
+  }
+
+  @protected
+  void initQuillController(Document document) {
+    quillController.removeListener(handleFieldChanged);
+    quillController.dispose();
+    quillController = QuillController(
+      document: document,
+      selection: const TextSelection.collapsed(offset: 0),
+    );
+    quillController.addListener(handleFieldChanged);
+    KeyboardUtils.configureTabletKeyboard();
   }
 
   @override
   void dispose() {
-    textController.removeListener(handleFieldChanged);
+    quillController.removeListener(handleFieldChanged);
     saveTimer?.cancel();
-    textController.dispose();
+    quillController.dispose();
     focusNode.dispose();
     super.dispose();
   }
@@ -160,9 +195,10 @@ abstract class NoteEditorState<T extends ConsumerStatefulWidget> extends Consume
     }
     try {
       final id = noteIdForSave;
+      final plainText = quillController.document.toPlainText().trim();
       final note = Note(
         id: id,
-        text: textController.text.trim().isEmpty ? null : textController.text.trim(),
+        text: plainText.isEmpty ? null : jsonEncode(quillController.document.toDelta().toJson()),
         tagNames: tagNames,
         imagePaths: imagePaths,
         audioPaths: audioPaths,
@@ -203,6 +239,33 @@ abstract class NoteEditorState<T extends ConsumerStatefulWidget> extends Consume
     if (mounted) {
       setState(() => hasChanges = false);
     }
+  }
+
+  Future<bool> confirmSaveForAttachment() async {
+    if (ref.read(autoSaveProvider) || _hasSavedOnce) return true;
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(AppLocalizations.of(context).saveChanges),
+        content: Text(AppLocalizations.of(context).saveBeforeAttach),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(AppLocalizations.of(context).discard),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(AppLocalizations.of(context).save),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      await saveNote();
+      _hasSavedOnce = true;
+      return true;
+    }
+    return false;
   }
 
   Future<void> showTagSelector() async {

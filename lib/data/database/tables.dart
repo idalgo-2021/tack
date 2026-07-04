@@ -37,20 +37,12 @@ class DatabaseSchema {
       ${TableNotes.filePaths} TEXT DEFAULT '[]',
       ${TableNotes.videoPaths} TEXT DEFAULT '[]',
       ${TableNotes.createdAt} INTEGER NOT NULL,
+      ${TableNotes.updatedAt} INTEGER NOT NULL,
       ${TableNotes.latitude} REAL,
       ${TableNotes.longitude} REAL,
-      ${TableNotes.color} INTEGER
+      ${TableNotes.color} INTEGER,
+      ${TableNotes.isPinned} INTEGER DEFAULT 0
     )
-  ''';
-
-  static const addFilePathsColumn = '''
-    ALTER TABLE ${TableNotes.tableName}
-    ADD COLUMN ${TableNotes.filePaths} TEXT DEFAULT '[]'
-  ''';
-
-  static const addVideoPathsColumn = '''
-    ALTER TABLE ${TableNotes.tableName}
-    ADD COLUMN ${TableNotes.videoPaths} TEXT DEFAULT '[]'
   ''';
 
   static const createTagsTable = '''
@@ -84,12 +76,6 @@ class DatabaseSchema {
   static const createTagsNameIndex = '''
     CREATE INDEX idx_tags_name ON ${TableTags.tableName}(${TableTags.name})
   ''';
-
-  static const addColorColumn = '''
-    ALTER TABLE ${TableNotes.tableName}
-    ADD COLUMN ${TableNotes.color} INTEGER
-  ''';
-
   static const v1Queries = [
     createNotesTableV1,
     createTagsTable,

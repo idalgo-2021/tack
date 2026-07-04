@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_quill/quill_delta.dart';
 
 class Note {
   final int? id;
@@ -98,6 +100,23 @@ class Note {
       color: map['color'] as int?,
       isPinned: (map['is_pinned'] as int?) == 1,
     );
+  }
+
+  static Document? parseText(String? text) {
+    if (text == null || text.isEmpty) return null;
+    try {
+      final json = jsonDecode(text);
+      if (json is List) {
+        final delta = Delta.fromJson(json);
+        final lastData = delta.last.data;
+        if (lastData is String && !lastData.endsWith('\n')) {
+          delta.insert('\n');
+        }
+        return Document.fromDelta(delta);
+      }
+    } catch (_) {}
+    final normalized = text.endsWith('\n') ? text : '$text\n';
+    return Document.fromDelta(Delta()..insert(normalized));
   }
 
   static List<String> _parseJsonList(String? json) {

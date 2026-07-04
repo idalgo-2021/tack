@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import '../../../core/utils/date_formatter.dart';
 import '../../../core/utils/file_utils.dart';
 import '../../../data/models/note.dart';
@@ -80,7 +81,7 @@ class NoteCard extends ConsumerWidget {
                             : const SizedBox.shrink(),
                       ),
                       if (note.text != null && note.text!.isNotEmpty)
-                        _buildTextSection(note.text!, theme.textTheme.bodyLarge!, colorScheme, viewMode),
+                        _buildRichTextPreview(note.text!, theme.textTheme.bodyLarge!, colorScheme, viewMode),
                       if (cameraImageCount > 0 || cameraVideoCount > 0 || note.audioPaths.isNotEmpty || fileCount > 0)
                         Padding(
                           padding: const EdgeInsets.only(top: 8),
@@ -171,51 +172,63 @@ class NoteCard extends ConsumerWidget {
     return card;
   }
 
-  Widget _buildTextSection(String text, TextStyle style, ColorScheme colors, ViewMode mode) {
+  Widget _buildRichTextPreview(String text, TextStyle style, ColorScheme colors, ViewMode mode) {
+    final doc = Note.parseText(text);
+    if (doc == null) return const SizedBox.shrink();
+
     final maxLines = mode == ViewMode.list ? 3 : 6;
-    final isList = mode == ViewMode.list;
-
-    TextSpan buildSpan() {
-      if (!isList) return TextSpan(text: text, style: style);
-      final firstNewline = text.indexOf('\n');
-      if (firstNewline == -1) {
-        return TextSpan(children: [
-          TextSpan(text: text, style: style.copyWith(fontWeight: FontWeight.w700)),
-        ]);
-      }
-      return TextSpan(children: [
-        TextSpan(text: text.substring(0, firstNewline), style: style.copyWith(fontWeight: FontWeight.w700)),
-        TextSpan(text: text.substring(firstNewline), style: style),
-      ]);
-    }
-
-    final span = buildSpan();
+    final plainText = doc.toPlainText().trim();
+    if (plainText.isEmpty) return const SizedBox.shrink();
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final maxWidth = constraints.maxWidth;
         final tp = TextPainter(
-          text: span,
+          text: TextSpan(text: plainText, style: style),
           maxLines: maxLines,
           textDirection: TextDirection.ltr,
         )..layout(maxWidth: maxWidth);
 
-        if (!tp.didExceedMaxLines) {
-          return Text.rich(span, maxLines: maxLines, overflow: TextOverflow.ellipsis);
-        }
+        final editor = QuillEditor.basic(
+          controller: QuillController(
+            document: doc,
+            selection: const TextSelection.collapsed(offset: 0),
+          ),
+          focusNode: FocusNode(),
+          configurations: QuillEditorConfigurations(
+            scrollable: false,
+            expands: false,
+            showCursor: false,
+            padding: EdgeInsets.zero,
+            textCapitalization: TextCapitalization.none,
+          ),
+        );
+
+        if (!tp.didExceedMaxLines) return IgnorePointer(child: editor);
 
         final tpFull = TextPainter(
-          text: span,
+          text: TextSpan(text: plainText, style: style),
           textDirection: TextDirection.ltr,
         )..layout(maxWidth: maxWidth);
 
-        final hidden = max(0, tpFull.computeLineMetrics().length - maxLines);
+        final lines = tpFull.computeLineMetrics();
+        final hidden = max(0, lines.length - maxLines);
+        final previewHeight = lines.take(maxLines).map((l) => l.height).reduce((a, b) => a + b);
 
         return Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text.rich(span, maxLines: maxLines, overflow: TextOverflow.ellipsis),
+            SizedBox(
+              height: previewHeight,
+              child: ClipRect(
+                child: OverflowBox(
+                  alignment: Alignment.topLeft,
+                  maxHeight: double.infinity,
+                  child: IgnorePointer(child: editor),
+                ),
+              ),
+            ),
             if (hidden > 0)
               Padding(
                 padding: const EdgeInsets.only(top: 4),

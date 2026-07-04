@@ -202,13 +202,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get archiveOnShareDesc => 'Tout emballer dans ZIP avant Partager';
 
   @override
-  String get exportZip => 'Exporter en ZIP';
-
-  @override
-  String get exportZipDesc =>
-      'Exporter toutes les notes (format des paramètres)';
-
-  @override
   String get viewModeList => 'Liste';
 
   @override
@@ -381,6 +374,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get emptyNoteConfirm => 'La note est vide. Enregistrer?';
 
   @override
+  String get saveBeforeAttach =>
+      'La note sera enregistrée pour joindre le fichier. Continuer?';
+
+  @override
   String get makePhoto => 'Prendre une photo';
 
   @override
@@ -485,12 +482,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get exportNoNotes => 'No notes to export';
-
-  @override
-  String get showFileThumbnails => 'File thumbnails';
-
-  @override
-  String get showFileThumbnailsDesc => 'Show files as grid with icons';
 
   @override
   String exportError(Object error) {

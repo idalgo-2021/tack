@@ -15,6 +15,9 @@ class NoteActionButtons extends ConsumerStatefulWidget {
   final ValueChanged<double> onLatitudeChanged;
   final ValueChanged<double> onLongitudeChanged;
   final VoidCallback onLocationCleared;
+  final VoidCallback? onFormatToggle;
+  final bool showingFormattingToolbar;
+  final Future<bool> Function()? onBeforeAttachment;
 
   const NoteActionButtons({
     super.key,
@@ -26,6 +29,9 @@ class NoteActionButtons extends ConsumerStatefulWidget {
     required this.onLatitudeChanged,
     required this.onLongitudeChanged,
     required this.onLocationCleared,
+    this.onFormatToggle,
+    this.showingFormattingToolbar = false,
+    this.onBeforeAttachment,
   });
 
   @override
@@ -34,6 +40,8 @@ class NoteActionButtons extends ConsumerStatefulWidget {
 
 class _NoteActionButtonsState extends ConsumerState<NoteActionButtons> {
   Future<void> _pickMedia() async {
+    if (widget.onBeforeAttachment != null && !await widget.onBeforeAttachment!()) return;
+    if (!mounted) return;
     final l10n = AppLocalizations.of(context);
     final action = await showModalBottomSheet<String>(
       context: context,
@@ -89,6 +97,8 @@ class _NoteActionButtonsState extends ConsumerState<NoteActionButtons> {
     final isRecording = ref.read(mediaRecorderProvider);
 
     if (isRecording) {
+      if (widget.onBeforeAttachment != null && !await widget.onBeforeAttachment!()) return;
+      if (!mounted) return;
       final path = await notifier.stopRecording();
       if (path != null) {
         widget.onAudioAdded(path);
@@ -105,6 +115,8 @@ class _NoteActionButtonsState extends ConsumerState<NoteActionButtons> {
   }
 
   Future<void> _pickFile() async {
+    if (widget.onBeforeAttachment != null && !await widget.onBeforeAttachment!()) return;
+    if (!mounted) return;
     final result = await FilePicker.pickFiles();
     if (result == null || result.files.isEmpty) return;
 
@@ -199,6 +211,18 @@ class _NoteActionButtonsState extends ConsumerState<NoteActionButtons> {
               onPressed: widget.hasLocation ? widget.onLocationCleared : _requestLocation,
               icon: Icon(widget.hasLocation ? Icons.my_location : Icons.location_off),
             ),
+            if (widget.onFormatToggle != null)
+              IconButton(
+                style: IconButton.styleFrom(
+                  backgroundColor: theme.colorScheme.secondaryContainer,
+                  foregroundColor: widget.showingFormattingToolbar
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.onSecondaryContainer,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                onPressed: widget.onFormatToggle,
+                icon: const Icon(Icons.text_fields),
+              ),
           ],
         ),
       ),

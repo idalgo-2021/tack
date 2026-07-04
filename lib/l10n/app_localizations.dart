@@ -492,18 +492,6 @@ abstract class AppLocalizations {
   /// **'Pack everything into ZIP before Share'**
   String get archiveOnShareDesc;
 
-  /// No description provided for @exportZip.
-  ///
-  /// In en, this message translates to:
-  /// **'Export to ZIP'**
-  String get exportZip;
-
-  /// No description provided for @exportZipDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'Export all notes (format from settings)'**
-  String get exportZipDesc;
-
   /// No description provided for @viewModeList.
   ///
   /// In en, this message translates to:
@@ -822,6 +810,12 @@ abstract class AppLocalizations {
   /// **'The note is empty. Save?'**
   String get emptyNoteConfirm;
 
+  /// No description provided for @saveBeforeAttach.
+  ///
+  /// In en, this message translates to:
+  /// **'The note will be saved to attach the file. Continue?'**
+  String get saveBeforeAttach;
+
   /// No description provided for @makePhoto.
   ///
   /// In en, this message translates to:
@@ -1019,18 +1013,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No notes to export'**
   String get exportNoNotes;
-
-  /// No description provided for @showFileThumbnails.
-  ///
-  /// In en, this message translates to:
-  /// **'File thumbnails'**
-  String get showFileThumbnails;
-
-  /// No description provided for @showFileThumbnailsDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'Show files as grid with icons'**
-  String get showFileThumbnailsDesc;
 
   /// No description provided for @exportError.
   ///

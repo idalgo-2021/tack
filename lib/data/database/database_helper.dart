@@ -26,29 +26,6 @@ class DatabaseHelper {
           await db.execute(query);
         }
       },
-      onUpgrade: (db, oldVersion, newVersion) async {
-        if (oldVersion < 2) {
-          await db.execute(DatabaseSchema.addFilePathsColumn);
-        }
-        if (oldVersion < 3) {
-          await db.execute(DatabaseSchema.addVideoPathsColumn);
-        }
-        if (oldVersion < 4) {
-          await db.execute(DatabaseSchema.addColorColumn);
-        }
-        if (oldVersion < 5) {
-          await db.execute(DatabaseSchema.createNoteTagsTable);
-          await db.execute(DatabaseSchema.createNoteTagsTagIndex);
-          await db.execute(DatabaseSchema.createNoteTagsNoteIndex);
-        }
-        if (oldVersion < 6) {
-          await db.execute('ALTER TABLE ${TableNotes.tableName} ADD COLUMN ${TableNotes.isPinned} INTEGER DEFAULT 0');
-        }
-        if (oldVersion < 7) {
-          await db.execute('ALTER TABLE ${TableNotes.tableName} ADD COLUMN ${TableNotes.updatedAt} INTEGER');
-          await db.execute('UPDATE ${TableNotes.tableName} SET ${TableNotes.updatedAt} = ${TableNotes.createdAt} WHERE ${TableNotes.updatedAt} IS NULL');
-        }
-      },
     );
   }
 

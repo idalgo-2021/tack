@@ -199,12 +199,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get archiveOnShareDesc => 'Paylaşmadan önce her şeyi ZIP\'e paketle';
 
   @override
-  String get exportZip => 'ZIP\'e dışa aktar';
-
-  @override
-  String get exportZipDesc => 'Tüm notları dışa aktar (ayarlardaki format)';
-
-  @override
   String get viewModeList => 'Liste';
 
   @override
@@ -376,6 +370,10 @@ class AppLocalizationsTr extends AppLocalizations {
   String get emptyNoteConfirm => 'Not boş. Kaydedilsin mi?';
 
   @override
+  String get saveBeforeAttach =>
+      'Dosyayı eklemek için not kaydedilecek. Devam edilsin mi?';
+
+  @override
   String get makePhoto => 'Fotoğraf çek';
 
   @override
@@ -480,12 +478,6 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get exportNoNotes => 'No notes to export';
-
-  @override
-  String get showFileThumbnails => 'File thumbnails';
-
-  @override
-  String get showFileThumbnailsDesc => 'Show files as grid with icons';
 
   @override
   String exportError(Object error) {

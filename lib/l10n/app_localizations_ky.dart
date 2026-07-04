@@ -200,13 +200,6 @@ class AppLocalizationsKy extends AppLocalizations {
   String get archiveOnShareDesc => 'Бөлүшүүдөн мурун баарын ZIPке салуу';
 
   @override
-  String get exportZip => 'ZIPке экспорттоо';
-
-  @override
-  String get exportZipDesc =>
-      'Бардык жазууларды экспорттоо (жөндөөлөрдөгү формат)';
-
-  @override
   String get viewModeList => 'Тизме';
 
   @override
@@ -378,6 +371,9 @@ class AppLocalizationsKy extends AppLocalizations {
   String get emptyNoteConfirm => 'Жазуу бош. Сактоо?';
 
   @override
+  String get saveBeforeAttach => 'Файлды тиркөө үчүн жазуу сакталат. Улантуу?';
+
+  @override
   String get makePhoto => 'Сүрөткө тартуу';
 
   @override
@@ -482,12 +478,6 @@ class AppLocalizationsKy extends AppLocalizations {
 
   @override
   String get exportNoNotes => 'No notes to export';
-
-  @override
-  String get showFileThumbnails => 'File thumbnails';
-
-  @override
-  String get showFileThumbnailsDesc => 'Show files as grid with icons';
 
   @override
   String exportError(Object error) {

@@ -199,12 +199,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get archiveOnShareDesc => 'Упаковать всё в ZIP перед Поделиться';
 
   @override
-  String get exportZip => 'Экспорт в ZIP';
-
-  @override
-  String get exportZipDesc => 'Выгрузить все заметки (формат из настроек)';
-
-  @override
   String get viewModeList => 'Список';
 
   @override
@@ -376,6 +370,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get emptyNoteConfirm => 'Заметка пустая. Сохранить?';
 
   @override
+  String get saveBeforeAttach =>
+      'Для прикрепления файла заметка будет сохранена. Продолжить?';
+
+  @override
   String get makePhoto => 'Сделать фото';
 
   @override
@@ -480,13 +478,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get exportNoNotes => 'Нет заметок для экспорта';
-
-  @override
-  String get showFileThumbnails => 'Миниатюры файлов';
-
-  @override
-  String get showFileThumbnailsDesc =>
-      'Отображать файлы в виде сетки с иконками';
 
   @override
   String exportError(Object error) {

@@ -25,7 +25,6 @@ class Settings extends _$Settings {
   Future<void> setAutoGeotag(bool enabled) async { await _set('auto_geotag', enabled); }
   Future<void> setViewMode(ViewMode mode) async { await _set('view_mode', mode.name); }
   Future<void> setShowTimestamp(bool show) async { await _set('show_timestamp', show); }
-  Future<void> setShowFileThumbnails(bool enabled) async { await _set('show_file_thumbnails', enabled); }
   Future<void> setFontSize(FontSize size) async { await _set('font_size', size.name); }
   Future<void> setGroupMode(GroupMode mode) async { await _set('group_mode', mode.name); }
   Future<void> setSortMode(SortMode mode) async { await _set('sort_mode', mode.name); }
@@ -81,9 +80,6 @@ bool autoGeotag(Ref ref) => _prefBool(ref, 'auto_geotag', AppDefaults.autoGeotag
 ViewMode viewMode(Ref ref) => _prefEnum(ref, 'view_mode', ViewMode.values, AppDefaults.viewMode);
 @riverpod
 bool showTimestamp(Ref ref) => _prefBool(ref, 'show_timestamp', AppDefaults.showTimestamp);
-
-@riverpod
-bool showFileThumbnails(Ref ref) => _prefBool(ref, 'show_file_thumbnails', AppDefaults.showFileThumbnails);
 
 @riverpod
 FontSize fontSize(Ref ref) => _prefEnum(ref, 'font_size', FontSize.values, AppDefaults.fontSize);

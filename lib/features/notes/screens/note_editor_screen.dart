@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/utils/date_formatter.dart';
-import '../../../core/utils/file_type_icons.dart';
 
 import '../../../core/utils/file_utils.dart';
 import '../../../data/models/note.dart';
 import '../../media/widgets/audio_player_widget.dart';
 import '../../media/widgets/file_thumbnail_grid.dart';
 import '../../media/widgets/recording_banner.dart';
-import '../../media/widgets/thumbnail_preview.dart';
 
 import '../../media/providers/media_provider.dart';
 import '../../settings/providers/settings_provider.dart';
 import '../widgets/note_editor_base.dart';
-import '../widgets/note_text_field.dart';
 import '../widgets/note_action_buttons.dart';
+import '../widgets/note_formatting_toolbar.dart';
 
 class NoteEditorScreen extends ConsumerStatefulWidget {
   final Note? existingNote;
@@ -39,7 +38,8 @@ class _NoteEditorScreenState extends NoteEditorState<NoteEditorScreen> {
   @override
   void initState() {
     super.initState();
-    textController.text = _existingNote?.text ?? '';
+    final doc = Note.parseText(_existingNote?.text);
+    initQuillController(doc ?? Document());
     imagePaths = List.from(_existingNote?.imagePaths ?? []);
     audioPaths = List.from(_existingNote?.audioPaths ?? []);
     filePaths = List.from(_existingNote?.filePaths ?? []);
@@ -101,7 +101,9 @@ class _NoteEditorScreenState extends NoteEditorState<NoteEditorScreen> {
     final autoSave = ref.watch(autoSaveProvider);
     final isRecording = ref.watch(mediaRecorderProvider);
     final showTs = ref.watch(showTimestampProvider);
-    final showThumbnails = ref.watch(showFileThumbnailsProvider);
+    final mq = MediaQuery.of(context);
+    final isTablet = mq.size.shortestSide >= 600;
+    final leftPad = isTablet ? 64.0 : 0.0;
 
     return PopScope(
       canPop: !hasChanges,
@@ -126,19 +128,21 @@ class _NoteEditorScreenState extends NoteEditorState<NoteEditorScreen> {
                 ],
               ),
             );
-            if (confirm == true) {
-              await saveNote();
-            } else {
-              await FileUtils.deleteFiles(newFilePaths.toList());
-              newFilePaths.clear();
-            }
-          } else if (mounted) {
-            setState(() => hasChanges = false);
-          }
-        } else if (autoSave && hasChanges) {
-          await saveNote();
-        }
+      if (confirm == true) {
+        await saveNote();
         if (context.mounted) Navigator.pop(context);
+      } else if (confirm == false) {
+        await FileUtils.deleteFiles(newFilePaths.toList());
+        newFilePaths.clear();
+        if (context.mounted) Navigator.pop(context);
+      }
+    } else if (mounted) {
+      setState(() => hasChanges = false);
+    }
+  } else if (autoSave && hasChanges) {
+    await saveNote();
+    if (context.mounted) Navigator.pop(context);
+  }
       },
       child: Scaffold(
         appBar: AppBar(
@@ -162,7 +166,7 @@ class _NoteEditorScreenState extends NoteEditorState<NoteEditorScreen> {
             if (isRecording) const RecordingBanner(),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.fromLTRB(16 + leftPad, 16, 16, 200),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -220,16 +224,22 @@ class _NoteEditorScreenState extends NoteEditorState<NoteEditorScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    NoteTextField(
-                      controller: textController,
+                    QuillEditor.basic(
+                      controller: quillController,
                       focusNode: focusNode,
-                      hintText: l10n.startWriting,
+                      configurations: QuillEditorConfigurations(
+                        placeholder: l10n.startWriting,
+                        padding: EdgeInsets.zero,
+                        scrollable: false,
+                        expands: false,
+                        textCapitalization: TextCapitalization.sentences,
+                        magnifierConfiguration: TextMagnifierConfiguration.disabled,
+                      ),
                     ),
-if (cameraPaths.isNotEmpty) ...[
-                      const SizedBox(height: 16),
-                      Text(l10n.camera, style: theme.textTheme.titleSmall),
-                      const SizedBox(height: 8),
-                      if (showThumbnails)
+                      if (cameraPaths.isNotEmpty) ...[
+                        const SizedBox(height: 16),
+                        Text(l10n.camera, style: theme.textTheme.titleSmall),
+                        const SizedBox(height: 8),
                         FileThumbnailGrid(
                           filePaths: cameraPaths,
                           showLabels: true,
@@ -244,29 +254,8 @@ if (cameraPaths.isNotEmpty) ...[
                             handleFileRemoved(path);
                             if (autoSave) scheduleAutoSave();
                           },
-                        )
-                      else
-                        ...cameraPaths.map((p) => Card(
-                          child: ListTile(
-                            leading: Icon(isImageFile(p) ? Icons.image : Icons.videocam),
-                            title: Text(p.split('/').last),
-                            onTap: () => ThumbnailPreview.show(context, allPreviewPaths, initialIndex: allPreviewPaths.indexOf(p)),
-                            trailing: IconButton(
-                              icon: const Icon(Icons.close),
-                              onPressed: () {
-                                setState(() {
-                                  imagePaths.remove(p);
-                                  videoPaths.remove(p);
-                                  hasChanges = true;
-                                  onFilePathsChanged();
-                                });
-                                handleFileRemoved(p);
-                                if (autoSave) scheduleAutoSave();
-                              },
-                            ),
-                          ),
-                        )),
-                    ],
+                        ),
+                      ],
                     if (audioPaths.isNotEmpty) ...[
                       const SizedBox(height: 16),
                       Text(l10n.audio, style: theme.textTheme.titleSmall),
@@ -286,11 +275,10 @@ if (cameraPaths.isNotEmpty) ...[
                       ))
 
                     ],
-                    if (allFilePaths.isNotEmpty) ...[
-                      const SizedBox(height: 16),
-                      Text(l10n.files, style: theme.textTheme.titleSmall),
-                      const SizedBox(height: 8),
-                      if (showThumbnails)
+                      if (allFilePaths.isNotEmpty) ...[
+                        const SizedBox(height: 16),
+                        Text(l10n.files, style: theme.textTheme.titleSmall),
+                        const SizedBox(height: 8),
                         FileThumbnailGrid(
                           filePaths: allFilePaths,
                           showLabels: true,
@@ -306,93 +294,84 @@ if (cameraPaths.isNotEmpty) ...[
                             handleFileRemoved(path);
                             if (autoSave) scheduleAutoSave();
                           },
-                        )
-                      else
-                        ...allFilePaths.map((p) => Card(
-                          child: ListTile(
-                            leading: Icon(isImageFile(p)
-                                ? Icons.image
-                                : isVideoFile(p)
-                                    ? Icons.videocam
-                                    : fileIcon(p)),
-                            title: Text(p.split('/').last),
-                            onTap: () => ThumbnailPreview.show(context, allPreviewPaths, initialIndex: allPreviewPaths.indexOf(p)),
-                            trailing: IconButton(
-                              icon: const Icon(Icons.close),
-                              onPressed: () {
-                                setState(() {
-                                  imagePaths.remove(p);
-                                  videoPaths.remove(p);
-                                  filePaths.remove(p);
-                                  hasChanges = true;
-                                  onFilePathsChanged();
-                                });
-                                handleFileRemoved(p);
-                                if (autoSave) scheduleAutoSave();
-                              },
-                            ),
-                          ),
-                        )),
-
+                        ),
                       ],
                   ],
                 ),
               ),
             ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (showFormattingToolbar)
+                  NoteFormattingToolbar(
+                    controller: quillController,
+                    onExit: toggleFormattingToolbar,
+                  ),
+                if (!showFormattingToolbar)
+                  NoteActionButtons(
+                    hasLocation: hasLocation,
+                    onBeforeAttachment: confirmSaveForAttachment,
+                    onImageAdded: (path) {
+                      setState(() {
+                        imagePaths.add(path);
+                        newFilePaths.add(path);
+                        hasChanges = true;
+                        onFilePathsChanged();
+                      });
+                      if (autoSave) scheduleAutoSave();
+                    },
+                    onVideoAdded: (path) {
+                      setState(() {
+                        videoPaths.add(path);
+                        newFilePaths.add(path);
+                        hasChanges = true;
+                        onFilePathsChanged();
+                      });
+                      if (autoSave) scheduleAutoSave();
+                    },
+                    onAudioAdded: (path) {
+                      setState(() {
+                        audioPaths.insert(0, path);
+                        newFilePaths.add(path);
+                        hasChanges = true;
+                      });
+                      if (autoSave) scheduleAutoSave();
+                    },
+                    onFileAdded: (path) {
+                      setState(() {
+                        filePaths.add(path);
+                        newFilePaths.add(path);
+                        hasChanges = true;
+                        onFilePathsChanged();
+                      });
+                      if (autoSave) scheduleAutoSave();
+                    },
+                    onLatitudeChanged: (lat) {
+                      setState(() {
+                        latitude = lat;
+                        hasChanges = true;
+                      });
+                    },
+                    onLongitudeChanged: (lon) {
+                      setState(() {
+                        longitude = lon;
+                        hasChanges = true;
+                      });
+                    },
+                    onLocationCleared: () {
+                      setState(() {
+                        latitude = null;
+                        longitude = null;
+                        hasChanges = true;
+                      });
+                    },
+                    onFormatToggle: toggleFormattingToolbar,
+                    showingFormattingToolbar: showFormattingToolbar,
+                  ),
+              ],
+            ),
           ],
-        ),
-        bottomSheet: NoteActionButtons(
-          hasLocation: hasLocation,
-          onImageAdded: (path) {
-            setState(() {
-              imagePaths.add(path);
-              newFilePaths.add(path);
-              hasChanges = true;
-              onFilePathsChanged();
-            });
-          },
-          onVideoAdded: (path) {
-            setState(() {
-              videoPaths.add(path);
-              newFilePaths.add(path);
-              hasChanges = true;
-              onFilePathsChanged();
-            });
-          },
-          onAudioAdded: (path) {
-            setState(() {
-              audioPaths.insert(0, path);
-              newFilePaths.add(path);
-              hasChanges = true;
-            });
-          },
-          onFileAdded: (path) {
-            setState(() {
-              filePaths.add(path);
-              newFilePaths.add(path);
-              hasChanges = true;
-              onFilePathsChanged();
-            });
-          },
-          onLatitudeChanged: (lat) {
-            setState(() {
-              latitude = lat;
-              hasChanges = true;
-            });
-          },
-          onLongitudeChanged: (lon) {
-            setState(() {
-              longitude = lon;
-              hasChanges = true;
-            });
-          },
-          onLocationCleared: () {
-            setState(() {
-              latitude = null;
-              longitude = null;
-              hasChanges = true;
-            });
-          },
         ),
       ),
     );

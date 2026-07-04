@@ -197,12 +197,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get archiveOnShareDesc => '共有前にすべてをZIPにパッケージ化';
 
   @override
-  String get exportZip => 'ZIPにエクスポート';
-
-  @override
-  String get exportZipDesc => 'すべてのノートをエクスポート（設定の形式）';
-
-  @override
   String get viewModeList => 'リスト';
 
   @override
@@ -374,6 +368,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get emptyNoteConfirm => 'ノートは空です。保存しますか？';
 
   @override
+  String get saveBeforeAttach => 'ファイルを添付するためにノートを保存します。続行しますか？';
+
+  @override
   String get makePhoto => '写真を撮る';
 
   @override
@@ -477,12 +474,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get exportNoNotes => 'No notes to export';
-
-  @override
-  String get showFileThumbnails => 'File thumbnails';
-
-  @override
-  String get showFileThumbnailsDesc => 'Show files as grid with icons';
 
   @override
   String exportError(Object error) {

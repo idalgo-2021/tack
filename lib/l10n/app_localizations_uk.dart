@@ -199,12 +199,6 @@ class AppLocalizationsUk extends AppLocalizations {
   String get archiveOnShareDesc => 'Пакувати все в ZIP перед Поділитися';
 
   @override
-  String get exportZip => 'Експорт в ZIP';
-
-  @override
-  String get exportZipDesc => 'Вивантажити всі нотатки (формат з налаштувань)';
-
-  @override
   String get viewModeList => 'Список';
 
   @override
@@ -376,6 +370,10 @@ class AppLocalizationsUk extends AppLocalizations {
   String get emptyNoteConfirm => 'Нотатка порожня. Зберегти?';
 
   @override
+  String get saveBeforeAttach =>
+      'Для прикріплення файлу нотатку буде збережено. Продовжити?';
+
+  @override
   String get makePhoto => 'Зробити фото';
 
   @override
@@ -480,12 +478,6 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get exportNoNotes => 'Немає нотаток для експорту';
-
-  @override
-  String get showFileThumbnails => 'File thumbnails';
-
-  @override
-  String get showFileThumbnailsDesc => 'Show files as grid with icons';
 
   @override
   String exportError(Object error) {

@@ -197,12 +197,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get archiveOnShareDesc => '分享前将所有内容打包为ZIP';
 
   @override
-  String get exportZip => '导出到ZIP';
-
-  @override
-  String get exportZipDesc => '导出所有笔记（格式来自设置）';
-
-  @override
   String get viewModeList => '列表';
 
   @override
@@ -374,6 +368,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get emptyNoteConfirm => '笔记为空。保存？';
 
   @override
+  String get saveBeforeAttach => '将保存笔记以附加文件。继续？';
+
+  @override
   String get makePhoto => '拍照';
 
   @override
@@ -477,12 +474,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get exportNoNotes => 'No notes to export';
-
-  @override
-  String get showFileThumbnails => 'File thumbnails';
-
-  @override
-  String get showFileThumbnailsDesc => 'Show files as grid with icons';
 
   @override
   String exportError(Object error) {

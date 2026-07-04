@@ -4,7 +4,6 @@ import 'package:geolocator/geolocator.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/widgets/centered_app_bar_title.dart';
 import '../providers/settings_provider.dart';
-import '../../export/providers/export_provider.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -17,22 +16,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    ref.listen<ExportState>(exportProvider, (prev, next) {
-      if (next.isExporting) {
-        _showProgressDialog(l10n);
-      } else if (next.error != null) {
-        _dismissAndSnack(next.error!);
-      } else if (next.exportPath != null) {
-        _dismissAndSnack(l10n.exportZip);
-      }
-    });
 
     final autoSaveValue = ref.watch(autoSaveProvider);
     final localeValue = ref.watch(appLocaleProvider);
     final autoGeotagValue = ref.watch(autoGeotagProvider);
     final viewModeValue = ref.watch(viewModeProvider);
     final showTimestampValue = ref.watch(showTimestampProvider);
-    final showFileThumbnailsValue = ref.watch(showFileThumbnailsProvider);
 
     final fontSizeValue = ref.watch(fontSizeProvider);
     final groupModeValue = ref.watch(groupModeProvider);
@@ -124,13 +113,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             onChanged: (v) => ref.read(settingsProvider.notifier).setShowTimestamp(v),
           ),
           SwitchListTile(
-            secondary: const Icon(Icons.grid_on),
-            title: Text(l10n.showFileThumbnails),
-            subtitle: Text(l10n.showFileThumbnailsDesc),
-            value: showFileThumbnailsValue,
-            onChanged: (v) => ref.read(settingsProvider.notifier).setShowFileThumbnails(v),
-          ),
-          SwitchListTile(
             secondary: const Icon(Icons.update),
             title: Text(l10n.updateTimestampOnEdit),
             subtitle: Text(l10n.updateTimestampOnEditDesc),
@@ -152,13 +134,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             subtitle: Text(l10n.archiveOnShareDesc),
             value: ref.watch(zipExportProvider),
             onChanged: (v) => ref.read(settingsProvider.notifier).setZipExport(v),
-          ),
-          ListTile(
-            leading: const Icon(Icons.archive),
-            title: Text(l10n.exportZip),
-            subtitle: Text(l10n.exportZipDesc),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => ref.read(exportProvider.notifier).exportAll(l10n),
           ),
           const Divider(),
           const SizedBox(height: 16),
@@ -191,31 +166,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       return;
     }
     ref.read(settingsProvider.notifier).setAutoGeotag(true);
-  }
-
-  void _showProgressDialog(AppLocalizations l10n) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        content: Row(
-          children: [
-            const CircularProgressIndicator(),
-            const SizedBox(width: 16),
-            Text(l10n.exportZip),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _dismissAndSnack(String message) {
-    if (mounted) {
-      Navigator.of(context).popUntil((route) => route.isFirst);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
-    }
   }
 
   String _localeLabel(AppLocalizations l10n, String locale) {

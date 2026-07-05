@@ -162,8 +162,8 @@
   "shirt": "Fondo",
   "noColor": "Sin color"
 ,
-  "selectAll": "Select All",
-  "deselectAll": "Deselect All",
+  "selectAll": "Seleccionar todo",
+  "deselectAll": "Deseleccionar todo",
   "pin": "Fijar",
   "unpin": "Desfijar",
   "pinned": "Fijado"

@@ -162,8 +162,8 @@
   "shirt": "背景",
   "noColor": "无颜色"
 ,
-  "selectAll": "Select All",
-  "deselectAll": "Deselect All",
+  "selectAll": "全选",
+  "deselectAll": "取消全选",
   "pin": "Pin",
   "unpin": "Unpin",
   "pinned": "Pinned"

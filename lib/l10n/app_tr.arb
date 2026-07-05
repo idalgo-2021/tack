@@ -162,8 +162,8 @@
   "shirt": "Arka plan",
   "noColor": "Renksiz"
 ,
-  "selectAll": "Select All",
-  "deselectAll": "Deselect All",
+  "selectAll": "Tümünü seç",
+  "deselectAll": "Tümünün seçimini kaldır",
   "pin": "Sabitle",
   "unpin": "Sabitlemeyi kaldır",
   "pinned": "Sabitlendi"

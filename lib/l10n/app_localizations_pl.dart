@@ -519,10 +519,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get noColor => 'Bez koloru';
 
   @override
-  String get selectAll => 'Select All';
+  String get selectAll => 'Zaznacz wszystko';
 
   @override
-  String get deselectAll => 'Deselect All';
+  String get deselectAll => 'Odznacz wszystko';
 
   @override
   String get pin => 'Przypnij';

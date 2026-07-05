@@ -519,10 +519,10 @@ class AppLocalizationsTr extends AppLocalizations {
   String get noColor => 'Renksiz';
 
   @override
-  String get selectAll => 'Select All';
+  String get selectAll => 'Tümünü seç';
 
   @override
-  String get deselectAll => 'Deselect All';
+  String get deselectAll => 'Tümünün seçimini kaldır';
 
   @override
   String get pin => 'Sabitle';

@@ -522,10 +522,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get noColor => 'Keine Farbe';
 
   @override
-  String get selectAll => 'Select All';
+  String get selectAll => 'Alle auswählen';
 
   @override
-  String get deselectAll => 'Deselect All';
+  String get deselectAll => 'Alle abwählen';
 
   @override
   String get pin => 'Anheften';

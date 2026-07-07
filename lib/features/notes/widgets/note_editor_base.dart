@@ -15,6 +15,7 @@ import '../../settings/providers/settings_provider.dart';
 import '../../tags/providers/tag_provider.dart';
 import '../../tags/widgets/tag_selector_dialog.dart';
 import '../providers/note_list_provider.dart';
+import '../../media/providers/media_provider.dart';
 
 List<String> _sortByLastModified(List<String> paths) {
   paths.sort((a, b) => File(b).lastModifiedSync().compareTo(File(a).lastModifiedSync()));
@@ -151,6 +152,9 @@ abstract class NoteEditorState<T extends ConsumerStatefulWidget> extends Consume
 
   @override
   void dispose() {
+    if (ref.read(mediaRecorderProvider)) {
+      ref.read(mediaRecorderProvider.notifier).cancelRecording();
+    }
     quillController.removeListener(handleFieldChanged);
     saveTimer?.cancel();
     quillController.dispose();
@@ -233,7 +237,15 @@ abstract class NoteEditorState<T extends ConsumerStatefulWidget> extends Consume
       return;
     }
 
-    await FileUtils.deleteFiles(deletedFilePaths.toList());
+    try {
+      await FileUtils.deleteFiles(deletedFilePaths.toList());
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${AppLocalizations.of(context).error}: $e')),
+        );
+      }
+    }
     newFilePaths.clear();
     deletedFilePaths.clear();
     if (mounted) {

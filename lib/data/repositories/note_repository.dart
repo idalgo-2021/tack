@@ -1,4 +1,5 @@
 import 'package:sqflite/sqflite.dart';
+import '../../core/utils/file_utils.dart';
 import '../database/database_helper.dart';
 import '../database/tables.dart';
 import '../models/note.dart';
@@ -54,7 +55,7 @@ class NoteRepository {
       GROUP BY n.${TableNotes.id}
     ''', [id]);
     if (maps.isEmpty) return null;
-    return Note.fromMap(maps.first);
+    return _sanitizeNote(Note.fromMap(maps.first));
   }
 
   Future<List<Note>> getAll({
@@ -122,7 +123,8 @@ class NoteRepository {
     ''';
 
     final maps = await db.rawQuery(sql, whereArgs);
-    return maps.map((m) => Note.fromMap(m)).toList();
+    final notes = maps.map((m) => Note.fromMap(m)).toList();
+    return Future.wait(notes.map(_sanitizeNote));
   }
 
   Future<List<Note>> getByTag(String tag, {String sortBy = 'updated_at', bool ascending = false}) async {
@@ -136,6 +138,29 @@ class NoteRepository {
       SET ${TableNotes.isPinned} = NOT ${TableNotes.isPinned}
       WHERE ${TableNotes.id} = ?
     ''', [id]);
+  }
+
+  Future<Note> _sanitizeNote(Note note) async {
+    final imagePaths = await _filterPaths(note.imagePaths);
+    final audioPaths = await _filterPaths(note.audioPaths);
+    final filePaths = await _filterPaths(note.filePaths);
+    final videoPaths = await _filterPaths(note.videoPaths);
+    return note.copyWith(
+      imagePaths: imagePaths,
+      audioPaths: audioPaths,
+      filePaths: filePaths,
+      videoPaths: videoPaths,
+    );
+  }
+
+  Future<List<String>> _filterPaths(List<String> paths) async {
+    final result = <String>[];
+    for (final path in paths) {
+      if (await FileUtils.isWithinAppDir(path)) {
+        result.add(path);
+      }
+    }
+    return result;
   }
 
   Future<void> _syncTags(Transaction txn, int noteId, List<String> tagNames) async {

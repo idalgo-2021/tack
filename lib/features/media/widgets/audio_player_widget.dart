@@ -19,16 +19,14 @@ class AudioPlayerWidget extends StatefulWidget {
 class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
   final _player = AudioPlayer();
   bool _isPlaying = false;
+  bool _hasError = false;
   Duration _position = Duration.zero;
   Duration _duration = Duration.zero;
 
   @override
   void initState() {
     super.initState();
-    if (!File(widget.audioPath).existsSync()) {
-      debugPrint('AUDIO FILE NOT FOUND: ${widget.audioPath}');
-    }
-    _player.setSource(DeviceFileSource(widget.audioPath));
+    _loadSource(widget.audioPath);
     _player.onPlayerStateChanged.listen((state) {
       if (mounted) setState(() => _isPlaying = state == PlayerState.playing);
     });
@@ -48,6 +46,21 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
     });
   }
 
+  Future<void> _loadSource(String path) async {
+    if (!File(path).existsSync()) {
+      debugPrint('AUDIO FILE NOT FOUND: $path');
+      if (mounted) setState(() => _hasError = true);
+      return;
+    }
+    try {
+      await _player.setSource(DeviceFileSource(path));
+      if (mounted) setState(() => _hasError = false);
+    } catch (e) {
+      debugPrint('AudioPlayerWidget setSource error: $e');
+      if (mounted) setState(() => _hasError = true);
+    }
+  }
+
   @override
   void dispose() {
     _player.dispose();
@@ -58,22 +71,30 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
   void didUpdateWidget(AudioPlayerWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.audioPath != widget.audioPath) {
-      _player.setSource(DeviceFileSource(widget.audioPath));
+      _player.stop();
+      _position = Duration.zero;
+      _isPlaying = false;
+      _loadSource(widget.audioPath);
     }
   }
 
   void _togglePlay() async {
+    if (_hasError) return;
     if (_isPlaying) {
       await _player.pause();
     } else {
       try {
         if (_position == Duration.zero || _position == _duration) {
-          await _player.play(DeviceFileSource(widget.audioPath));
+          await _player.resume();
+          if (_position == _duration) {
+            await _player.seek(Duration.zero);
+          }
         } else {
           await _player.resume();
         }
       } catch (e) {
         debugPrint('AudioPlayerWidget play error: $e');
+        if (mounted) setState(() => _hasError = true);
       }
     }
   }
@@ -87,6 +108,32 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    if (_hasError) {
+      return Card(
+        margin: const EdgeInsets.symmetric(vertical: 2),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Row(
+            children: [
+              const Icon(Icons.error_outline, color: Colors.red),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Ошибка загрузки аудио',
+                  style: theme.textTheme.bodySmall,
+                ),
+              ),
+              if (widget.onDelete != null)
+                IconButton(
+                  icon: const Icon(Icons.close, size: 18),
+                  onPressed: widget.onDelete,
+                ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 2),

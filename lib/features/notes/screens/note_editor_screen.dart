@@ -227,13 +227,12 @@ class _NoteEditorScreenState extends NoteEditorState<NoteEditorScreen> {
                     QuillEditor.basic(
                       controller: quillController,
                       focusNode: focusNode,
-                      configurations: QuillEditorConfigurations(
+                      config: QuillEditorConfig(
                         placeholder: l10n.startWriting,
                         padding: EdgeInsets.zero,
                         scrollable: false,
                         expands: false,
                         textCapitalization: TextCapitalization.sentences,
-                        magnifierConfiguration: TextMagnifierConfiguration.disabled,
                       ),
                     ),
                       if (cameraPaths.isNotEmpty) ...[

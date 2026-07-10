@@ -15,7 +15,7 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.44.0'
+          channel: stable
           cache: true
 
       - run: flutter pub get
@@ -37,7 +37,7 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.44.0'
+          channel: stable
           cache: true
 
       - run: flutter pub get
@@ -62,7 +62,7 @@ jobs:
 
       - name: Build APK — debug (develop)
         if: github.ref_name == 'develop'
-        run: flutter build apk --debug
+        run: flutter build apk --debug --split-per-abi
 
       - uses: actions/upload-artifact@v4
         with:

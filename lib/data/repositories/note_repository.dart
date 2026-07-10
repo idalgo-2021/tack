@@ -44,6 +44,51 @@ class NoteRepository {
     );
   }
 
+  Future<List<Note>> getByIds(List<int> ids) async {
+    if (ids.isEmpty) return [];
+    final db = await _dbHelper.database;
+    final placeholders = ids.map((_) => '?').join(',');
+    final maps = await db.rawQuery('''
+      SELECT n.*, GROUP_CONCAT(t.name) AS tag_names
+      FROM ${TableNotes.tableName} n
+      LEFT JOIN ${TableNoteTags.tableName} nt ON n.${TableNotes.id} = nt.${TableNoteTags.noteId}
+      LEFT JOIN ${TableTags.tableName} t ON nt.${TableNoteTags.tagId} = t.${TableTags.id}
+      WHERE n.${TableNotes.id} IN ($placeholders)
+      GROUP BY n.${TableNotes.id}
+    ''', ids);
+    final notes = maps.map((m) => Note.fromMap(m)).toList();
+    return Future.wait(notes.map(_sanitizeNote));
+  }
+
+  Future<void> togglePinMany(List<int> ids) async {
+    if (ids.isEmpty) return;
+    final db = await _dbHelper.database;
+    final placeholders = ids.map((_) => '?').join(',');
+    await db.rawUpdate('''
+      UPDATE ${TableNotes.tableName}
+      SET ${TableNotes.isPinned} = NOT ${TableNotes.isPinned}
+      WHERE ${TableNotes.id} IN ($placeholders)
+    ''', ids);
+  }
+
+  Future<void> deleteMany(List<int> ids) async {
+    if (ids.isEmpty) return;
+    final db = await _dbHelper.database;
+    final placeholders = ids.map((_) => '?').join(',');
+    await db.transaction((txn) async {
+      await txn.delete(
+        TableNoteTags.tableName,
+        where: '${TableNoteTags.noteId} IN ($placeholders)',
+        whereArgs: ids,
+      );
+      await txn.delete(
+        TableNotes.tableName,
+        where: '${TableNotes.id} IN ($placeholders)',
+        whereArgs: ids,
+      );
+    });
+  }
+
   Future<Note?> getById(int id) async {
     final db = await _dbHelper.database;
     final maps = await db.rawQuery('''

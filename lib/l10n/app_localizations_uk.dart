@@ -519,10 +519,10 @@ class AppLocalizationsUk extends AppLocalizations {
   String get noColor => 'Без кольору';
 
   @override
-  String get selectAll => 'Вибрати все';
+  String get selectAll => 'Select All';
 
   @override
-  String get deselectAll => 'Зняти виділення';
+  String get deselectAll => 'Deselect All';
 
   @override
   String get pin => 'Закріпити';

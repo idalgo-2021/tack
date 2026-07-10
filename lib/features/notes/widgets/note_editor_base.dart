@@ -15,17 +15,13 @@ import '../../settings/providers/settings_provider.dart';
 import '../../tags/providers/tag_provider.dart';
 import '../../tags/widgets/tag_selector_dialog.dart';
 import '../providers/note_list_provider.dart';
-import '../../media/providers/media_provider.dart';
 
 List<String> _sortByLastModified(List<String> paths) {
-  paths.sort(
-    (a, b) => File(b).lastModifiedSync().compareTo(File(a).lastModifiedSync()),
-  );
+  paths.sort((a, b) => File(b).lastModifiedSync().compareTo(File(a).lastModifiedSync()));
   return paths;
 }
 
-abstract class NoteEditorState<T extends ConsumerStatefulWidget>
-    extends ConsumerState<T> {
+abstract class NoteEditorState<T extends ConsumerStatefulWidget> extends ConsumerState<T> {
   late QuillController quillController;
   late final FocusNode focusNode;
   bool showFormattingToolbar = false;
@@ -46,9 +42,6 @@ abstract class NoteEditorState<T extends ConsumerStatefulWidget>
 
   final Set<String> newFilePaths = {};
   final Set<String> deletedFilePaths = {};
-
-  bool _isSaving = false;
-  int _changeVersion = 0;
 
   List<String>? _cachedAllFilePaths;
   bool _filePathsCacheValid = false;
@@ -158,9 +151,6 @@ abstract class NoteEditorState<T extends ConsumerStatefulWidget>
 
   @override
   void dispose() {
-    if (ref.read(mediaRecorderProvider)) {
-      ref.read(mediaRecorderProvider.notifier).cancelRecording();
-    }
     quillController.removeListener(handleFieldChanged);
     saveTimer?.cancel();
     quillController.dispose();
@@ -173,7 +163,6 @@ abstract class NoteEditorState<T extends ConsumerStatefulWidget>
     if (!hasChanges) {
       setState(() => hasChanges = true);
     }
-    _changeVersion++;
     final autoSave = ref.read(autoSaveProvider);
     if (autoSave) scheduleAutoSave();
   }
@@ -184,22 +173,13 @@ abstract class NoteEditorState<T extends ConsumerStatefulWidget>
   }
 
   void handleFileRemoved(String path) {
-    setState(() {
-      if (newFilePaths.contains(path)) {
-        newFilePaths.remove(path);
-      } else {
-        deletedFilePaths.add(path);
-      }
-      imagePaths.remove(path);
-      audioPaths.remove(path);
-      filePaths.remove(path);
-      videoPaths.remove(path);
-      hasChanges = true;
-    });
-    _changeVersion++;
+    if (newFilePaths.contains(path)) {
+      newFilePaths.remove(path);
+      FileUtils.deleteFile(path);
+    } else {
+      deletedFilePaths.add(path);
+    }
     _invalidateFilePathsCache();
-    final autoSave = ref.read(autoSaveProvider);
-    if (autoSave) scheduleAutoSave();
   }
 
   @protected
@@ -208,35 +188,17 @@ abstract class NoteEditorState<T extends ConsumerStatefulWidget>
   }
 
   Future<void> saveNote({bool updateTimestamp = true}) async {
-    if (_isSaving) return;
     if (!hasChanges && noteIdForSave != null) return;
-
-    final hasPendingFileOps =
-        deletedFilePaths.isNotEmpty || newFilePaths.isNotEmpty;
-    if (isEmptyNote && !hasPendingFileOps) {
+    if (isEmptyNote) {
       if (mounted) setState(() => hasChanges = false);
       return;
     }
-
-    _isSaving = true;
-    final deletedSnapshot = deletedFilePaths.toSet();
-    final newSnapshot = newFilePaths.toSet();
-    final hasPendingDeletion = deletedSnapshot.isNotEmpty;
-
-    if (noteIdForSave == null && isEmptyNote && !hasPendingDeletion) {
-      _isSaving = false;
-      if (mounted) setState(() => hasChanges = false);
-      return;
-    }
-    final savedVersion = _changeVersion;
     try {
       final id = noteIdForSave;
       final plainText = quillController.document.toPlainText().trim();
       final note = Note(
         id: id,
-        text: plainText.isEmpty
-            ? null
-            : jsonEncode(quillController.document.toDelta().toJson()),
+        text: plainText.isEmpty ? null : jsonEncode(quillController.document.toDelta().toJson()),
         tagNames: tagNames,
         imagePaths: imagePaths,
         audioPaths: audioPaths,
@@ -245,9 +207,7 @@ abstract class NoteEditorState<T extends ConsumerStatefulWidget>
         createdAt: effectiveCreatedAt,
         updatedAt: id == null
             ? DateTime.now()
-            : (updateTimestamp && ref.read(updateTimestampOnEditProvider)
-                  ? DateTime.now()
-                  : updatedAt),
+            : (updateTimestamp && ref.read(updateTimestampOnEditProvider) ? DateTime.now() : updatedAt),
         latitude: latitude,
         longitude: longitude,
         color: noteColor,
@@ -265,8 +225,6 @@ abstract class NoteEditorState<T extends ConsumerStatefulWidget>
       ref.invalidate(tagListProvider);
       onNoteSaved(savedNoteId ?? id);
     } catch (e) {
-      // DB write failed: keep pending deletions/additions for next save attempt.
-      _isSaving = false;
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${AppLocalizations.of(context).error}: $e')),
@@ -275,27 +233,11 @@ abstract class NoteEditorState<T extends ConsumerStatefulWidget>
       return;
     }
 
-    // DB write succeeded: now safe to delete files from disk.
-    try {
-      await FileUtils.deleteFiles(deletedSnapshot.toList());
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${AppLocalizations.of(context).error}: $e')),
-        );
-      }
-    }
-    // Remove only the entries captured in the snapshot; newer ones stay pending.
-    deletedFilePaths.removeAll(deletedSnapshot);
-    newFilePaths.removeAll(newSnapshot);
-    _isSaving = false;
-    // If changes occurred during save, keep hasChanges true so the next save runs.
-    final changedDuringSave = _changeVersion != savedVersion;
+    await FileUtils.deleteFiles(deletedFilePaths.toList());
+    newFilePaths.clear();
+    deletedFilePaths.clear();
     if (mounted) {
-      setState(() => hasChanges = changedDuringSave);
-    }
-    if (changedDuringSave && ref.read(autoSaveProvider)) {
-      scheduleAutoSave();
+      setState(() => hasChanges = false);
     }
   }
 

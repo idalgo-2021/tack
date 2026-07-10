@@ -5,7 +5,6 @@ import 'core/theme/app_theme.dart';
 import 'features/settings/providers/settings_provider.dart';
 import 'features/notes/screens/note_list_screen.dart';
 import 'features/tags/screens/tag_manager_screen.dart';
-import 'features/tags/providers/tag_provider.dart';
 import 'features/settings/screens/settings_screen.dart';
 
 const _seedColors = {
@@ -100,12 +99,7 @@ class _MainShellState extends ConsumerState<MainShell> {
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
-        onDestinationSelected: (index) {
-          if (index == 1) {
-            ref.invalidate(tagListProvider);
-          }
-          setState(() => _currentIndex = index);
-        },
+        onDestinationSelected: (index) => setState(() => _currentIndex = index),
         destinations: [
           NavigationDestination(
             icon: const Icon(Icons.note_outlined),

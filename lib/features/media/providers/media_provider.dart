@@ -5,26 +5,13 @@ import '../../../core/utils/file_utils.dart';
 
 part 'media_provider.g.dart';
 
-@Riverpod(keepAlive: false)
+@Riverpod(keepAlive: true)
 class MediaRecorder extends _$MediaRecorder {
   final _recorder = AudioRecorder();
   String? _currentPath;
 
   @override
-  bool build() {
-    ref.onDispose(() async {
-      if (state) {
-        try {
-          await _recorder.stop();
-        } catch (_) {}
-        if (_currentPath != null) {
-          await FileUtils.deleteFile(_currentPath!);
-        }
-      }
-      _recorder.dispose();
-    });
-    return false;
-  }
+  bool build() => false;
 
   Future<String?> startRecording() async {
     final hasPermission = await _recorder.hasPermission();
@@ -67,7 +54,7 @@ class MediaRecorder extends _$MediaRecorder {
 
 }
 
-@Riverpod(keepAlive: false)
+@Riverpod(keepAlive: true)
 class ImagePicking extends _$ImagePicking {
   final _picker = ImagePicker();
 

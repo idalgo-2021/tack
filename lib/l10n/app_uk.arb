@@ -162,8 +162,8 @@
   "shirt": "Фон",
   "noColor": "Без кольору"
 ,
-  "selectAll": "Вибрати все",
-  "deselectAll": "Зняти виділення",
+  "selectAll": "Select All",
+  "deselectAll": "Deselect All",
   "pin": "Закріпити",
   "unpin": "Відкріпити",
   "pinned": "Закріплено"

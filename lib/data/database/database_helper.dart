@@ -21,9 +21,6 @@ class DatabaseHelper {
     return openDatabase(
       path,
       version: AppConstants.dbVersion,
-      onConfigure: (db) async {
-        await db.execute('PRAGMA foreign_keys = ON');
-      },
       onCreate: (db, version) async {
         for (final query in DatabaseSchema.v1Queries) {
           await db.execute(query);

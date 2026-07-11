@@ -64,7 +64,7 @@ jobs:
         if: github.ref_name == 'develop'
         run: flutter build apk --debug --split-per-abi
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: apk-${{ github.ref_name }}
           path: build/app/outputs/apk/**/*.apk

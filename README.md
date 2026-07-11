@@ -68,6 +68,25 @@ The generated files can be found in: *build/app/outputs/flutter-apk/*
 * The application has been tested on Android emulators (a 10" tablet running Android 16.0 / API 36 and a 6.4" smartphone running Android 13.0 / API 33) and on a single physical device running Android 10. It has not been tested on Apple (iOS) devices.
 
 
+<details>
+<summary>Ideas / TODO:</summary>
+
+* Eliminate the limitations described above, with priority on data-at-rest encryption and automated test coverage
+* Refine the UI/UX, particularly the note editing workflow and text manipulation capabilities
+* Implement freehand sketching functionality with finger and stylus input support
+* Add desktop synchronization/export capabilities for notes
+* Implement note/file relocation across device storage directories
+* Resolve and display human-readable location names from geotag metadata
+* Enforce validation constraints for tag count, attachment size limits, and supported file types
+* Implement duplicate attachment detection and prevention mechanisms
+* Add orphaned file detection, auditing, and garbage-collection workflows
+* Address technical debt and optimize application performance
+
+</details>
+<br><br>
+
+
+
 ## Screenshots
 
 ### Smartphone

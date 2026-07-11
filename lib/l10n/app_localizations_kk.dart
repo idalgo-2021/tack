@@ -519,10 +519,10 @@ class AppLocalizationsKk extends AppLocalizations {
   String get noColor => 'Түссіз';
 
   @override
-  String get selectAll => 'Select All';
+  String get selectAll => 'Барлығын таңдау';
 
   @override
-  String get deselectAll => 'Deselect All';
+  String get deselectAll => 'Таңдауды алу';
 
   @override
   String get pin => 'Бекіту';

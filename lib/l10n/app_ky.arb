@@ -162,8 +162,8 @@
   "shirt": "Фон",
   "noColor": "Түссүз"
 ,
-  "selectAll": "Select All",
-  "deselectAll": "Deselect All",
+  "selectAll": "Баарын тандоо",
+  "deselectAll": "Тандоону алуу",
   "pin": "Бекитүү",
   "unpin": "Бекитүүнү алуу",
   "pinned": "Бекитилген"

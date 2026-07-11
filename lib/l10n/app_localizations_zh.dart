@@ -515,10 +515,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get noColor => '无颜色';
 
   @override
-  String get selectAll => 'Select All';
+  String get selectAll => '全选';
 
   @override
-  String get deselectAll => 'Deselect All';
+  String get deselectAll => '取消全选';
 
   @override
   String get pin => 'Pin';

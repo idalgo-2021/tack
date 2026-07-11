@@ -162,8 +162,8 @@
   "shirt": "背景色",
   "noColor": "色なし"
 ,
-  "selectAll": "Select All",
-  "deselectAll": "Deselect All",
+  "selectAll": "すべて選択",
+  "deselectAll": "選択解除",
   "pin": "Pin",
   "unpin": "Unpin",
   "pinned": "Pinned"

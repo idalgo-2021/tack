@@ -31,17 +31,19 @@ dependencies:
 
   archive: ^3.6.1
   uuid: ^4.5.1
-  file_picker: ^12.0.0-beta.5
+  file_picker: 12.0.0-beta.5
   geocoding: ^4.0.0
   permission_handler: ^11.3.1
   share_plus: ^13.1.0
   flutter_staggered_grid_view: ^0.7.0
   video_thumbnail_gen: ^0.6.3
   open_filex: ^4.4.0
-  flutter_quill: ^10.8.2
+  flutter_quill: ^11.5.1
 
 dependency_overrides:
   intl: ^0.20.2
+  win32: ^6.3.0
+  quill_native_bridge_windows: ^0.1.0-beta.1
 
 dev_dependencies:
   flutter_test:

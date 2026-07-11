@@ -515,10 +515,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get noColor => '色なし';
 
   @override
-  String get selectAll => 'Select All';
+  String get selectAll => 'すべて選択';
 
   @override
-  String get deselectAll => 'Deselect All';
+  String get deselectAll => '選択解除';
 
   @override
   String get pin => 'Pin';

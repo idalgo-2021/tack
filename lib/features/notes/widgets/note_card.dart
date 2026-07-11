@@ -195,7 +195,7 @@ class NoteCard extends ConsumerWidget {
             selection: const TextSelection.collapsed(offset: 0),
           ),
           focusNode: FocusNode(),
-          configurations: QuillEditorConfigurations(
+          config: QuillEditorConfig(
             scrollable: false,
             expands: false,
             showCursor: false,

@@ -162,8 +162,8 @@
   "shirt": "Hintergrund",
   "noColor": "Keine Farbe"
 ,
-  "selectAll": "Select All",
-  "deselectAll": "Deselect All",
+  "selectAll": "Alle auswählen",
+  "deselectAll": "Alle abwählen",
   "pin": "Anheften",
   "unpin": "Lösen",
   "pinned": "Angeheftet"

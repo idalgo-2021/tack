@@ -27,6 +27,11 @@
 - **ImagePicker** / **FilePicker** — выбор медиа
 - **l10n** — интернационализация (13 языков)
 
+
+## Готовые к установке сборки (APK)
+* [https://github.com/idalgo-2021/tack/releases](https://github.com/idalgo-2021/tack/releases)
+
+
 ## Установка
 
 ### Требования

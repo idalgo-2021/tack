@@ -243,8 +243,9 @@ class _NoteDetailScreenState extends NoteEditorState<NoteDetailScreen> {
                 ),
               );
               if (discard == true) {
-                await FileUtils.deleteFiles(newFilePaths.toList());
+                await FileUtils.deleteFiles([...newFilePaths, ...deletedFilePaths]);
                 newFilePaths.clear();
+                deletedFilePaths.clear();
                 if (context.mounted) Navigator.of(context).pop();
               } else if (discard == false) {
                 await saveNote();

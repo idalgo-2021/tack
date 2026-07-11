@@ -2,9 +2,55 @@ import 'package:sqflite/sqflite.dart';
 import '../database/database_helper.dart';
 import '../database/tables.dart';
 import '../models/note.dart';
+import '../../core/utils/file_utils.dart';
 
 class NoteRepository {
   final DatabaseHelper _dbHelper = DatabaseHelper.instance;
+
+  Future<List<Note>> getByIds(List<int> ids) async {
+    if (ids.isEmpty) return [];
+    final db = await _dbHelper.database;
+    final placeholders = ids.map((_) => '?').join(',');
+    final maps = await db.rawQuery('''
+      SELECT n.*, GROUP_CONCAT(t.name) AS tag_names
+      FROM ${TableNotes.tableName} n
+      LEFT JOIN ${TableNoteTags.tableName} nt ON n.${TableNotes.id} = nt.${TableNoteTags.noteId}
+      LEFT JOIN ${TableTags.tableName} t ON nt.${TableNoteTags.tagId} = t.${TableTags.id}
+      WHERE n.${TableNotes.id} IN ($placeholders)
+      GROUP BY n.${TableNotes.id}
+    ''', ids);
+    final notes = maps.map((m) => Note.fromMap(m)).toList();
+    return Future.wait(notes.map(_sanitizeNote));
+  }
+
+  Future<void> togglePinMany(List<int> ids) async {
+    if (ids.isEmpty) return;
+    final db = await _dbHelper.database;
+    final placeholders = ids.map((_) => '?').join(',');
+    await db.rawUpdate('''
+      UPDATE ${TableNotes.tableName}
+      SET ${TableNotes.isPinned} = NOT ${TableNotes.isPinned}
+      WHERE ${TableNotes.id} IN ($placeholders)
+    ''', ids);
+  }
+
+  Future<void> deleteMany(List<int> ids) async {
+    if (ids.isEmpty) return;
+    final db = await _dbHelper.database;
+    final placeholders = ids.map((_) => '?').join(',');
+    await db.transaction((txn) async {
+      await txn.delete(
+        TableNoteTags.tableName,
+        where: '${TableNoteTags.noteId} IN ($placeholders)',
+        whereArgs: ids,
+      );
+      await txn.delete(
+        TableNotes.tableName,
+        where: '${TableNotes.id} IN ($placeholders)',
+        whereArgs: ids,
+      );
+    });
+  }
 
   Future<int> insert(Note note) async {
     final db = await _dbHelper.database;
@@ -159,5 +205,28 @@ class NoteRepository {
         TableNoteTags.tagId: tagId,
       });
     }
+  }
+
+  Future<Note> _sanitizeNote(Note note) async {
+    final imagePaths = await _filterPaths(note.imagePaths);
+    final audioPaths = await _filterPaths(note.audioPaths);
+    final filePaths = await _filterPaths(note.filePaths);
+    final videoPaths = await _filterPaths(note.videoPaths);
+    return note.copyWith(
+      imagePaths: imagePaths,
+      audioPaths: audioPaths,
+      filePaths: filePaths,
+      videoPaths: videoPaths,
+    );
+  }
+
+  Future<List<String>> _filterPaths(List<String> paths) async {
+    final result = <String>[];
+    for (final path in paths) {
+      if (await FileUtils.isWithinAppDir(path)) {
+        result.add(path);
+      }
+    }
+    return result;
   }
 }

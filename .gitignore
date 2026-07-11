@@ -99,3 +99,7 @@ Thumbs.db
 # Конфигурационные файлы локального окружения (токены, ключи)
 .env
 .env.*
+
+# Android keystore и ключи подписи
+/android/key.properties
+**/keystore.jks

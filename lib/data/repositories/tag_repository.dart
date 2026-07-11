@@ -8,9 +8,10 @@ class TagRepository {
   Future<List<Tag>> getAll() async {
     final db = await _dbHelper.database;
     final maps = await db.rawQuery('''
-      SELECT t.*, COUNT(nt.${TableNoteTags.tagId}) AS ${TableTags.usageCount}
+      SELECT t.${TableTags.id}, t.${TableTags.name}, COUNT(n.${TableNotes.id}) AS ${TableTags.usageCount}
       FROM ${TableTags.tableName} t
       LEFT JOIN ${TableNoteTags.tableName} nt ON t.${TableTags.id} = nt.${TableNoteTags.tagId}
+      LEFT JOIN ${TableNotes.tableName} n ON nt.${TableNoteTags.noteId} = n.${TableNotes.id}
       GROUP BY t.${TableTags.id}
       ORDER BY ${TableTags.usageCount} DESC, t.${TableTags.name} ASC
     ''');
@@ -47,9 +48,10 @@ class TagRepository {
   Future<List<String>> searchNames(String query) async {
     final db = await _dbHelper.database;
     final maps = await db.rawQuery('''
-      SELECT t.*, COUNT(nt.${TableNoteTags.tagId}) AS ${TableTags.usageCount}
+      SELECT t.${TableTags.id}, t.${TableTags.name}, COUNT(n.${TableNotes.id}) AS ${TableTags.usageCount}
       FROM ${TableTags.tableName} t
       LEFT JOIN ${TableNoteTags.tableName} nt ON t.${TableTags.id} = nt.${TableNoteTags.tagId}
+      LEFT JOIN ${TableNotes.tableName} n ON nt.${TableNoteTags.noteId} = n.${TableNotes.id}
       WHERE t.${TableTags.name} LIKE ?
       GROUP BY t.${TableTags.id}
       ORDER BY ${TableTags.usageCount} DESC

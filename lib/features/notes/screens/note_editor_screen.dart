@@ -132,11 +132,14 @@ class _NoteEditorScreenState extends NoteEditorState<NoteEditorScreen> {
         await saveNote();
         if (context.mounted) Navigator.pop(context);
       } else if (confirm == false) {
-        await FileUtils.deleteFiles(newFilePaths.toList());
+        await FileUtils.deleteFiles([...newFilePaths, ...deletedFilePaths]);
         newFilePaths.clear();
+        deletedFilePaths.clear();
         if (context.mounted) Navigator.pop(context);
       }
     } else if (mounted) {
+      await FileUtils.deleteFiles(deletedFilePaths.toList());
+      deletedFilePaths.clear();
       setState(() => hasChanges = false);
     }
   } else if (autoSave && hasChanges) {

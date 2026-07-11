@@ -78,35 +78,21 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
     });
   }
 
-  void _toggleSelectAll() {
+  void _selectAll() {
     final notesAsync = ref.read(noteListProvider(searchQuery: null, tagFilter: _tagFilter));
     notesAsync.whenData((notes) {
       final allIds = notes.where((n) => n.id != null).map((n) => n.id!).toSet();
       setState(() {
-        if (_selectedIds.length == allIds.length && _selectedIds.containsAll(allIds)) {
-          _selectedIds.clear();
-          _selectionMode = false;
-        } else {
-          _selectedIds.addAll(allIds);
-          _selectionMode = true;
-        }
+        _selectedIds.addAll(allIds);
+        _selectionMode = true;
       });
     });
-  }
-
-  bool get _areAllVisibleNotesSelected {
-    final notes = ref.read(noteListProvider(searchQuery: null, tagFilter: _tagFilter)).value ?? [];
-    if (notes.isEmpty) return false;
-    final allIds = notes.where((n) => n.id != null).map((n) => n.id!).toSet();
-    return _selectedIds.length == allIds.length && _selectedIds.containsAll(allIds);
   }
 
   Future<void> _pinSelected() async {
     if (_selectedIds.isEmpty) return;
     final repo = ref.read(noteRepositoryProvider);
-    for (final id in _selectedIds) {
-      await repo.togglePin(id);
-    }
+    await repo.togglePinMany(_selectedIds.toList());
     ref.invalidate(noteListProvider);
     _clearSelection();
   }
@@ -115,11 +101,9 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
     final newColor = await NoteColorPicker.show(context, currentColor: null);
     if (!mounted) return;
     final repo = ref.read(noteRepositoryProvider);
-    for (final id in _selectedIds) {
-      final note = await repo.getById(id);
-      if (note != null) {
-        await repo.update(note.copyWith(color: newColor, clearColor: newColor == null));
-      }
+    final notes = await repo.getByIds(_selectedIds.toList());
+    for (final note in notes) {
+      await repo.update(note.copyWith(color: newColor, clearColor: newColor == null));
     }
     ref.invalidate(noteListProvider);
     _clearSelection();
@@ -144,19 +128,17 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
     final repo = ref.read(noteRepositoryProvider);
 
     // Этап 1: собрать пути файлов и удалить заметки из БД
+    final notes = await repo.getByIds(_selectedIds.toList());
     final allPaths = <String>[];
-    for (final id in _selectedIds) {
-      final note = await repo.getById(id);
-      if (note != null) {
-        allPaths.addAll([
-          ...note.imagePaths,
-          ...note.audioPaths,
-          ...note.videoPaths,
-          ...note.filePaths,
-        ]);
-      }
-      await repo.delete(id);
+    for (final note in notes) {
+      allPaths.addAll([
+        ...note.imagePaths,
+        ...note.audioPaths,
+        ...note.videoPaths,
+        ...note.filePaths,
+      ]);
     }
+    await repo.deleteMany(notes.where((n) => n.id != null).map((n) => n.id!).toList());
 
     // Этап 2: удалить файлы (заметки уже удалены — консистентность БД не нарушена)
     try {
@@ -174,10 +156,7 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
     final l10n = AppLocalizations.of(context);
     final locale = Localizations.localeOf(context).languageCode;
     final repo = ref.read(noteRepositoryProvider);
-    final allNotes = await repo.getAll();
-    final selected = allNotes
-        .where((n) => _selectedIds.contains(n.id))
-        .toList()
+    final selected = await repo.getByIds(_selectedIds.toList())
       ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
 
     final format = ref.read(exportFormatProvider);
@@ -286,15 +265,29 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
           ),
         actions: [
           if (_selectionMode) ...[
-            IconButton(
-              icon: Icon(_areAllVisibleNotesSelected ? Icons.check_box : Icons.check_box_outline_blank),
-              tooltip: _areAllVisibleNotesSelected ? l10n.deselectAll : l10n.selectAll,
-              onPressed: _toggleSelectAll,
-            ),
-            IconButton(
-              icon: const Icon(Icons.close),
-              onPressed: _clearSelection,
-            ),
+            if (screenWidth > AppConstants.tabletBreakpoint) ...[
+              TextButton.icon(
+                icon: const Icon(Icons.select_all),
+                label: Text(l10n.selectAll),
+                onPressed: _selectAll,
+              ),
+              TextButton.icon(
+                icon: const Icon(Icons.deselect),
+                label: Text(l10n.deselectAll),
+                onPressed: _clearSelection,
+              ),
+            ] else ...[
+              IconButton(
+                icon: const Icon(Icons.select_all),
+                tooltip: l10n.selectAll,
+                onPressed: _selectAll,
+              ),
+              IconButton(
+                icon: const Icon(Icons.deselect),
+                tooltip: l10n.deselectAll,
+                onPressed: _clearSelection,
+              ),
+            ],
           ],
           if (!_selectionMode) ...[
             if (_tagFilter != null)

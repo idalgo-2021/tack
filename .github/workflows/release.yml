@@ -5,6 +5,9 @@ on:
     tags: ['v*']
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -54,7 +57,7 @@ jobs:
           path: build/app/outputs/apk/release/*.apk
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           name: Tack ${{ github.ref_name }}
           body: |

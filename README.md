@@ -80,6 +80,7 @@ The generated files can be found in: *build/app/outputs/flutter-apk/*
 
 * Eliminate the limitations described above, with priority on data-at-rest encryption and automated test coverage
 * Add note import functionality
+* Enhance the audio playback slider with additional functionality
 * Refine the UI/UX, particularly the note editing workflow and text manipulation capabilities
 * Implement freehand sketching functionality with finger and stylus input support
 * Add desktop synchronization/export capabilities for notes

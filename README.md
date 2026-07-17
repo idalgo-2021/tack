@@ -110,3 +110,9 @@ The generated files can be found in: *build/app/outputs/flutter-apk/*
 ![](docs/screenshots/Planshet_SettingsScreen.png)
 
 ![](docs/screenshots/Planshet_ItemForm.png)
+
+
+## Miscellaneous
+
+* [Screencast (Demo) and Presentation on Yandex Disk](https://disk.yandex.ru/d/ZYW4u_ibkexCMQ)
+* [Article on vc.ru](https://vc.ru/id2817799/3032471-opyt-sozdaniya-prilozheniya-tack-na-hakatone-kodik-launchpad)

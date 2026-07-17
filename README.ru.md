@@ -108,3 +108,8 @@ flutter run
 ![](docs/screenshots/Planshet_SettingsScreen.png)
 
 ![](docs/screenshots/Planshet_ItemForm.png)
+
+
+
+## Демо скринкаст
+* ссылка на видео-скринкаст: https://disk.yandex.ru/d/ZYW4u_ibkexCMQ

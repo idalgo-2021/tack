@@ -111,5 +111,6 @@ flutter run
 
 
 
-## Демо скринкаст
-* ссылка на видео-скринкаст: https://disk.yandex.ru/d/ZYW4u_ibkexCMQ
+## Прочее
+* [Скринкаст(демо) и презентация на Яндекс.Диск](https://disk.yandex.ru/d/ZYW4u_ibkexCMQ)
+* [Статья на vc.ru](https://vc.ru/id2817799/3032471-opyt-sozdaniya-prilozheniya-tack-na-hakatone-kodik-launchpad)

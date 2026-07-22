@@ -1,6 +1,12 @@
 # Tack
 
-**Tack** is a local-first application for creating and managing notes with support for multimedia, geotags, and data export. The application was developed as a way to explore modern vibe-coding technologies in mobile development.
+**Tack** is a local-first note-taking and note management application with support for multimedia attachments, geotags, and data export. The project was created to explore modern vibe-coding technologies and approaches in mobile development.
+
+
+**Tack** addresses the problem of file fragmentation on mobile devices: photos, videos, audio recordings, and documents are often scattered across the gallery, voice recorder, and file manager, making it difficult to keep them connected to their context or share them as a single package.
+
+* The core use case is simple: you create a note (for example, "App Idea"), immediately attach photos, record a voice explanation, and add a PDF document. A week later, you can find everything by tag and send it to a colleague — Tack bundles the note together with all related attachments in a single action. Each note becomes a ready-to-share information package rather than just an entry in a text file.
+
 
 *[Read this document in Russian](README.ru.md)*
 

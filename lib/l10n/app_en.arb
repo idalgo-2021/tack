@@ -62,6 +62,8 @@
   "exportFormat": "Export format",
   "archiveOnShare": "Archive when sharing",
   "archiveOnShareDesc": "Pack everything into ZIP before Share",
+  "saveFormattingOnExport": "Save formatting on export",
+  "saveFormattingOnExportDesc": "Keep formatting tags in exported notes",
 
   "viewModeList": "List",
   "viewModeGrid": "Grid",

@@ -199,6 +199,13 @@ class AppLocalizationsUk extends AppLocalizations {
   String get archiveOnShareDesc => 'Пакувати все в ZIP перед Поділитися';
 
   @override
+  String get saveFormattingOnExport => 'Save formatting on export';
+
+  @override
+  String get saveFormattingOnExportDesc =>
+      'Keep formatting tags in exported notes';
+
+  @override
   String get viewModeList => 'Список';
 
   @override

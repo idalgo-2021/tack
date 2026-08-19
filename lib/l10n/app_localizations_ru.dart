@@ -199,6 +199,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get archiveOnShareDesc => 'Упаковать всё в ZIP перед Поделиться';
 
   @override
+  String get saveFormattingOnExport => 'Сохранять форматирование при экспорте';
+
+  @override
+  String get saveFormattingOnExportDesc =>
+      'Оставлять теги форматирования в экспортированных заметках';
+
+  @override
   String get viewModeList => 'Список';
 
   @override

@@ -200,6 +200,13 @@ class AppLocalizationsKy extends AppLocalizations {
   String get archiveOnShareDesc => 'Бөлүшүүдөн мурун баарын ZIPке салуу';
 
   @override
+  String get saveFormattingOnExport => 'Save formatting on export';
+
+  @override
+  String get saveFormattingOnExportDesc =>
+      'Keep formatting tags in exported notes';
+
+  @override
   String get viewModeList => 'Тизме';
 
   @override

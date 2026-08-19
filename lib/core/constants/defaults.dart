@@ -19,4 +19,5 @@ class AppDefaults {
   // Данные
   static const ExportFormat exportFormat = ExportFormat.markdown;
   static const bool zipExport = false;
+  static const bool saveFormatting = false;
 }

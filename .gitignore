@@ -102,4 +102,6 @@ Thumbs.db
 
 # Android keystore и ключи подписи
 /android/key.properties
+android/key.properties
+android/app/keystore.jk
 **/keystore.jks

@@ -135,6 +135,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             value: ref.watch(zipExportProvider),
             onChanged: (v) => ref.read(settingsProvider.notifier).setZipExport(v),
           ),
+          SwitchListTile(
+            secondary: const Icon(Icons.format_paint),
+            title: Text(l10n.saveFormattingOnExport),
+            subtitle: Text(l10n.saveFormattingOnExportDesc),
+            value: ref.watch(saveFormattingProvider),
+            onChanged: (v) => ref.read(settingsProvider.notifier).setSaveFormatting(v),
+          ),
           const Divider(),
           const SizedBox(height: 16),
           Center(

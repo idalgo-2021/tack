@@ -161,16 +161,17 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
 
     final format = ref.read(exportFormatProvider);
     final zip = ref.read(zipExportProvider);
+    final saveFormatting = ref.read(saveFormattingProvider);
     final timestamp = DateFormat('yyyyMMdd_HHmmss', locale).format(DateTime.now());
     final allFiles = <XFile>[];
 
     if (format == ExportFormat.markdown) {
-      final content = ExportHelper.notesToMarkdown(selected, l10n, locale);
+      final content = ExportHelper.notesToMarkdown(selected, l10n, locale, saveFormatting);
       final file = File('${Directory.systemTemp.path}/tack_$timestamp.md');
       await file.writeAsString(content);
       allFiles.add(XFile(file.path));
     } else {
-      final content = ExportHelper.notesToJson(selected);
+      final content = ExportHelper.notesToJson(selected, saveFormatting);
       final file = File('${Directory.systemTemp.path}/tack_$timestamp.json');
       await file.writeAsString(content);
       allFiles.add(XFile(file.path));

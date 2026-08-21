@@ -492,6 +492,18 @@ abstract class AppLocalizations {
   /// **'Pack everything into ZIP before Share'**
   String get archiveOnShareDesc;
 
+  /// No description provided for @saveFormattingOnExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Save formatting on export'**
+  String get saveFormattingOnExport;
+
+  /// No description provided for @saveFormattingOnExportDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep formatting tags in exported notes'**
+  String get saveFormattingOnExportDesc;
+
   /// No description provided for @viewModeList.
   ///
   /// In en, this message translates to:

@@ -201,6 +201,13 @@ class AppLocalizationsIt extends AppLocalizations {
       'Impacchetta tutto in ZIP prima di Condividi';
 
   @override
+  String get saveFormattingOnExport => 'Save formatting on export';
+
+  @override
+  String get saveFormattingOnExportDesc =>
+      'Keep formatting tags in exported notes';
+
+  @override
   String get viewModeList => 'Elenco';
 
   @override

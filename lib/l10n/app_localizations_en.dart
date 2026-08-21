@@ -199,6 +199,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get archiveOnShareDesc => 'Pack everything into ZIP before Share';
 
   @override
+  String get saveFormattingOnExport => 'Save formatting on export';
+
+  @override
+  String get saveFormattingOnExportDesc =>
+      'Keep formatting tags in exported notes';
+
+  @override
   String get viewModeList => 'List';
 
   @override

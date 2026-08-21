@@ -197,6 +197,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get archiveOnShareDesc => '分享前将所有内容打包为ZIP';
 
   @override
+  String get saveFormattingOnExport => 'Save formatting on export';
+
+  @override
+  String get saveFormattingOnExportDesc =>
+      'Keep formatting tags in exported notes';
+
+  @override
   String get viewModeList => '列表';
 
   @override

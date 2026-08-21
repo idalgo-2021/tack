@@ -135,17 +135,18 @@ class _NoteDetailScreenState extends NoteEditorState<NoteDetailScreen> {
     final l10n = AppLocalizations.of(context);
     final format = ref.read(exportFormatProvider);
     final zip = ref.read(zipExportProvider);
+    final saveFormatting = ref.read(saveFormattingProvider);
     final locale = Localizations.localeOf(context).languageCode;
     final timestamp = DateFormatter.formatFileDate(note.createdAt, locale);
     final allFiles = <XFile>[];
 
     if (format == ExportFormat.markdown) {
-      final content = ExportHelper.notesToMarkdown([note], l10n, locale);
+      final content = ExportHelper.notesToMarkdown([note], l10n, locale, saveFormatting);
       final file = File('${Directory.systemTemp.path}/tack_$timestamp.md');
       await file.writeAsString(content);
       allFiles.add(XFile(file.path));
     } else {
-      final content = ExportHelper.notesToJson([note]);
+      final content = ExportHelper.notesToJson([note], saveFormatting);
       final file = File('${Directory.systemTemp.path}/tack_$timestamp.json');
       await file.writeAsString(content);
       allFiles.add(XFile(file.path));

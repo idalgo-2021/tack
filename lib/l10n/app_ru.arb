@@ -62,6 +62,8 @@
   "exportFormat": "Формат экспорта",
   "archiveOnShare": "Архивировать при отправке",
   "archiveOnShareDesc": "Упаковать всё в ZIP перед Поделиться",
+  "saveFormattingOnExport": "Сохранять форматирование при экспорте",
+  "saveFormattingOnExportDesc": "Оставлять теги форматирования в экспортированных заметках",
 
   "viewModeList": "Список",
   "viewModeGrid": "Плитки",

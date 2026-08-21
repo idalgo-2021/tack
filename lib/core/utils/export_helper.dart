@@ -8,7 +8,7 @@ import '../../l10n/app_localizations.dart';
 import 'date_formatter.dart';
 
 class ExportHelper {
-  static String notesToMarkdown(List<Note> notes, AppLocalizations l10n, [String? locale]) {
+  static String notesToMarkdown(List<Note> notes, AppLocalizations l10n, [String? locale, bool saveFormatting = false]) {
     final md = StringBuffer();
     md.writeln('# ${l10n.exportTitle}');
     md.writeln(l10n.exportDate(DateFormat('dd.MM.yyyy HH:mm', locale).format(DateTime.now())));
@@ -27,7 +27,16 @@ class ExportHelper {
       }
       md.writeln();
       if (note.text != null && note.text!.isNotEmpty) {
-        md.writeln(note.text);
+        if (saveFormatting) {
+          md.writeln(note.text);
+        } else {
+          final doc = Note.parseText(note.text);
+          if (doc != null) {
+            md.writeln(doc.toPlainText().trim());
+          } else {
+            md.writeln(note.text);
+          }
+        }
         md.writeln();
       }
       final noteFiles = [
@@ -48,7 +57,7 @@ class ExportHelper {
     return md.toString();
   }
 
-  static String notesToJson(List<Note> notes) {
+  static String notesToJson(List<Note> notes, [bool saveFormatting = false]) {
     final list = notes.map((note) {
       final noteFiles = [
         ...note.imagePaths,
@@ -65,7 +74,7 @@ class ExportHelper {
         if (note.latitude != null && note.longitude != null)
           'longitude': note.longitude,
         'tags': note.tagNames,
-        'text': note.text,
+        'text': saveFormatting ? note.text : (Note.parseText(note.text)?.toPlainText().trim() ?? note.text),
         'files': noteFiles.map((p) => p.split('/').last).toList(),
       };
     }).toList();

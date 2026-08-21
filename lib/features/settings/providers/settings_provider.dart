@@ -32,6 +32,7 @@ class Settings extends _$Settings {
   Future<void> setThemeMode(ThemeModeOption mode) async { await _set('theme_mode', mode.name); }
   Future<void> setExportFormat(ExportFormat format) async { await _set('export_format', format.name); }
   Future<void> setZipExport(bool enabled) async { await _set('zip_export', enabled); }
+  Future<void> setSaveFormatting(bool enabled) async { await _set('save_formatting', enabled); }
 
   Future<void> _set(String key, Object value) async {
     final prefs = await SharedPreferences.getInstance();
@@ -101,3 +102,6 @@ ExportFormat exportFormat(Ref ref) => _prefEnum(ref, 'export_format', ExportForm
 
 @riverpod
 bool zipExport(Ref ref) => _prefBool(ref, 'zip_export', AppDefaults.zipExport);
+
+@riverpod
+bool saveFormatting(Ref ref) => _prefBool(ref, 'save_formatting', AppDefaults.saveFormatting);
